@@ -1,0 +1,8 @@
+LIBRARY
+
+EXPORTS
+	GetLibraryVersion
+	CreateMoeSzyslakHandle
+	InvokeMoeSzyslakHandle
+	DestroyMoeSzyslakHandle
+	MoeSzyslakGetReturnString

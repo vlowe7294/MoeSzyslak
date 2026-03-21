@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MoeSyzslakFormsApp": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

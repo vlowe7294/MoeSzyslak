@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="MoeInterfaces">
+      <UniqueIdentifier>{a3658f18-4365-4d1b-928b-356132b980c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{2fbced2e-d853-41c3-824b-cc0bbda60e06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Neverwinter">
+      <UniqueIdentifier>{8bad35ca-0a6a-4e07-93f6-14703d844dce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IOS">
+      <UniqueIdentifier>{34f9f366-897c-4845-b587-d42b8db139cc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Host.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InterfaceCollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VLDateTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MoeString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VLString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TripPlanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TripPlannerInf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Testing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VLVariable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\VariableInfCollection.h">
+      <Filter>MoeInterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Database.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\VLFile.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Neverwinter\Module.h">
+      <Filter>Neverwinter</Filter>
+    </ClInclude>
+    <ClInclude Include="Neverwinter\NeverwinterNights.h">
+      <Filter>Neverwinter</Filter>
+    </ClInclude>
+    <ClInclude Include="Neverwinter\Area.h">
+      <Filter>Neverwinter</Filter>
+    </ClInclude>
+    <ClInclude Include="Neverwinter\Placeable.h">
+      <Filter>Neverwinter</Filter>
+    </ClInclude>
+    <ClInclude Include="Neverwinter\Creature.h">
+      <Filter>Neverwinter</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\IOSInf.h">
+      <Filter>MoeInterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="IOS\IOS.h">
+      <Filter>IOS</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IOS\CommGeneralPage.h">
+      <Filter>IOS</Filter>
+    </ClInclude>
+    <ClInclude Include="IOS\Scenario.h">
+      <Filter>IOS</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\FinanceInf.h">
+      <Filter>MoeInterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\NeverwinterInf.h">
+      <Filter>MoeInterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="IOS\PDU.h">
+      <Filter>IOS</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Host.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InterfaceCollection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VLDateTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MoeString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VLString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TripPlanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TripPlannerInf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Testing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VLVariable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\VariableInfCollection.cpp">
+      <Filter>MoeInterfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Database.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\VLFile.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Neverwinter\NeverwinterNights.cpp">
+      <Filter>Neverwinter</Filter>
+    </ClCompile>
+    <ClCompile Include="Neverwinter\Module.cpp">
+      <Filter>Neverwinter</Filter>
+    </ClCompile>
+    <ClCompile Include="Neverwinter\Area.cpp">
+      <Filter>Neverwinter</Filter>
+    </ClCompile>
+    <ClCompile Include="Neverwinter\Placeable.cpp">
+      <Filter>Neverwinter</Filter>
+    </ClCompile>
+    <ClCompile Include="Neverwinter\Creature.cpp">
+      <Filter>Neverwinter</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\IOSInf.cpp">
+      <Filter>MoeInterfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="IOS\IOS.cpp">
+      <Filter>IOS</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\MoeInterfaces.cpp">
+      <Filter>MoeInterfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="IOS\CommGeneralPage.cpp">
+      <Filter>IOS</Filter>
+    </ClCompile>
+    <ClCompile Include="IOS\Scenario.cpp">
+      <Filter>IOS</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\NeverwinterInf.cpp">
+      <Filter>MoeInterfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="IOS\PDU.cpp">
+      <Filter>IOS</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MoeSzyslak.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

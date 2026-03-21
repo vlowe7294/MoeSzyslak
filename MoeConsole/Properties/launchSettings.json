@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MoeConsole": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
