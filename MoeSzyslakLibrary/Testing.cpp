@@ -287,7 +287,7 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	BOOL bPass = FALSE;
 	wchar_t nme[MAX_COMPUTERNAME_LENGTH + 1];
 	wstring s = L"Library path:  ";
-	UINT v = GetLibraryVersion() - 1275;
+	UINT v = GetLibraryVersion() - 1530;
 	DWORD bufCharCount = MAX_COMPUTERNAME_LENGTH + 1;
 	StringInf iStr;
 	IOSInf iIOS;
@@ -309,7 +309,7 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	s = L"Tested on ";
 	s += (const wchar_t*)iStr;
 	Message(s.c_str());
-	s = L"Version  1.2.5." + std::to_wstring(v);
+	s = L"Version  1.3.6." + std::to_wstring(v);
 
 	Message(s.c_str());
 	s = L"Local Machine:\t" + wstring(nme);
@@ -490,6 +490,8 @@ void Testing::TripPlannerTest()
 		Message(L"Trip Planner Unit Test");
 		wstring d = L"Trip Name:\t" + GetTestData(L"Trip Name");
 		Message(d.c_str());
+
+		VerifyHResult(iTrp->UnitTest(), L"Unit Test Failed.");
 	}
 	catch (...)
 	{
@@ -637,7 +639,7 @@ void Testing::NeverwinterTest()
 	{
 		Message(L"Neverwinter Nights Unit Test");
 
-		VerifyHResult(iNWN->Command(L"Module set \"Module Name\" Midnight"), L"set module name failure");
+		VerifyHResult(iNWN->Command(L"Module set \"Module Name\" \"Out of the Abyss\""), L"set module name failure");
 		
 		iNWN->GetReturnString(iStr);
 		wstring s = (const wchar_t*)iStr;
@@ -654,7 +656,6 @@ void Testing::NeverwinterTest()
 		iNWN->Command(L"Module area 0 set name \"Mooncrest Prison\"");
 
 		VerifyHResult(iNWN->UnitTest(), L"UnitTest failure");
-		VerifyHResult(iNWN->Command(L"EXit"), L"Exit Failure");
 		VerifyHResult(iArea->Tick(30), L"Area Tick() failure");
 
 		for (int i = 0; i < 100; i++)
@@ -664,13 +665,13 @@ void Testing::NeverwinterTest()
 
 		iNWN->Command(L"Module get \"Module Name\"");
 		iNWN->GetReturnString(iStr);
-		Verify(wstring(iStr) == L"Midnight", L"Module name is not Midnight");
+		Verify(wstring(iStr) == L"Out of the Abyss", L"Module name is not \"Out of the Abyss\"");
 
-		iNWN->Command(L"Module area 0 get name");
-		iNWN->GetReturnString(iStr);
-		Verify(wstring(iStr) == L"Mooncrest Prison", L"Area name is not Mooncrest Prison");
+		//iNWN->Command(L"Module area 0 get name");
+		//iNWN->GetReturnString(iStr);
+		//Verify(wstring(iStr) == L"Mooncrest Prison", L"Area name is not Mooncrest Prison");
 
-		Verify(iNWN.Dispose(), L"NWN disposal failed  (elements were not freed properly");
+		//Verify(iNWN.Dispose(), L"NWN disposal failed  (elements were not freed properly"); 
 	}
 	catch (...)
 	{

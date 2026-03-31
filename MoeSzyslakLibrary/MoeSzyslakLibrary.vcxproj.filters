@@ -54,9 +54,6 @@
     <ClInclude Include="TripPlanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TripPlannerInf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Testing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -111,6 +108,9 @@
     <ClInclude Include="IOS\PDU.h">
       <Filter>IOS</Filter>
     </ClInclude>
+    <ClInclude Include="Interfaces\TripPlannerInf.h">
+      <Filter>MoeInterfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -135,9 +135,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TripPlanner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TripPlannerInf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Testing.cpp">
@@ -196,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="IOS\PDU.cpp">
       <Filter>IOS</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\TripPlannerInf.cpp">
+      <Filter>MoeInterfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

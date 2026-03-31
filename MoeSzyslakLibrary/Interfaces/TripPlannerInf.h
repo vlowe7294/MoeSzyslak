@@ -9,7 +9,7 @@ public:
 
 	struct ITRIPPLANNER : public IUnknown
 	{
-
+		virtual HRESULT __stdcall UnitTest() = 0;
 	};
 
 	// {401E8B37-4E1E-4AC5-B47C-45FB45494FF3}
@@ -18,6 +18,7 @@ public:
 	TripPlannerInf();
 	~TripPlannerInf();
 	bool Attach(IUnknown* iunk);
+	ITRIPPLANNER* operator->();
 
 private:
 	IUnknown* m_iUnk;

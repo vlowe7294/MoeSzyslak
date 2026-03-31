@@ -1,0 +1,18 @@
+{
+    "name": "New Module",
+    "rooms": {
+        "forest": {
+            "description": "A quiet forest clearing.",
+            "exits": {
+                "north": "mountain",
+                "east": "river"
+            }
+        },
+        "river": {
+            "description": "A rushing river with cold water.",
+            "exits": {
+                "west": "forest"
+            }
+        }
+    }
+}

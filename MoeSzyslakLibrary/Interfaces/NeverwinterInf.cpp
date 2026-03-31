@@ -18,9 +18,6 @@ bool NeverwinterInf::Attach(IUnknown* iunk)
 	m_iUnk = iunk;
 	Attach();
 
-	if (m_iVar != NULL)
-		m_iVar->AddRef();
-
 	return m_iVar != NULL;
 }
 
@@ -43,7 +40,6 @@ void NeverwinterInf::Attach()
 	if (m_iVar == NULL)
 	{
 		m_iUnk->QueryInterface(NEVERWINTER_IID, (void**)&m_iVar);
-		m_iUnk->Release();
 	}
 }
 

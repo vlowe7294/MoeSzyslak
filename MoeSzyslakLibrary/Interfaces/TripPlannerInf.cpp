@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "TripPlannerInf.h"
+#include "../Interfaces.h"
 
 GUID TripPlannerInf::m_iid =
 { 0x401e8b37, 0x4e1e, 0x4ac5, { 0xb4, 0x7c, 0x45, 0xfb, 0x45, 0x49, 0x4f, 0xf3 } };
@@ -48,6 +48,16 @@ void TripPlannerInf::Attach()
 		m_iUnk->QueryInterface(m_iid, (void**)&m_iVar);
 		m_iUnk->Release();
 	}
+}
+
+TripPlannerInf::ITRIPPLANNER* TripPlannerInf::operator->()
+{
+	Attach();
+
+	if (m_iVar == NULL)
+		throw std::runtime_error("Invalid Interface");
+
+	return m_iVar;
 }
 
 

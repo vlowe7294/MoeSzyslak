@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.36422.26
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36908.2 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MoeSzyslakPython", "MoeSzyslakPython\MoeSzyslakPython.pyproj", "{5CF4D6DE-E13F-46DF-8AF7-82D5EC6E091C}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeConsole", "MoeConsole\MoeConsole.csproj", "{64980ACC-CDCE-4E71-A2E0-5315E0C58EC0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeSyzslakFormsApp", "MoeSyzslakFormsApp\MoeSyzslakFormsApp.csproj", "{F84DFEB7-EE74-475E-9AFB-DEB5D87C8341}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoeConsole2", "MoeConsole2\MoeConsole2.csproj", "{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,18 @@ Global
 		{F84DFEB7-EE74-475E-9AFB-DEB5D87C8341}.Release|x64.Build.0 = Release|Any CPU
 		{F84DFEB7-EE74-475E-9AFB-DEB5D87C8341}.Release|x86.ActiveCfg = Release|Any CPU
 		{F84DFEB7-EE74-475E-9AFB-DEB5D87C8341}.Release|x86.Build.0 = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|x64.Build.0 = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Debug|x86.Build.0 = Debug|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|x64.ActiveCfg = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|x64.Build.0 = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|x86.ActiveCfg = Release|Any CPU
+		{716777E0-3FFE-A4F8-1666-F227DA5DBFFE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,7 +3,7 @@
 #include <comdef.h>
 #include <stdexcept>
 #include "MoeString.h"
-#include "TripPlannerInf.h"
+#include "Interfaces\TripPlannerInf.h"
 #include "Interfaces\IOSInf.h"
 #include "Interfaces\FinanceInf.h"
 #include "Interfaces\NeverwinterInf.h"

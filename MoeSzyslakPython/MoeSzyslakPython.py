@@ -5,8 +5,9 @@ from ctypes import *
 
 class MoeSzyslakLibrary:
 
-    _libPath = r"C:\Users\loweva\Visual Studio 2019\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll"
+    _libPath = r"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll"
     _nMinVersion = 1468
+    _nVersion = 0
     _hllDll = 0
     _sb = create_unicode_buffer(1000)
     _sbCapacity = 1000
@@ -17,10 +18,10 @@ class MoeSzyslakLibrary:
             hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32)
             MoeSzyslakLibrary.GetLibraryVersion = hllApiProto (("GetLibraryVersion", MoeSzyslakLibrary._hllDll))  
         
-        v = MoeSzyslakLibrary.GetLibraryVersion()
+        MoeSzyslakLibrary._nVersion = MoeSzyslakLibrary.GetLibraryVersion()
 
-        if v < MoeSzyslakLibrary._nMinVersion:
-             print("Moe Szyslak Library Version 1.2.5." + str(v - 1275))
+        if MoeSzyslakLibrary._nVersion < MoeSzyslakLibrary._nMinVersion:
+             print(MoeSzyslakLibrary.Version())
              raise Exception("Requires Moe Szyslak Library Version 1.2.5." + str(MoeSzyslakLibrary._nMinVersion)) 
         
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32)
@@ -38,6 +39,9 @@ class MoeSzyslakLibrary:
         MoeSzyslakLibrary.MoeSzyslakGetReturnString(hObj, MoeSzyslakLibrary._sb, MoeSzyslakLibrary._sbCapacity)
         ret = MoeSzyslakLibrary._sb.value
         return ret;
+
+    def Version():
+        return "Moe Szyslak Library Version 1.3.6." + str(MoeSzyslakLibrary._nVersion - 1530)
 
 
 

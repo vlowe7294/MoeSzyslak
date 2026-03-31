@@ -51,7 +51,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1524
+#define VERSION 1545
 
 VLString g_dllPath;
 
@@ -90,7 +90,7 @@ void VersionAsString(IUnknown* iunk)
     iStr.Attach(iunk);
 
     UINT v = VERSION;
-    s = L"Version 1.2.5." + std::to_wstring(v - 1275);
+    s = L"Version 1.3.6." + std::to_wstring(v - 1530);
     iStr->Set(s.c_str());
 }
 

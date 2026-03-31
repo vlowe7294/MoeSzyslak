@@ -1,5 +1,83 @@
-#include "pch.h"
+#include "..\pch.h"
 #include "NeverwinterNights.h"
+
+UINT Room::m_lastID;
+Room::DIRECTION Room::OPPOSITE_DIRECTION[MAX_DIRECTIONS] =
+{
+	DIRECTION::SOUTH,
+	DIRECTION::NORTH,
+	DIRECTION::WEST,
+	DIRECTION::EAST,
+	DIRECTION::DOWN,
+	DIRECTION::UP
+};
+
+Room::Room()
+{
+	m_id = m_lastID;
+	m_lastID++;
+	m_cRef = 1;
+	memset(m_exits, 0, sizeof(m_exits));
+}
+
+Room::~Room()
+{
+	for (int i = 0; i < MAX_DIRECTIONS; i++)
+	{
+		if (m_exits[i] != NULL)
+			m_exits[i]->Release();
+	}
+}
+
+HRESULT __stdcall Room::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+	if (riid == IID_IUnknown)
+	{
+		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else
+		return E_NOINTERFACE;
+}
+
+ULONG __stdcall Room::AddRef()
+{
+	m_cRef++;
+	return m_cRef;
+}
+
+ULONG __stdcall Room::Release()
+{
+	m_cRef--;
+
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
+}
+
+void Room::AddExit(DIRECTION dir)
+{
+	DIRECTION rev;
+
+	Room* pExitRoom = new Room();
+
+	if (m_exits[dir] != NULL)
+		m_exits[dir]->Release();
+
+	m_exits[dir] = pExitRoom;
+
+	rev = OPPOSITE_DIRECTION[dir];
+	pExitRoom->m_exits[rev] = this;
+	AddRef();
+}
+
+
+
 
 NeverwinterInf g_iNWN;
 
@@ -18,15 +96,6 @@ HRESULT nwn_module(const wchar_t* szParam)
 
 	iPrp.GetVariableInterface(L"Module", iMod);
 	hr = iMod->Command(szParam, iRetStr);
-}
-
-HRESULT Exit(const wchar_t* szParam)
-{
-	if (g_iNWN == NULL)
-		return E_FAIL;
-
-	return g_iNWN->NWNExit();
-
 }
 
 HRESULT nwn_user(const wchar_t* szParam)
@@ -62,18 +131,27 @@ NeverwinterNights::NeverwinterNights()
 	v = m_properties.NewVariable(L"User");
 	v->SetInterface(m_iUser, UserInf::ClassID);
 
-	m_funcList[L"exit"] = Exit;
 	m_funcList[L"module"] = nwn_module;
 	m_funcList[L"user"] = nwn_user;
 	
 	m_iReturnStr.Init();
 	Load();
 	Start();
+
+	m_intro = 
+		L"\n=== NOCTURNE LEGENDS ===\n"
+		L"In the twilight lands of Nocturne, where moonlit forests whisper forgotten tales\n"
+		L"and ancient ruins hum with sleeping magic, every wanderer carries the spark of a legend.\n"
+		L"Here, fates are shaped not by prophecy, but by the choices of those who dare to roam.\n"
+		L"Welcome, traveler, to a realm where stories awaken in the shadows.\n";
+
+	m_pStartingRoom = new Room();
 }
 
 NeverwinterNights::~NeverwinterNights()
 {
 	m_iModule->Release();
+	m_pStartingRoom->Release();
 }
 
 HRESULT __stdcall NeverwinterNights::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -135,9 +213,6 @@ HRESULT __stdcall NeverwinterNights::UnitTest()
 	iAreas->Get(0, (IUnknown**)&pArea);
 	Area& ar = *pArea;	
 
-	Placeable& plc = ar.GetPlaceable(0);
-	plc.SetName(L"freshwater spring");
-
 	ar.Properties(iPrp);
 	iPrp.GetVariableInterface(L"contents", iContents);
 	pCreature = new Creature();
@@ -146,21 +221,21 @@ HRESULT __stdcall NeverwinterNights::UnitTest()
 	pCreature->SetLocation(loc);
 	iContents->Add(pCreature, L"", CLASSID::CREATURE);
 
-	pCreature->Release();	
-	return S_OK;
-}
+	pCreature->Release();
 
-HRESULT __stdcall NeverwinterNights::NWNExit()
-{
-	m_iReturnStr->Append(L"Shutting server down...\n");
-	Save();
+	ShowIntro();
+
+	m_pStartingRoom->AddExit(Room::NORTH);
+
 	return S_OK;
 }
 
 HRESULT __stdcall NeverwinterNights::Command(const wchar_t* szCmd)
 {
-	VLStringCollection wrds;
 	HRESULT hr = S_OK;
+
+	VLStringCollection wrds;
+	
 	wstring prmpt;
 
 	wrds.Split(szCmd, L' ');
@@ -197,6 +272,18 @@ HRESULT __stdcall NeverwinterNights::Properties(IUnknown** iProp)
 	m_properties.QueryInterface(IID_IUnknown, (void**)iProp);
 	m_properties.Release();
 	return S_OK;
+}
+
+HRESULT __stdcall NeverwinterNights::Save(const wchar_t* szFilePath)
+{
+	Database* pDB = new Database();
+
+	m_iModule->Save(pDB);
+	pDB->Save(szFilePath);
+
+	pDB->Release();
+	return S_OK;
+
 }
 
 void NeverwinterNights::Start()
@@ -237,13 +324,9 @@ void NeverwinterNights::Load()
 
 }
 
-void NeverwinterNights::Save()
+
+
+void NeverwinterNights::ShowIntro()
 {
-	Database* pDB = new Database();
-
-	m_iModule->Save(pDB);
-	pDB->Save(L"new_nwn.db");
-
-	pDB->Release();
-
+	wprintf(L"%s", m_intro.c_str());	
 }

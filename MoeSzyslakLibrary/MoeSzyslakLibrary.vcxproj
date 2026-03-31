@@ -162,6 +162,7 @@
     <ClInclude Include="Interfaces\FinanceInf.h" />
     <ClInclude Include="Interfaces\IOSInf.h" />
     <ClInclude Include="Interfaces\NeverwinterInf.h" />
+    <ClInclude Include="Interfaces\TripPlannerInf.h" />
     <ClInclude Include="Interfaces\VariableInfCollection.h" />
     <ClInclude Include="IOS\CommGeneralPage.h" />
     <ClInclude Include="IOS\IOS.h" />
@@ -176,7 +177,6 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Testing.h" />
     <ClInclude Include="TripPlanner.h" />
-    <ClInclude Include="TripPlannerInf.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Utilities\Database.h" />
     <ClInclude Include="Utilities\VLFile.h" />
@@ -192,6 +192,7 @@
     <ClCompile Include="Interfaces\IOSInf.cpp" />
     <ClCompile Include="Interfaces\MoeInterfaces.cpp" />
     <ClCompile Include="Interfaces\NeverwinterInf.cpp" />
+    <ClCompile Include="Interfaces\TripPlannerInf.cpp" />
     <ClCompile Include="Interfaces\VariableInfCollection.cpp" />
     <ClCompile Include="IOS\CommGeneralPage.cpp" />
     <ClCompile Include="IOS\IOS.cpp" />
@@ -201,7 +202,10 @@
     <ClCompile Include="Neverwinter\Area.cpp" />
     <ClCompile Include="Neverwinter\Creature.cpp" />
     <ClCompile Include="Neverwinter\Module.cpp" />
-    <ClCompile Include="Neverwinter\NeverwinterNights.cpp" />
+    <ClCompile Include="Neverwinter\NeverwinterNights.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Neverwinter\Placeable.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -211,7 +215,6 @@
     </ClCompile>
     <ClCompile Include="Testing.cpp" />
     <ClCompile Include="TripPlanner.cpp" />
-    <ClCompile Include="TripPlannerInf.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="Utilities\Database.cpp" />
     <ClCompile Include="Utilities\VLFile.cpp" />

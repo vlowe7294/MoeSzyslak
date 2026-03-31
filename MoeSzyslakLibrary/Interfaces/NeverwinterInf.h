@@ -6,7 +6,6 @@ public:
 	struct INEVERWINTER : public IUnknown
 	{
 		virtual HRESULT __stdcall UnitTest() = 0;
-		virtual HRESULT __stdcall NWNExit() = 0;
 		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
 		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
 		virtual HRESULT __stdcall Properties(IUnknown** iProp) = 0;
