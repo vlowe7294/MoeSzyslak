@@ -9,6 +9,10 @@ public:
 
 	struct ITRIPPLANNER : public IUnknown
 	{
+		virtual HRESULT __stdcall Properties(IUnknown** iProp) = 0;
+		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
+		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+		virtual HRESULT __stdcall AddStop(IUnknown** iStop) = 0;
 		virtual HRESULT __stdcall UnitTest() = 0;
 	};
 

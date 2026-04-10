@@ -146,6 +146,17 @@ void StringInf::Attach(IUnknown* iunk)
 	m_iUnk = iunk;
 }
 
+void StringInf::Set(LPCWSTR szFmtStr)
+{
+	if (m_iVar == NULL)
+		GetInterface();
+
+	if (m_iVar != NULL)
+		m_iVar->Set(szFmtStr);
+
+	BufferSize(lstrlenW(szFmtStr) + 5);
+}
+
 StringInf::operator const wchar_t* ()
 {
 	int i = 0;

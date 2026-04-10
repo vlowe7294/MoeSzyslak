@@ -3,7 +3,7 @@
 #include "Interfaces.h"
 #include <map>
 
-class InterfaceCollection : public IINTERFACECOLLECTION
+class InterfaceCollection : public InterfaceCollectionInf::IINTERFACECOLLECTION
 {
 public:
 	InterfaceCollection();
@@ -22,6 +22,8 @@ public:
 	HRESULT __stdcall GetReturnString(IUnknown** iStr);
 	HRESULT __stdcall UnitTest(IUnknown* iTst);
 	HRESULT __stdcall Dispose();
+
+	void GetLocalString(IUnknown** iStr);
 
 protected:
 	int m_cRef;

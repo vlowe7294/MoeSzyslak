@@ -2,6 +2,9 @@
 #include "Testing.h"
 #include "Utilities/Database.h"
 #include "User.h"
+#include "tinyxml2.h"
+
+using namespace tinyxml2;
 
 UINT __stdcall GetLibraryVersion();
 const wchar_t* GetLibraryPath();
@@ -81,12 +84,18 @@ HRESULT __stdcall LogEntry::Command(const wchar_t* szCmd)
 	HRESULT hr = E_FAIL;
 	VLStringCollection cmds;
 
+	if (!szCmd || wcslen(szCmd) == 0)
+		return E_INVALIDARG;
+
+
 	cmds.Split(szCmd, L' ');
+	cmds.ToLower(0);
 	m_pReturnVar->SetString(L"");
 
 	switch (szCmd[0])
 	{
 	case L'g':
+	case L'G':
 		if (cmds.Compare(0, L"get"))
 		{
 			m_pReturnVar->SetString(m_pProperties->Get(cmds.Get(1)).c_str());
@@ -99,8 +108,12 @@ HRESULT __stdcall LogEntry::Command(const wchar_t* szCmd)
 }
 
 HRESULT __stdcall LogEntry::GetReturnString(IUnknown** iStr)
+{	
+	return m_pReturnVar->GetString(iStr);
+}
+
+HRESULT __stdcall LogEntry::UnitTest()
 {
-	m_pReturnVar->GetString(iStr);
 	return S_OK;
 }
 
@@ -114,9 +127,39 @@ void LogEntry::Read(IUnknown* iTbl)
 	m_pProperties->Load(iTbl);
 }
 
+wstring LogEntry::GetHTML()
+{
+	wstring htm = L"\n      <tr>\n         <td>" + m_pTime->GetString() + L"</td>\n";
+	htm += L"         <td>" + m_pTxt->GetString() + L"</td>\n";
+	htm += L"         <td>" + m_pMemUsed->GetString() + L"</td>\n      </tr>";
+	return htm;
+}
 
 
-
+const wchar_t* Testing::HTML_TEMPLATE = LR"(
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 700px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: 800px;
+        }        
+    </style>
+    <title>Unit Testing</title>
+</head> 
+<body>
+    <header>Unit Testing</header>
+    <div>
+        <form method="POST"></form>
+    </div>
+</body>
+</html>
+)";
 
 Testing::Testing()
 {
@@ -146,7 +189,7 @@ Testing::Testing()
 
 Testing::~Testing()
 {
-	delete m_pProperties;
+	m_pProperties->Release();
 
 	if (m_pTestTime != NULL)
 		m_pTestTime->Release();
@@ -203,6 +246,10 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 {
 	HRESULT hr = E_FAIL;
 	VLStringCollection cmds;
+	wstring s;
+
+	if (!szCmd || wcslen(szCmd) == 0)
+		return E_INVALIDARG;
 	
 	cmds.Split(szCmd, L' ');
 	cmds.ToLower(0);
@@ -210,6 +257,7 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 	switch (szCmd[0])
 	{
 		case L'g':
+		case L'G':
 			if (cmds.Compare(0, L"get"))
 			{
 				m_pProperties->Command(szCmd);
@@ -254,7 +302,6 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 			if (cmds.Compare(0, L"settestdata"))
 			{
 				hr = SetTestData(cmds.Get(1).c_str(), cmds.Get(2).c_str());
-				hr = S_OK;
 			}
 			else if (cmds.Compare(0, L"set"))
 			{
@@ -263,9 +310,20 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 			}
 			break;
 
+		case L't':
+		case L'T':
+			if (cmds.Compare(0, L"testvalues"))
+			{
+				hr = m_pTestValues->Command(cmds.SubString(1, L' ').c_str());
+				m_pTestValues->GetReturnString(m_iRetStr);
+				m_pReportVar->SetString(m_iRetStr);
+			}
+			break;
+
+
 		case L'u':
 		case L'U':
-			if (cmds.Compare(0, L"UnitTest"))
+			if (cmds.Compare(0, L"unittest"))
 			{
 				hr = UnitTest();
 			}
@@ -290,10 +348,9 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	UINT v = GetLibraryVersion() - 1530;
 	DWORD bufCharCount = MAX_COMPUTERNAME_LENGTH + 1;
 	StringInf iStr;
-	IOSInf iIOS;
 
 	m_pPass->SetAsBool(TRUE);
-	m_iEntries->Clear();
+	//m_iEntries->Clear();
 	GetComputerName(nme, &bufCharCount);
 
 	if (m_pTestTime != NULL)
@@ -305,7 +362,7 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	Message(s.c_str());
 	iStr.Init();
 	m_pTestTime->ToString(iStr);
-
+	
 	s = L"Tested on ";
 	s += (const wchar_t*)iStr;
 	Message(s.c_str());
@@ -356,6 +413,9 @@ HRESULT __stdcall Testing::VerifyVariable(LPCWSTR varName, LPCWSTR var)
 	VLVariable* pVar = NULL;
 	wstring s;
 
+	if (!var || !varName)
+		return E_INVALIDARG;
+
 	m_pTestValues->GetByTag(varName, (IUnknown**)&pVar);
 
 	if (pVar != NULL)
@@ -378,12 +438,16 @@ HRESULT __stdcall Testing::GetTestData(LPCWSTR szVarName, IUnknown* iunk)
 	StringInf iStr;
 
 	iStr.Attach(iunk);
-	return iStr->Set(GetTestData(szVarName).c_str());
+	iStr.Set(GetTestData(szVarName).c_str());	
+	return S_OK;
 }
 
 HRESULT __stdcall Testing::SetTestData(LPCWSTR szVarName, LPCWSTR szVal)
 {
 	VLVariable* pVar = NULL;
+
+	if (!szVarName || !szVal)
+		return E_INVALIDARG;
 
 	m_pTestValues->GetByTag(szVarName, (IUnknown**)&pVar);
 
@@ -415,13 +479,8 @@ HRESULT __stdcall Testing::Message(LPCWSTR szMsg)
 	mem = mem / 1024;
 
 	l = new LogEntry(szMsg, ms, mem);
-	m_iEntries->Add((IUnknown*)l, L"", CLASSID::LOGENTRY);
+	m_iEntries->Add((IUnknown*)l, L"", LogEntryInf::ClassID);
 	l->Release();
-	return S_OK;
-}
-
-HRESULT __stdcall Testing::Save(LPCWSTR szFilePath)
-{
 	return S_OK;
 }
 
@@ -450,7 +509,8 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 		iEnt->Read(iTbl);
 		pTbl->NextRow();
 
-		m_iEntries->Add(iEnt, L"", CLASSID::LOGENTRY);
+		m_iEntries->Add(iEnt, L"", LogEntryInf::ClassID);
+		iEnt->Release();
 		i++;
 	}
 
@@ -465,10 +525,27 @@ void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
 
 HRESULT __stdcall Testing::UnitTest()
 {
+	LogEntryInf iLog;
+	HRESULT hr = S_OK;
+
+	tinyxml2::XMLDocument doc;
+	XMLElement* root = doc.NewElement("testing_report");
+	doc.InsertFirstChild(root);
+
+	m_iEntries->Get(4, iLog);
+	Verify((IUnknown*)iLog != NULL, L"iLog is NULL");
+
+	if ((IUnknown*)iLog != NULL)
+		hr = iLog->UnitTest();
+
+	// Save to file
+	XMLError e = doc.SaveFile("testing.xml");
+
+	HTMLPage(L"");
+
 	
-	Save(L"testing.db");	
 	
-	return S_OK;
+	return hr;
 }
 
 void Testing::Verify(bool bVal, LPCWSTR szMsg)
@@ -483,15 +560,26 @@ void Testing::Verify(bool bVal, LPCWSTR szMsg)
 void Testing::TripPlannerTest()
 {
 	TripPlannerInf iTrp;
+	StringInf istr;
 	IUnknown* iunk = NULL;
-
+	
 	try
 	{
 		Message(L"Trip Planner Unit Test");
-		wstring d = L"Trip Name:\t" + GetTestData(L"Trip Name");
-		Message(d.c_str());
+		Message(L"Trip Name:\tChicago Trip");
+
+		iTrp->Command(L"set \"Trip Name\" \"Chicago Trip\"");
+		iTrp->Command(L"AddStop");
+		iTrp->Command(L"AddStop");
+
+		iTrp->GetReturnString(istr);
+		wstring cnt = (const wchar_t*)istr;		
 
 		VerifyHResult(iTrp->UnitTest(), L"Unit Test Failed.");
+
+		iTrp->Command(L"get \"Trip Name\"");
+		iTrp->GetReturnString(istr);
+		Verify(wstring(istr) == L"Chicago Trip", L"Trip name should be Chicago Trip");
 	}
 	catch (...)
 	{
@@ -518,8 +606,9 @@ void Testing::Report()
 {
 	BOOL bVal = FALSE;
 	wstring rep;
-	LogEntry* iEnt = NULL;
-	VariableInfCollection iPrp = NULL;		
+	LogEntryInf iEnt;
+	VariableInfCollection iPrp = NULL;	
+	static int nCounter = 0;
 	
 	m_pMemCheck->GetAsBool(&bVal);
 	bool bMemCheck = bVal == TRUE;
@@ -531,10 +620,10 @@ void Testing::Report()
 
 	rep += L"\n";
 
-	while (m_iEntries->ForEach((IUnknown**)&iEnt) == S_OK)
+	while (m_iEntries->ForEach(iEnt) == S_OK)
 	{
+		nCounter++;
 		iEnt->Properties(iPrp);
-
 		rep += iPrp.Get(L"time");
 		rep += L":  \t";
 
@@ -760,42 +849,12 @@ void Testing::FinanceTest()
 
 void Testing::SelfTest()
 {
-	StringInf iStr;
-	MoeInf<IDATABASE, CLASSID::DATABASE> iDB;
-	InterfaceCollectionInf iLog;
 	TestingInf iTst;
-	wstring cmd;
-	IUnknown* iunk = NULL;
-	MoeInf<ILOGENTRY, CLASSID::LOGENTRY> iEntry;
-	VariableInfCollection iPrp;
-	
+
 	try
 	{
 		iTst.Attach(this);
-		iStr.Init();
-		
-		VerifyHResult(iTst->GetTestData(L"message", iStr), L"GetTestData failed");
 
-		cmd = L"Message \"" + wstring(iStr);
-		cmd += L"\"";
-		VerifyHResult(iTst->Command(cmd.c_str()), L"message failed");
-
-		VerifyHResult(iTst->VerifyVariable(L"testing variable", L""), L"VerifyVariable failed");
-		
-		VerifyHResult(iTst->Command(L"log get count"), L"get log count failed");
-		iTst->GetReturnString(iStr);
-		Verify(_wtoi((const wchar_t*)iStr) == 5, L"Log count should be 5");
-
-		iTst->Properties(&iunk);
-		VariableInfCollection iPrp(iunk);
-		iPrp.GetVariableInterface(L"Log Entries", iLog);
-
-		iLog->Get(4, iEntry);		
-		iEntry->Properties(iPrp);
-
-		VerifyVariable(L"message", iPrp.Get(L"text").c_str());
-
-		
 		VerifyHResult(iTst->UnitTest(), L"Testing unit test failed");
 	}
 	catch (...)
@@ -804,4 +863,39 @@ void Testing::SelfTest()
 		m_pPass->SetAsBool(FALSE);
 	}
 
+}
+
+wstring Testing::HTMLPage(wstring strVar)
+{
+	wstring htm = HTML_TEMPLATE, str;
+	int nCnt = 0;
+	LogEntry* iLog = NULL;
+	
+	int i = htm.find(L"</form");
+
+	if (i > 0)
+	{
+		m_iEntries->Count(&nCnt);
+
+		if (nCnt >= 0)
+		{
+			str = htm.substr(0, i);
+			str += L"\n   <table>\n      <tr>\n         <th>Time</th>\n         <th>Result</th>\n         <th>Memory Used</th>\n      </tr>";
+			while (m_iEntries.ForEach((IUnknown**)&iLog))
+			{
+				str += iLog->GetHTML();
+			}
+
+
+			str += L"\n</table>\n";
+
+
+		}
+		str += htm.substr(i);
+		htm = str;
+	}
+
+	wprintf(L"%ls", htm.c_str());
+
+	return htm;
 }

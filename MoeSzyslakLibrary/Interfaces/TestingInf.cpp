@@ -1,22 +1,22 @@
 #include "../pch.h"
 #include "../Interfaces.h"
 
-GUID TripPlannerInf::m_iid =
-{ 0x401e8b37, 0x4e1e, 0x4ac5, { 0xb4, 0x7c, 0x45, 0xfb, 0x45, 0x49, 0x4f, 0xf3 } };
+const GUID TestingInf::m_iid =
+{ 0x7c6da0f8, 0x84ae, 0x4e97, { 0x86, 0xf0, 0x13, 0xbb, 0x1e, 0x67, 0xc7, 0x13 } };
 
-TripPlannerInf::TripPlannerInf()
+TestingInf::TestingInf()
 {
-	m_iUnk = NULL;	
+	m_iUnk = NULL;
 	m_iVar = NULL;
 }
 
-TripPlannerInf::~TripPlannerInf()
+TestingInf::~TestingInf()
 {
 	if (m_iVar != NULL)
-		m_iVar->Release();	
+		m_iVar->Release();
 }
 
-bool TripPlannerInf::Attach(IUnknown* iunk)
+bool TestingInf::Attach(IUnknown* iunk)
 {
 	m_iUnk = iunk;
 	Attach();
@@ -27,7 +27,7 @@ bool TripPlannerInf::Attach(IUnknown* iunk)
 	return m_iVar != NULL;
 }
 
-void TripPlannerInf::Attach()
+void TestingInf::Attach()
 {
 	if (m_iUnk == NULL)
 	{
@@ -50,7 +50,7 @@ void TripPlannerInf::Attach()
 	}
 }
 
-TripPlannerInf::ITRIPPLANNER* TripPlannerInf::operator->()
+TestingInf::ITESTING* TestingInf::operator->()
 {
 	Attach();
 
@@ -59,5 +59,3 @@ TripPlannerInf::ITRIPPLANNER* TripPlannerInf::operator->()
 
 	return m_iVar;
 }
-
-

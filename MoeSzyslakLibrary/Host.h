@@ -42,6 +42,6 @@ public:
 
 private:
 	int m_cRef;
-	MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> m_sessions;
+	InterfaceCollectionInf m_sessions;
 
 };

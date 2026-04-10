@@ -16,7 +16,10 @@ class MoeSzyslakLibrary:
         if MoeSzyslakLibrary._hllDll == 0:
             MoeSzyslakLibrary._hllDll = ctypes.WinDLL(MoeSzyslakLibrary._libPath)
             hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32)
-            MoeSzyslakLibrary.GetLibraryVersion = hllApiProto (("GetLibraryVersion", MoeSzyslakLibrary._hllDll))  
+            MoeSzyslakLibrary.GetLibraryVersion = hllApiProto (("GetLibraryVersion", MoeSzyslakLibrary._hllDll)) 
+            
+        else:
+            return
         
         MoeSzyslakLibrary._nVersion = MoeSzyslakLibrary.GetLibraryVersion()
 
@@ -34,14 +37,24 @@ class MoeSzyslakLibrary:
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32)
         MoeSzyslakLibrary.DestroyHandle = hllApiProto (("DestroyMoeSzyslakHandle", MoeSzyslakLibrary._hllDll)) 
 
-    def GetReturnString(hObj):
+    def GetReturnString(hObj, nCapacity = 1000):
         ret = ''
+
+        if nCapacity > MoeSzyslakLibrary._sbCapacity:
+                MoeSzyslakLibrary._sb = create_unicode_buffer(nCapacity)
+                MoeSzyslakLibrary._sbCapacity = nCapacity
+
         MoeSzyslakLibrary.MoeSzyslakGetReturnString(hObj, MoeSzyslakLibrary._sb, MoeSzyslakLibrary._sbCapacity)
         ret = MoeSzyslakLibrary._sb.value
         return ret;
 
     def Version():
         return "Moe Szyslak Library Version 1.3.6." + str(MoeSzyslakLibrary._nVersion - 1530)
+
+    def Invoke(hObj, strCmd):
+        nRet = MoeSzyslakLibrary.InvokeHandle(hObj, strCmd)
+        if nRet != 0:
+             raise Exception("InvokeHandle returned failure code")
 
 
 

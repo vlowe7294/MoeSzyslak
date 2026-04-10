@@ -51,7 +51,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1545
+#define VERSION 1559
 
 VLString g_dllPath;
 
@@ -152,7 +152,7 @@ void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
     }
 }
 
-MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> g_iObjects;
+InterfaceCollectionInf g_iObjects;
 
 UI_EXPORT UINT _cdecl CreateMoeSzyslakHandle(UINT nClassID)
 {
@@ -172,7 +172,7 @@ UI_EXPORT UINT _cdecl CreateMoeSzyslakHandle(UINT nClassID)
 UI_EXPORT UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd)
 {
     hObj--;
-    wstring cmd = std::to_wstring(hObj) + L" ";
+    wstring cmd = std::to_wstring(hObj) + L" ";	
 
     cmd += szCmd;
     if (FAILED(g_iObjects->Command(cmd.c_str())))

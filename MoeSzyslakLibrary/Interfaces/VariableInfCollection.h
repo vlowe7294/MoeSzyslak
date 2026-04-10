@@ -67,14 +67,13 @@ public:
 	void Set(std::wstring nme, std::wstring val);	
 	bool Edit(std::wstring& prmpt, std::wstring val);
 	void Attach();
-	void Detach();
 	bool IsEmpty();
 	bool GetBool(std::wstring nme);
 	void SetBool(std::wstring nme, bool bVal);
 	bool ForEach(IUnknown** iunk);
 
 
-	IINTERFACECOLLECTION* operator->();
+	InterfaceCollectionInf::IINTERFACECOLLECTION* operator->();
 
 	inline operator IUnknown** () { return &m_iUnk; };
 	inline operator IUnknown* () { return m_iUnk; };
@@ -82,7 +81,7 @@ public:
 private:
 	IUnknown* m_iUnk;
 	IUnknown* m_iLastVariable;
-	IINTERFACECOLLECTION* m_iCollection;
+	InterfaceCollectionInf m_iCollection;
 
 	void Get(std::wstring nme, IUnknown** iVar);
 };

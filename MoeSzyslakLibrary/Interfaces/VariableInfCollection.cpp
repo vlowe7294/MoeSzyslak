@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "../pch.h"
 #include "../Interfaces.h"
 #include "../VLVariable.h"
 
@@ -147,23 +147,14 @@ void VariableInf::SetInt(int nVal, int ndx)
 
 VariableInfCollection::VariableInfCollection(IUnknown* iunk)
 {
-	MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> iCol;
-
-	if (iunk == NULL)
-		iCol.Init();
-	else
-		iCol.Attach(iunk);
-
-	m_iCollection = iCol;
-	m_iUnk = (IUnknown*)iCol;
-	m_iCollection->AddRef();
+	m_iCollection.Attach(iunk);
+	m_iUnk = iunk;
 	m_iLastVariable = NULL;
 }
 
 VariableInfCollection::~VariableInfCollection()
 {
-	m_iCollection->Release();
-
+	
 }
 
 std::wstring VariableInfCollection::Get(std::wstring nme)
@@ -200,9 +191,6 @@ void VariableInfCollection::Get(std::wstring nme, IUnknown** iVar)
 
 	Attach();
 
-	if (m_iCollection == NULL)
-		return;
-
 	m_iCollection->GetByTag(nme.c_str(), iVar);
 }
 
@@ -219,7 +207,7 @@ void VariableInfCollection::Set(std::wstring nme, std::wstring val)
 	iVar->SetString(val.c_str());
 }
 
-IINTERFACECOLLECTION* VariableInfCollection::operator->()
+InterfaceCollectionInf::IINTERFACECOLLECTION* VariableInfCollection::operator->()
 {
 	if (m_iUnk == NULL)
 		throw std::runtime_error("Invalid Interface");
@@ -236,9 +224,6 @@ bool VariableInfCollection::Edit(std::wstring& prmpt, std::wstring val)
 
 	Attach();
 	
-	if (m_iCollection == NULL)
-		return false;
-
 	if (m_iLastVariable != NULL)
 	{
 		iVar.Attach(m_iLastVariable);
@@ -260,39 +245,7 @@ bool VariableInfCollection::Edit(std::wstring& prmpt, std::wstring val)
 
 void VariableInfCollection::Attach()
 {
-	if (m_iCollection != NULL && m_iCollection != m_iUnk)
-	{
-		m_iCollection->Release();
-		m_iCollection = NULL;
-	}
-
-	if (m_iUnk != m_iCollection)
-	{
-		MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> iCol;
-		iCol.Attach(m_iUnk);
-
-		if (m_iCollection != NULL)
-			m_iCollection->Release();
-
-		m_iCollection = iCol;
-		m_iCollection->AddRef();
-		m_iLastVariable = NULL;
-	}
-
-}
-
-void VariableInfCollection::Detach()
-{
-	MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> iCol;
-
-	iCol.Init();
-
-	if (m_iCollection != NULL)
-		m_iCollection->Release();
-	
-	m_iCollection = iCol;
-	m_iUnk = (IUnknown*)iCol;
-	m_iCollection->AddRef();
+	m_iCollection.Attach(m_iUnk);
 	m_iLastVariable = NULL;
 
 }
@@ -337,9 +290,6 @@ void VariableInfCollection::SetBool(std::wstring nme, bool bVal)
 bool VariableInfCollection::ForEach(IUnknown** iunk)
 {
 	Attach();
-
-	if (m_iCollection == NULL)
-		return false;
 
 	return m_iCollection->ForEach(iunk) == S_OK;
 }

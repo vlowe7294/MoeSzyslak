@@ -7,29 +7,12 @@
 #include "Interfaces\IOSInf.h"
 #include "Interfaces\FinanceInf.h"
 #include "Interfaces\NeverwinterInf.h"
-
-struct IINTERFACECOLLECTION : public IUnknown
-{
-	virtual HRESULT __stdcall Add(IUnknown* iObj, const wchar_t* szTag, UINT nClassID) = 0;
-	virtual HRESULT __stdcall Get(int ndx, IUnknown** iunk) = 0;
-	virtual HRESULT __stdcall Count(int* nCnt) = 0;
-	virtual HRESULT __stdcall Remove(int ndx) = 0;
-	virtual HRESULT __stdcall GetByTag(const wchar_t* szTag, IUnknown** iunk) = 0;
-	virtual HRESULT __stdcall ForEach(IUnknown** pObj) = 0;
-	virtual HRESULT __stdcall Clear() = 0;
-	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
-	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
-	virtual HRESULT __stdcall Dispose() = 0;
-	virtual HRESULT __stdcall UnitTest(IUnknown* iTst) = 0;
-};
-
-#include "Interfaces/VariableInfCollection.h"
+#include "Interfaces\TestingInf.h"
 
 
 enum CLASSID
 {
 	INVALIDCLASS	= 0,
-	LOGENTRY		= 134569,
 	INTERFACELIST	= 184004,
 	AREA			= 262241,
 	TABLE			= 416737,
@@ -44,10 +27,6 @@ enum CLASSID
 // {57779E06-1468-47C9-859A-49E07CEF5F8C}
 static const GUID HOST_IID =
 { 0x57779e06, 0x1468, 0x47c9, { 0x85, 0x9a, 0x49, 0xe0, 0x7c, 0xef, 0x5f, 0x8c } };
-
-// {19573A2D-9DF6-4260-AA5B-E5F5F1B81D4C}
-static const GUID INTERFACECOLLECTION_IID =
-{ 0x19573a2d, 0x9df6, 0x4260, { 0xaa, 0x5b, 0xe5, 0xf5, 0xf1, 0xb8, 0x1d, 0x4c } };
 
 // {3D2AD9D0-D5E1-4916-AAA5-8BD482662919}
 static const GUID DATETIME_IID =
@@ -129,6 +108,7 @@ struct ILOGENTRY : public IUnknown
 	virtual HRESULT __stdcall Properties(IUnknown** iProp) = 0;
 	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
 	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+	virtual HRESULT __stdcall UnitTest() = 0;
 };
 
 struct ITABLE : public IUnknown
@@ -264,14 +244,6 @@ template<class T, CLASSID id> void MoeInf<T, id>::GetInterface()
 	switch (id)
 	{
 
-	case CLASSID::LOGENTRY:
-		m_iUnk->QueryInterface(LOGENTRY_IID, (void**)&m_iVar);
-		break;
-
-	case CLASSID::INTERFACELIST :
-		m_iUnk->QueryInterface(INTERFACECOLLECTION_IID, (void**)&m_iVar);
-		break;
-
 	case CLASSID::AREA:
 		m_iUnk->QueryInterface(AREA_IID, (void**)&m_iVar);
 		break;
@@ -318,66 +290,45 @@ template<class T, CLASSID id> void MoeInf<T, id>::Dispose()
 }
 
 
-
-class TestingInf
-{
-public:
-	static const UINT ClassID = 398981;
-
-	// {7C6DA0F8-84AE-4E97-86F0-13BB1E67C713}
-	static const GUID m_iid;
-
-	struct ITESTING : public IUnknown
-	{
-		virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
-		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
-		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
-		virtual HRESULT __stdcall RunTest(UINT nClassID) = 0;
-		virtual HRESULT __stdcall VerifyVariable(LPCWSTR varName, LPCWSTR val) = 0;
-		virtual HRESULT __stdcall VerifyHResult(HRESULT hr, LPCWSTR szMsg) = 0;
-		virtual HRESULT __stdcall Message(LPCWSTR szMsg) = 0;
-		virtual HRESULT __stdcall GetTestData(LPCWSTR szName, IUnknown* iStr) = 0;
-		virtual HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal) = 0;
-		virtual HRESULT __stdcall UnitTest() = 0;
-	};
-
-	TestingInf();
-	~TestingInf();
-	bool Attach(IUnknown* iunk);
-	ITESTING* operator->();	
-
-private:
-	IUnknown* m_iUnk;
-	ITESTING* m_iVar;
-
-	void Attach();
-};
-
-
-
-
-
-
-
 class InterfaceCollectionInf
 {
 public:
+
+	// {19573A2D-9DF6-4260-AA5B-E5F5F1B81D4C}
+	static const GUID m_iid;
+
+	struct IINTERFACECOLLECTION : public IUnknown
+	{
+		virtual HRESULT __stdcall Add(IUnknown* iObj, const wchar_t* szTag, UINT nClassID) = 0;
+		virtual HRESULT __stdcall Get(int ndx, IUnknown** iunk) = 0;
+		virtual HRESULT __stdcall Count(int* nCnt) = 0;
+		virtual HRESULT __stdcall Remove(int ndx) = 0;
+		virtual HRESULT __stdcall GetByTag(const wchar_t* szTag, IUnknown** iunk) = 0;
+		virtual HRESULT __stdcall ForEach(IUnknown** pObj) = 0;
+		virtual HRESULT __stdcall Clear() = 0;
+		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
+		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+		virtual HRESULT __stdcall Dispose() = 0;
+		virtual HRESULT __stdcall UnitTest(IUnknown* iTst) = 0;
+	};
+
 	InterfaceCollectionInf();
 	~InterfaceCollectionInf();
-	void Attach();
+	void Attach(IUnknown* iunk = NULL);
 	bool ForEach(IUnknown** iunk);
 	bool Dispose();
 
 	IINTERFACECOLLECTION* operator->();
 	inline operator IUnknown* () { return m_iUnk; };
 	inline operator IUnknown** () { return &m_iUnk; };
+	inline operator IINTERFACECOLLECTION* () { return m_iVar; };
 
 private:
 	IUnknown* m_iUnk;
 	IINTERFACECOLLECTION* m_iVar;
 };
 
-
+#include "Interfaces\VariableInfCollection.h"
 
 
 class UserInf
@@ -418,6 +369,28 @@ public:
 private:
 	IUnknown* m_iUnk;
 	ICOMMGENERALPAGE* m_iVar;
+};
+
+
+
+class LogEntryInf
+{
+public:
+	static const UINT ClassID = 134569;
+
+	LogEntryInf();
+	~LogEntryInf();
+	void Attach(IUnknown* iunk);
+
+	ILOGENTRY* operator->();
+	inline operator IUnknown** () { return &m_iUnk; };
+	inline operator IUnknown* () { return m_iUnk; };
+
+private:
+	IUnknown* m_iUnk;
+	ILOGENTRY* m_iVar;
+
+	void Attach();
 };
 
 

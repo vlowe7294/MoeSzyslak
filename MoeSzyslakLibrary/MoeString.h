@@ -57,6 +57,7 @@ public:
 	void Init();
 	void BufferSize(UINT nSize);
 	void Attach(IUnknown* iunk);
+	void Set(LPCWSTR szFmtStr);
 	
 	ISTRING* operator->();
 	operator const wchar_t* ();

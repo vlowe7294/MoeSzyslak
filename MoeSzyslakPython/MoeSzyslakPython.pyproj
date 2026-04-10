@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5cf4d6de-e13f-46df-8af7-82d5ec6e091c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>MoeSzyslakPython.py</StartupFile>
+    <StartupFile>Nocturne.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>MoeSzyslakPython</Name>
     <RootNamespace>MoeSzyslakPython</RootNamespace>
+    <TestFramework>Pytest</TestFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,8 +23,26 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="MoeSzyslakPython.py" />
-    <Compile Include="Nocturne.py" />
-    <Compile Include="test_solution.py" />
+    <Compile Include="Nocturne.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testing.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_solution.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tripplanner.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Class Diagrams\" />
+    <Folder Include="tests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Class Diagrams\flowchart.txt" />
+    <Content Include="Class Diagrams\NocturneDiagram.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

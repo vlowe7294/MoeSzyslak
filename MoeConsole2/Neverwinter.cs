@@ -193,17 +193,74 @@ namespace MoeConsole
 
     public class TripPlanner
     {
+        public class Stop
+        {
+            
+        }
+
         public TripPlanner()
         {
+            m_hObj = MoeSzyslakLibrary.CreateMoeSzyslakHandle(m_classID);
         }
-        
+
+        ~TripPlanner()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+
+            if (m_hObj > 0)
+            {
+                MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
+                m_hObj = 0;
+            }
+        }
+
+        public void Commit()
+        {
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set \"Trip Name\" \"{0}\"", m_name));
+        }
+
+        public void Update()
+        {
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("get \"Trip Name\""));
+            m_name = MoeSzyslakLibrary.GetReturnString(m_hObj);
+        }
+
+        public void AddStop()
+        {
+            m_stops.Add(new Stop());
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, "AddStop");
+            string cnt  = MoeSzyslakLibrary.GetReturnString(m_hObj);
+        }
+
         static public void UnitTest()
         {
             Testing tst = new Testing();
             tst.RunTest(m_classID);
             tst.Dispose();
+
+            /*TripPlanner trp = new TripPlanner();
+            trp.Name = "Chicago Trip";
+            trp.AddStop();
+
+            trp.Commit();
+            trp.Update();
+            trp.Dispose();*/
         }
 
         private const uint m_classID = 507734;
+        private uint m_hObj;
+
+        public string Name
+        {
+            get { return m_name; }
+            set { m_name = value; }
+        }
+
+        private string m_name = "New Trip";
+        private List<Stop> m_stops = new List<Stop>();
     }
 }

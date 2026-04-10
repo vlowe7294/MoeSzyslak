@@ -1,5 +1,8 @@
+import MoeSzyslakPython
+
 from dataclasses import dataclass, field
 from typing import List, Optional
+from MoeSzyslakPython import *
 
 
 @dataclass
@@ -7,6 +10,7 @@ class Stop:
     destination: str
     distance_from_prev: float  # in miles
     gas_used: float            # in gallons
+    travel_time: int = field(default=0)  # in minutes, optional for future use
 
     @property
     def mpg(self) -> Optional[float]:
@@ -15,19 +19,27 @@ class Stop:
         return None
 
 
-@dataclass
 class Trip:
-    name: str
-    stops: List[Stop] = field(default_factory=list)
+    _classID = 507734      
 
-    def add_stop(self, destination: str, distance_from_prev: float, gas_used: float):
-        self.stops.append(Stop(destination, distance_from_prev, gas_used))
+    def __init__(self):
+        MoeSzyslakLibrary.VerifyLibrary()
+        self._hObj = MoeSzyslakLibrary.CreateHandle(Trip._classID)
+        print('Trip._hObj = ' + str(self._hObj))
+
+        self.trip_name = "My Trip"  
+        self._stops = []
+
+    def AddStop(self, stopName, distance, gas_used):        
+        self._stops.append(Stop(stopName, distance, gas_used))
+        MoeSzyslakLibrary.InvokeHandle(self._hObj, 'AddStop')
+        print("Stop added.")
 
     def edit_stop(self, index: int, destination: Optional[str] = None,
                   distance_from_prev: Optional[float] = None,
                   gas_used: Optional[float] = None) -> bool:
         if 0 <= index < len(self.stops):
-            stop = self.stops[index]
+            stop = elf._stops[index]
             if destination is not None:
                 stop.destination = destination
             if distance_from_prev is not None:
@@ -36,6 +48,15 @@ class Trip:
                 stop.gas_used = gas_used
             return True
         return False
+
+    def Name(self, strName=None):
+
+        if (strName is not None):
+            if strName:
+                self.trip_name = strName
+                MoeSzyslakLibrary.InvokeHandle(self._hObj, 'set "Trip Name" "{self._name}"')
+
+        return self.trip_name
 
     @property
     def total_distance(self) -> float:
@@ -52,11 +73,11 @@ class Trip:
         return None
 
     def list_stops(self):
-        if not self.stops:
+        if not self._stops:
             print("No stops added yet.")
             return
-        print(f"\nStops for trip: {self.name}")
-        for i, stop in enumerate(self.stops):
+        print(f"\nStops for trip: {self.trip_name}")
+        for i, stop in enumerate(self._stops):
             mpg_str = f"{stop.mpg:.2f} mpg" if stop.mpg is not None else "N/A"
             print(
                 f"[{i}] Destination: {stop.destination} | "
@@ -65,6 +86,10 @@ class Trip:
                 f"MPG: {mpg_str}"
             )
         print()
+
+    def print(self):
+        print(f"Trip Name: {self.trip_name}")        
+
 
 
 def prompt_float(prompt: str) -> float:
@@ -87,7 +112,7 @@ def prompt_nonempty(prompt: str) -> str:
 def main_menu(trip: Trip):
     while True:
         print("\n=== Trip Planner ===")
-        print(f"Current trip: {trip.name}")
+        print(f"Current trip: {trip.trip_name}")
         print("1. Add stop")
         print("2. Edit stop")
         print("3. List stops")
@@ -98,29 +123,26 @@ def main_menu(trip: Trip):
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            add_stop_menu(trip)
+            print("\n=== Add Stop ===")
+            destination = prompt_nonempty("Stop name: ")
+            distance = prompt_float("Distance to next stop (miles): ")
+            gas_used = prompt_float("Gas used for this leg (gallons): ")    
+            trip.AddStop(destination, distance, gas_used)
         elif choice == "2":
             edit_stop_menu(trip)
         elif choice == "3":
             trip.list_stops()
         elif choice == "4":
             show_summary(trip)
-        elif choice == "5":
-            rename_trip(trip)
+        elif choice == "5":            
+            print("\n=== Rename Trip ===")
+            trip.Name(prompt_nonempty("New trip name: "))
+            print("Trip renamed.")
         elif choice == "0":
             print("Goodbye!")
             break
         else:
             print("Invalid choice, try again.")
-
-
-def add_stop_menu(trip: Trip):
-    print("\n=== Add Stop ===")
-    destination = prompt_nonempty("Destination name: ")
-    distance = prompt_float("Distance from previous stop (miles): ")
-    gas_used = prompt_float("Gas used for this leg (gallons): ")
-    trip.add_stop(destination, distance, gas_used)
-    print("Stop added.")
 
 
 def edit_stop_menu(trip: Trip):
@@ -176,7 +198,7 @@ def edit_stop_menu(trip: Trip):
 
 def show_summary(trip: Trip):
     print("\n=== Trip Summary ===")
-    print(f"Trip name: {trip.name}")
+    print(f"Trip name: {trip.trip_name}")
     print(f"Total distance: {trip.total_distance:.1f} miles")
     print(f"Total gas used: {trip.total_gas:.2f} gallons")
     if trip.average_mpg is not None:
@@ -185,18 +207,21 @@ def show_summary(trip: Trip):
         print("Average MPG: N/A (no gas usage recorded)")
     print()
 
+def test_tripplanner():
+    print("Running Trip Planner tests...")
+    trip = Trip()
+    trip.Name("Chicago Trip")
 
-def rename_trip(trip: Trip):
-    print("\n=== Rename Trip ===")
-    new_name = prompt_nonempty("New trip name: ")
-    trip.name = new_name
-    print("Trip renamed.")
+    trip.AddStop('Home', 100, 2.5)
+    trip.print()
+    print("All Trip Planner tests passed!")
+
 
 
 if __name__ == "__main__":
     print("Welcome to the Trip Planner.")
-    trip_name = input("Enter a name for your trip (default: 'My Trip'): ").strip()
-    if not trip_name:
-        trip_name = "My Trip"
-    trip = Trip(trip_name)
+    
+    trip = Trip()
+    trip.Name(input("Enter a name for your trip (default: 'My Trip'): ").strip())   
+            
     main_menu(trip)

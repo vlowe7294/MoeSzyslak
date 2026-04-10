@@ -1,67 +1,8 @@
 #include "pch.h"
 #include "Interfaces.h"
 
-
-const GUID TestingInf::m_iid =
-{ 0x7c6da0f8, 0x84ae, 0x4e97, { 0x86, 0xf0, 0x13, 0xbb, 0x1e, 0x67, 0xc7, 0x13 } };
-
-TestingInf::TestingInf()
-{
-	m_iUnk = NULL;
-	m_iVar = NULL;
-}
-
-TestingInf::~TestingInf()
-{
-	if (m_iVar != NULL)
-		m_iVar->Release();
-}
-
-bool TestingInf::Attach(IUnknown* iunk)
-{
-	m_iUnk = iunk;
-	Attach();
-
-	if (m_iVar != NULL)
-		m_iVar->AddRef();
-
-	return m_iVar != NULL;
-}
-
-void TestingInf::Attach()
-{
-	if (m_iUnk == NULL)
-	{
-		CreateMoeSzyslakInterface(ClassID, &m_iUnk);
-		m_iUnk->QueryInterface(m_iid, (void**)&m_iVar);
-		m_iUnk->Release();
-		return;
-	}
-
-	if (m_iVar != NULL && m_iVar != m_iUnk)
-	{
-		m_iVar->Release();
-		m_iVar = NULL;
-	}
-
-	if (m_iVar == NULL)
-	{
-		m_iUnk->QueryInterface(m_iid, (void**)&m_iVar);
-		m_iUnk->Release();
-	}
-}
-
-TestingInf::ITESTING* TestingInf::operator->()
-{
-	Attach();
-
-	if (m_iVar == NULL)
-		throw std::runtime_error("Invalid Interface");
-
-	return m_iVar;
-}
-
-
+const GUID InterfaceCollectionInf::m_iid =
+{ 0x19573a2d, 0x9df6, 0x4260, { 0xaa, 0x5b, 0xe5, 0xf5, 0xf1, 0xb8, 0x1d, 0x4c } };
 
 
 InterfaceCollectionInf::InterfaceCollectionInf()
@@ -76,9 +17,9 @@ InterfaceCollectionInf::~InterfaceCollectionInf()
 		m_iVar->Release();
 }
 
-IINTERFACECOLLECTION* InterfaceCollectionInf::operator->()
+InterfaceCollectionInf::IINTERFACECOLLECTION* InterfaceCollectionInf::operator->()
 {
-	Attach();
+	Attach(m_iUnk);
 
 	if (m_iVar == NULL)
 		throw std::runtime_error("Invalid Interface");
@@ -86,12 +27,20 @@ IINTERFACECOLLECTION* InterfaceCollectionInf::operator->()
 	return m_iVar;
 }
 
-void InterfaceCollectionInf::Attach()
+void InterfaceCollectionInf::Attach(IUnknown* iunk)
 {
+	m_iUnk = iunk;
+
 	if (m_iUnk == NULL)
 	{
+		if (m_iVar != NULL)
+		{
+			m_iVar->Release();
+			m_iVar = NULL;
+		}
+
 		CreateMoeSzyslakInterface(CLASSID::INTERFACELIST, &m_iUnk);
-		m_iUnk->QueryInterface(INTERFACECOLLECTION_IID, (void**)&m_iVar);
+		m_iUnk->QueryInterface(InterfaceCollectionInf::m_iid, (void**)&m_iVar);
 		m_iUnk->Release();
 		return;
 	}
@@ -104,7 +53,7 @@ void InterfaceCollectionInf::Attach()
 
 	if (m_iVar == NULL)
 	{
-		m_iUnk->QueryInterface(INTERFACECOLLECTION_IID, (void**)&m_iVar);
+		m_iUnk->QueryInterface(InterfaceCollectionInf::m_iid, (void**)&m_iVar);
 	}
 }
 
@@ -189,5 +138,61 @@ void CommsInf::Attach()
 	{
 		m_iUnk->QueryInterface(COMMGENERAL_IID, (void**)&m_iVar);
 		m_iUnk->Release();
+	}
+}
+
+
+
+
+LogEntryInf::LogEntryInf()
+{
+	m_iUnk = NULL;
+	m_iVar = NULL;
+}
+
+LogEntryInf::~LogEntryInf()
+{
+	if (m_iVar != NULL)
+		m_iVar->Release();
+}
+
+void LogEntryInf::Attach(IUnknown* iunk)
+{
+	m_iUnk = iunk;
+	Attach();
+
+	if (m_iVar != NULL)
+		m_iVar->AddRef();
+}
+
+ILOGENTRY* LogEntryInf::operator->()
+{
+	Attach();
+
+	if (m_iVar == NULL)
+		throw std::runtime_error("Invalid Interface");
+
+	return m_iVar;
+}
+
+void LogEntryInf::Attach()
+{
+	if (m_iUnk == NULL)
+	{
+		CreateMoeSzyslakInterface(ClassID, &m_iUnk);
+		m_iUnk->QueryInterface(LOGENTRY_IID, (void**)&m_iVar);
+		m_iUnk->Release();
+		return;
+	}
+
+	if (m_iVar != NULL && m_iVar != m_iUnk)
+	{
+		m_iVar->Release();
+		m_iVar = NULL;
+	}
+
+	if (m_iVar == NULL)
+	{
+		m_iUnk->QueryInterface(LOGENTRY_IID, (void**)&m_iVar);
 	}
 }

@@ -26,7 +26,7 @@ HRESULT __stdcall InterfaceCollection::QueryInterface(REFIID riid, LPVOID* ppvOb
 		AddRef();
 		return NOERROR;
 	}
-	else if (riid == INTERFACECOLLECTION_IID)
+	else if (riid == InterfaceCollectionInf::m_iid)
 	{
 		*ppvObj = static_cast<IINTERFACECOLLECTION*>(this);
 		AddRef();
@@ -164,7 +164,7 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 	TripPlannerInf itrp;
 	TestingInf iTst;
 	MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> iList;
-	MoeInf<ILOGENTRY, CLASSID::LOGENTRY> iLog;
+	LogEntryInf iLog;
 	NeverwinterInf iNvr;
 	VariableInf iVar;
 	UINT ndx = 0;
@@ -173,6 +173,7 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 	HRESULT hr = E_FAIL;
 	IOSInf iIOS;
 
+	
 	cmds.Split(szCmd, L' ');
 	m_iRetString = NULL;
 
@@ -223,7 +224,7 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		iVar->GetReturnString(&m_iRetString);
 		break;
 
-	case CLASSID::LOGENTRY:
+	case LogEntryInf::ClassID:
 		iLog.Attach(iunk);
 		hr = iLog->Command(subCmd.c_str());
 		iLog->GetReturnString(&m_iRetString);
@@ -242,7 +243,8 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 
 	case CLASSID::TRIPPLANNER:
 		itrp.Attach(iunk);
-		hr = S_OK;
+		hr = itrp->Command(subCmd.c_str());
+		itrp->GetReturnString(&m_iRetString);
 		break;
 
 	case TestingInf::ClassID:
@@ -350,3 +352,7 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 
 }
 
+void InterfaceCollection::GetLocalString(IUnknown** iStr)
+{
+	*iStr = (IUnknown*)m_iLocalStr;
+}

@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "../pch.h"
 #include "CommGeneralPage.h"
 
 #pragma comment(lib,"WS2_32")
