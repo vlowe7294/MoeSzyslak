@@ -4,6 +4,8 @@
 #include "../VLString.h"
 #include "../VLVariable.h"
 #include "VLFile.h"
+#include "..\sqlite3.h"
+
 
 class Row : public IUnknown
 {
@@ -18,6 +20,7 @@ public:
 	wstring Get(wstring strName);
 	void Save(VLFile& fle);
 	void Load(VLFile& fle, VLStringCollection& colNames);
+	void WriteToSQL(wstring tbl, VLStringCollection& columns, sqlite3* db);
 
 private:
 	int m_cRef;
@@ -33,16 +36,21 @@ public:
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
 	HRESULT __stdcall NewRow();
-	HRESULT __stdcall Set(const wchar_t* colName, const wchar_t* strVal, UINT nType);	
+	HRESULT __stdcall Set(const wchar_t* colName, const wchar_t* strVal, UINT nType);
+	HRESULT __stdcall Get(const wchar_t* colName, IUnknown* iStrVal);
+	HRESULT __stdcall GoToTopRow();
 	
 	void Save(VLFile& fle);
 	void Load(VLFile& fle);
 	wstring Get(wstring colName);
-	void GoToTopRow();
+	
 	void NextRow();
 	wstring Export();
 	void Import(wstring xml);
 	wstring GetColumn(int ndx);
+	void WriteToSQL(wstring& errMsg, sqlite3* db);
+	void ReadFromSQL(sqlite3* db);
+	void Clear();
 
 	inline wstring Name() { return m_name; }
 	inline void Name(const wchar_t* szName) { m_name = szName; }
@@ -79,6 +87,8 @@ public:
 	
 	wstring Export();
 	void Import(wstring xml);
+	void WriteToSQL();
+	void ReadFromSQL();
 	
 	
 

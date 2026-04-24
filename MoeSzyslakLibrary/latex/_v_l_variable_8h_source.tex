@@ -1,0 +1,106 @@
+\doxysection{VLVariable.\+h}
+\hypertarget{_v_l_variable_8h_source}{}\label{_v_l_variable_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}InterfaceCollection.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}VLString.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}VLDateTime.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}Utilities/VLFile.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{keyword}{class\ }VLVariable\ :\ \textcolor{keyword}{public}\ VariableInf::IVARIABLE}
+\DoxyCodeLine{00008\ \{}
+\DoxyCodeLine{00009\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{keyword}{enum}\ VAR\_TYPE}
+\DoxyCodeLine{00011\ \ \ \ \ \{}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ TYPE\_STRING,}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ TYPE\_DATE,}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ TYPE\_INT,}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ TYPE\_BOOL,}
+\DoxyCodeLine{00016\ \ \ \ \ \ \ \ \ TYPE\_INTERFACE,}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ TYPE\_FLOAT,}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ TYPE\_COLLECTION,}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ TYPE\_MAX}
+\DoxyCodeLine{00020\ \ \ \ \ \};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ VLVariable();}
+\DoxyCodeLine{00023\ \ \ \ \ \string~VLVariable();}
+\DoxyCodeLine{00024\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00025\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00026\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00027\ \ \ \ \ HRESULT\ \_\_stdcall\ GetAsBool(BOOL*\ bVal);}
+\DoxyCodeLine{00028\ \ \ \ \ HRESULT\ \_\_stdcall\ SetAsBool(BOOL\ bVal);}
+\DoxyCodeLine{00029\ \ \ \ \ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00030\ \ \ \ \ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr);}
+\DoxyCodeLine{00031\ \ \ \ \ HRESULT\ \_\_stdcall\ GetType(UINT*\ nType);}
+\DoxyCodeLine{00032\ \ \ \ \ HRESULT\ \_\_stdcall\ SetType(UINT\ nType);}
+\DoxyCodeLine{00033\ \ \ \ \ HRESULT\ \_\_stdcall\ GetDisplayName(IUnknown**\ iNmeStr);}
+\DoxyCodeLine{00034\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest();}
+\DoxyCodeLine{00035\ \ \ \ \ HRESULT\ \_\_stdcall\ GetString(IUnknown**\ iStr);}
+\DoxyCodeLine{00036\ \ \ \ \ HRESULT\ \_\_stdcall\ SetString(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szStr);\ \ }
+\DoxyCodeLine{00037\ \ \ \ \ HRESULT\ \_\_stdcall\ SetAsInt(\textcolor{keywordtype}{int}\ nVal,\ \textcolor{keywordtype}{int}\ ndx);}
+\DoxyCodeLine{00038\ \ \ \ \ HRESULT\ \_\_stdcall\ GetAsInt(\textcolor{keywordtype}{int}\ ndx,\ \textcolor{keywordtype}{int}*\ nVal);}
+\DoxyCodeLine{00039\ \ \ \ \ HRESULT\ \_\_stdcall\ SetAsFloat(\textcolor{keywordtype}{int}\ ndx,\ \textcolor{keywordtype}{double}\ fVal);}
+\DoxyCodeLine{00040\ \ \ \ \ HRESULT\ \_\_stdcall\ GetAsFloat(\textcolor{keywordtype}{int}\ ndx,\ \textcolor{keywordtype}{double}*\ fVal);}
+\DoxyCodeLine{00041\ \ \ \ \ HRESULT\ \_\_stdcall\ SetInterface(IUnknown*\ iunk,\ UINT\ nClassID);}
+\DoxyCodeLine{00042\ \ \ \ \ HRESULT\ \_\_stdcall\ GetInterface(IUnknown**\ iunk);}
+\DoxyCodeLine{00043\ \ \ \ \ HRESULT\ \_\_stdcall\ GetLocked(BOOL*\ bLocked);}
+\DoxyCodeLine{00044\ \ \ \ \ HRESULT\ \_\_stdcall\ SetLocked(BOOL\ bLocked);}
+\DoxyCodeLine{00045\ \ \ \ \ HRESULT\ \_\_stdcall\ Save(IUnknown*\ iTbl);}
+\DoxyCodeLine{00046\ \ \ \ \ HRESULT\ \_\_stdcall\ Copy(IUnknown*\ iVar);}
+\DoxyCodeLine{00047\ \ \ \ \ HRESULT\ \_\_stdcall\ HasChanged(BOOL*\ bChanged);}
+\DoxyCodeLine{00048\ \ \ \ \ HRESULT\ \_\_stdcall\ Compare(IUnknown*\ iVar,\ \textcolor{keywordtype}{int}*\ nCmp);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{void}\ TurnOffChanged();}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ CanBeEmpty(\textcolor{keywordtype}{bool}\ bCanBeEmpty)\ \{\ m\_bCanBeEmpty\ =\ bCanBeEmpty;\ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_date_time}{VLDateTime}}\&\ GetDateTime();}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ Copy(VLVariable\&\ iCpyFrm);}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{void}\ SetLimits(\textcolor{keywordtype}{int}\ nMin,\ \textcolor{keywordtype}{int}\ nMax);}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{void}\ SaveToFile(VLFile\&\ fle);}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordtype}{void}\ Load(IUnknown*\ iTbl);}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{void}\ LoadFromFile(VLFile\&\ fle);}
+\DoxyCodeLine{00060\ \ \ \ \ wstring\ GetString();}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_bLocked;}
+\DoxyCodeLine{00065\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iStr;}
+\DoxyCodeLine{00066\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iDisplayName;}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{double}*\ m\_pValues;}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{double}*\ m\_pOrigValues;}
+\DoxyCodeLine{00070\ \ \ \ \ VAR\_TYPE\ m\_type;}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_limits[2];}
+\DoxyCodeLine{00072\ \ \ \ \ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordtype}{bool}\ m\_bCanBeEmpty;}
+\DoxyCodeLine{00074\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_date_time}{VLDateTime}}*\ m\_iDate;}
+\DoxyCodeLine{00075\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_date_time}{VLDateTime}}*\ m\_iOrigDate;}
+\DoxyCodeLine{00076\ \ \ \ \ UINT\ m\_nMaxSize;}
+\DoxyCodeLine{00077\ \ \ \ \ IUnknown*\ m\_iunk;}
+\DoxyCodeLine{00078\ \ \ \ \ IUnknown*\ m\_iReturnUnk;}
+\DoxyCodeLine{00079\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iReturnStr;}
+\DoxyCodeLine{00080\ \ \ \ \ wstring\ m\_origValue;}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_instance;}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \ \ \ \ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ GrowSize(\textcolor{keywordtype}{int}\ ndx);}
+\DoxyCodeLine{00085\ \};}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{keyword}{class\ }VariableCollection\ :\ \textcolor{keyword}{public}\ InterfaceCollection}
+\DoxyCodeLine{00088\ \{}
+\DoxyCodeLine{00089\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00090\ \ \ \ \ VariableCollection();}
+\DoxyCodeLine{00091\ \ \ \ \ \string~VariableCollection();}
+\DoxyCodeLine{00092\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ NewVariable(wstring\ szTag);}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ Set(wstring\ szTag,\ wstring\ szValue,\ VLVariable::VAR\_TYPE\ type);}
+\DoxyCodeLine{00094\ \ \ \ \ wstring\ Get(wstring\ szTag);}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{void}\ Save(IUnknown*\ iTbl);}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{keywordtype}{void}\ Load(IUnknown*\ iTbl);}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{bool}\ ForEach(\doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}**\ pVar);}
+\DoxyCodeLine{00098\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ Get(\textcolor{keywordtype}{int}\ ndx);}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ TurnOffChanged();}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{keywordtype}{bool}\ HasChanged();}
+\DoxyCodeLine{00101\ \};}
+
+\end{DoxyCode}

@@ -1,6 +1,24 @@
 #include "pch.h"
 #include "Interfaces.h"
 
+const std::unordered_map<std::wstring, UINT> CLASS_NAMES =
+{
+	{ L"variable",			VariableInf::ClassID },
+	{ L"interface list",	CLASSID::INTERFACELIST },
+	{ L"area",				CLASSID::AREA },
+	{ L"ios",				IOSInf::ClassID },
+	{ L"finance",			FinanceInf::ClassID },
+	{ L"testing",			TestingInf::ClassID },
+	{ L"table",				CLASSID::TABLE },
+	{ L"trip planner",		TripPlannerInf::ClassID },
+	{ L"date time",			CLASSID::DATETIME },
+	{ L"module",			CLASSID::MODULE },
+	{ L"host",				CLASSID::HOST },
+	{ L"database",			CLASSID::DATABASE },
+	{ L"creature",			CLASSID::CREATURE },
+	{ L"neverwinter",		NeverwinterInf::ClassID }
+};
+
 const GUID InterfaceCollectionInf::m_iid =
 { 0x19573a2d, 0x9df6, 0x4260, { 0xaa, 0x5b, 0xe5, 0xf5, 0xf1, 0xb8, 0x1d, 0x4c } };
 
@@ -160,9 +178,6 @@ void LogEntryInf::Attach(IUnknown* iunk)
 {
 	m_iUnk = iunk;
 	Attach();
-
-	if (m_iVar != NULL)
-		m_iVar->AddRef();
 }
 
 ILOGENTRY* LogEntryInf::operator->()

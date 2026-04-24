@@ -1,0 +1,80 @@
+\doxysection{Trip\+Planner.\+h}
+\hypertarget{_trip_planner_8h_source}{}\label{_trip_planner_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Interfaces.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}VLVariable.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_stop_ab8870f949c69cda03c4055524ed13c31}{Stop}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00019\ \ \ \ \ \doxymbox{\hyperlink{class_stop_ab8870f949c69cda03c4055524ed13c31}{Stop}}();}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00024\ \ \ \ \ \doxymbox{\hyperlink{class_stop_a24e85edfa98a7a0212136679b6fad6d2}{\string~Stop}}();}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00032\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_stop_ac3d4e38ceb936826fe2fa4ac7e896fd6}{QueryInterface}}(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00038\ \ \ \ \ ULONG\ \_\_stdcall\ \doxymbox{\hyperlink{class_stop_a59b429a080d70c73a173f01b7d3745b7}{AddRef}}();}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00044\ \ \ \ \ ULONG\ \_\_stdcall\ \doxymbox{\hyperlink{class_stop_ae7b7c3fa08bb50f1f9a4e9e34fa3e67b}{Release}}();}
+\DoxyCodeLine{00045\ \ \ \ \ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iProp);}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ Print()\ \{\ wprintf(L\textcolor{stringliteral}{"{}Distance:\ \%d\(\backslash\)tFuel\ Used:\(\backslash\)t\%fTravel\ Time\(\backslash\)t\%dh:\%dm\(\backslash\)n"{}},\ m\_distance,\ m\_fuelUsed,\ m\_travelTime\ /\ 60,\ m\_travelTime\ \%\ 60);\ \}}
+\DoxyCodeLine{00048\ \ \ \ \ }
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ Distance(UINT\ nDistance)\ \{\ m\_distance\ =\ nDistance;\ \}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keyword}{inline}\ UINT\ Distance()\ \{\ \textcolor{keywordflow}{return}\ m\_distance;\ \}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ FuelUsed(\textcolor{keywordtype}{double}\ fFuelUsed)\ \{\ m\_fuelUsed\ =\ fFuelUsed;\ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ TravelTime(UINT\ nTravelTime)\ \{\ m\_travelTime\ =\ nTravelTime;\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00057\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pStart;}
+\DoxyCodeLine{00058\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}\ m\_properties;}
+\DoxyCodeLine{00059\ \ \ \ \ }
+\DoxyCodeLine{00060\ \ \ \ \ UINT\ m\_distance;}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{double}\ m\_fuelUsed;}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_travelTime;}
+\DoxyCodeLine{00063\ \};}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00077\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_trip_planner_a0f0ea0623d93c7c057034b3d16bb85cb}{TripPlanner}}\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_trip_planner_inf_1_1_i_t_r_i_p_p_l_a_n_n_e_r}{TripPlannerInf::ITRIPPLANNER}}}
+\DoxyCodeLine{00078\ \{}
+\DoxyCodeLine{00079\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00083\ \ \ \ \ \doxymbox{\hyperlink{class_trip_planner_a0f0ea0623d93c7c057034b3d16bb85cb}{TripPlanner}}();}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00088\ \ \ \ \ \doxymbox{\hyperlink{class_trip_planner_ab042594df8da1f684f4ba4f0ef60bf7a}{\string~TripPlanner}}();}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00096\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_a24183db9111b94e14ce1d43f0e3bc586}{QueryInterface}}(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00097\ \ \ \ \ }
+\DoxyCodeLine{00102\ \ \ \ \ ULONG\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_af7d9902dd999537e219d9fdc0dec4926}{AddRef}}();}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00108\ \ \ \ \ ULONG\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_a8bf0a428a28d82e9893c91a9b86cfc9e}{Release}}();}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00115\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_a244b9af96fd70fba1839af412666b00f}{Properties}}(IUnknown**\ iProp);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00122\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_ac0004b85506ef50126f64ea21a38ec96}{Command}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00129\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_aa24560bdf15ff0d6f1c5210cfafeb5b4}{GetReturnString}}(IUnknown**\ iStr);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00136\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_trip_planner_a1670b79c8d6cf51fce3efa796db1528e}{AddStop}}(IUnknown**\ iStop);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest();}
+\DoxyCodeLine{00140\ \ \ \ \ }
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keywordtype}{void}\ WriteXML();}
+\DoxyCodeLine{00142\ \ \ \ \ \doxymbox{\hyperlink{class_stop}{Stop}}*\ GetStop(UINT\ ndx);}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ ReadXML();}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00147\ \ \ \ \ \doxymbox{\hyperlink{class_interface_collection}{InterfaceCollection}}\ m\_stops;\ \ \ \ }
+\DoxyCodeLine{00148\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pName;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00149\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}\ m\_properties;\ }
+\DoxyCodeLine{00150\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iRetStr;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{keywordtype}{double}\ m\_MPG;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \};}
+
+\end{DoxyCode}

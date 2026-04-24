@@ -6,7 +6,7 @@ from ctypes import *
 class MoeSzyslakLibrary:
 
     _libPath = r"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll"
-    _nMinVersion = 1468
+    _nMinVersion = 1545
     _nVersion = 0
     _hllDll = 0
     _sb = create_unicode_buffer(1000)
@@ -37,6 +37,9 @@ class MoeSzyslakLibrary:
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32)
         MoeSzyslakLibrary.DestroyHandle = hllApiProto (("DestroyMoeSzyslakHandle", MoeSzyslakLibrary._hllDll)) 
 
+        hllApiProto = ctypes.WINFUNCTYPE (None, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+        MoeSzyslakLibrary.MoeSzyslakHTML = hllApiProto (("MoeSzyslakHTML", MoeSzyslakLibrary._hllDll)) 
+
     def GetReturnString(hObj, nCapacity = 1000):
         ret = ''
 
@@ -55,6 +58,17 @@ class MoeSzyslakLibrary:
         nRet = MoeSzyslakLibrary.InvokeHandle(hObj, strCmd)
         if nRet != 0:
              raise Exception("InvokeHandle returned failure code")
+
+    def GetHTML(nClassID, strGet, nCapacity = 1000):
+        ret = ''
+        
+        if nCapacity > MoeSzyslakLibrary._sbCapacity:
+             MoeSzyslakLibrary._sb = create_unicode_buffer(nCapacity)
+             MoeSzyslakLibrary._sbCapacity = nCapacity
+
+        MoeSzyslakLibrary.MoeSzyslakHTML(nClassID, strGet, MoeSzyslakLibrary._sb, MoeSzyslakLibrary._sbCapacity)
+        ret = MoeSzyslakLibrary._sb.value
+        return ret;
 
 
 

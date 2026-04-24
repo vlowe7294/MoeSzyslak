@@ -1,0 +1,200 @@
+\doxysection{Log\+Entry Class Reference}
+\hypertarget{class_log_entry}{}\label{class_log_entry}\index{LogEntry@{LogEntry}}
+
+
+Represents a single diagnostic or test log entry containing text, timestamp, and memory usage information.  
+
+
+
+
+{\ttfamily \+\#include $<$Testing.\+h$>$}
+
+Inheritance diagram for Log\+Entry:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_log_entry}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{class_log_entry_a1e7030e4a4825702c4c8db04f6f7c1d0}{Log\+Entry}} (wstring txt, long long tme, long long mem)
+\begin{DoxyCompactList}\small\item\em Constructs a new \doxylink{class_log_entry}{Log\+Entry}. \end{DoxyCompactList}\item 
+\Hypertarget{class_log_entry_ae0da106e665ca859be1a30ea316cd7d2}\label{class_log_entry_ae0da106e665ca859be1a30ea316cd7d2} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Log\+Entry} ()
+\begin{DoxyCompactList}\small\item\em Destructor. \end{DoxyCompactList}\item 
+\Hypertarget{class_log_entry_a178f9130734723480f38fa28c022bf2d}\label{class_log_entry_a178f9130734723480f38fa28c022bf2d} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+\Hypertarget{class_log_entry_a1ea8a4b329ab9014952da2b1778cf518}\label{class_log_entry_a1ea8a4b329ab9014952da2b1778cf518} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_log_entry_a878e3009c6ebc423a137fcaa24376142}\label{class_log_entry_a878e3009c6ebc423a137fcaa24376142} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_log_entry_ac97f44625d0d09d4b27096e865fc931c}{Properties}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Prop)
+\begin{DoxyCompactList}\small\item\em Retrieves the property collection associated with this entry. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_log_entry_ab5cc7d858603aee0a140641a40924807}{Command}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\begin{DoxyCompactList}\small\item\em Executes a command against this log entry. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_log_entry_a71089452543b26f7aab69420dfb08196}{Get\+Return\+String}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\begin{DoxyCompactList}\small\item\em Retrieves the return string produced by the last command. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_log_entry_a452d8cc4eada4d211f0fb68cf908acd3}{Unit\+Test}} ()
+\item 
+void \doxymbox{\hyperlink{class_log_entry_a79a9e5be8a36dae0f0589b1ded6af42a}{Write}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\begin{DoxyCompactList}\small\item\em Writes this log entry to a database table. \end{DoxyCompactList}\item 
+void \doxymbox{\hyperlink{class_log_entry_aaa99d1918e5b780286f430cbd74328ff}{Read}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\begin{DoxyCompactList}\small\item\em Reads this log entry from a database table. \end{DoxyCompactList}\item 
+\Hypertarget{class_log_entry_ac6bcd4abe6eb97dfa833158fac6adb39}\label{class_log_entry_ac6bcd4abe6eb97dfa833158fac6adb39} 
+wstring {\bfseries Get\+HTML} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a single diagnostic or test log entry containing text, timestamp, and memory usage information. 
+
+\doxylink{class_log_entry}{Log\+Entry} implements the \doxylink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY} COM interface and provides access to structured log data. Each entry stores a message, a timestamp, memory usage at the time of logging, and a return string used by command operations. Entries can be serialized to and from database tables. 
+
+\label{doc-constructors}
+\Hypertarget{class_log_entry_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_log_entry_a1e7030e4a4825702c4c8db04f6f7c1d0}\index{LogEntry@{LogEntry}!LogEntry@{LogEntry}}
+\index{LogEntry@{LogEntry}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{LogEntry()}{LogEntry()}}
+{\footnotesize\ttfamily \label{class_log_entry_a1e7030e4a4825702c4c8db04f6f7c1d0} 
+Log\+Entry::\+\+Log\+Entry (\begin{DoxyParamCaption}\item[{wstring}]{txt}{, }\item[{long long}]{tme}{, }\item[{long long}]{mem}{}\end{DoxyParamCaption})}
+
+
+
+Constructs a new \doxylink{class_log_entry}{Log\+Entry}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em txt} & The log message text. \\
+\hline
+{\em tme} & Timestamp value (typically milliseconds since test start). \\
+\hline
+{\em mem} & Memory usage value at the time of logging. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{class_log_entry_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_log_entry_ab5cc7d858603aee0a140641a40924807}\index{LogEntry@{LogEntry}!Command@{Command}}
+\index{Command@{Command}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{Command()}{Command()}}
+{\footnotesize\ttfamily \label{class_log_entry_ab5cc7d858603aee0a140641a40924807} 
+HRESULT \+\_\+\+\_\+stdcall Log\+Entry::\+\+Command (\begin{DoxyParamCaption}\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Cmd}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Executes a command against this log entry. 
+
+Supported commands:\+
+\begin{DoxyItemize}
+\item {\ttfamily get \texorpdfstring{$<$}{<}property\texorpdfstring{$>$}{>}} — retrieves a property value.
+\end{DoxyItemize}
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Cmd} & The command string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success, or an HRESULT error code. 
+\end{DoxyReturn}
+
+
+Implements \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}.
+
+\Hypertarget{class_log_entry_a71089452543b26f7aab69420dfb08196}\index{LogEntry@{LogEntry}!GetReturnString@{GetReturnString}}
+\index{GetReturnString@{GetReturnString}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{GetReturnString()}{GetReturnString()}}
+{\footnotesize\ttfamily \label{class_log_entry_a71089452543b26f7aab69420dfb08196} 
+HRESULT \+\_\+\+\_\+stdcall Log\+Entry::\+\+Get\+Return\+String (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Retrieves the return string produced by the last command. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Str} & Receives an IUnknown pointer to the return string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+
+
+Implements \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}.
+
+\Hypertarget{class_log_entry_ac97f44625d0d09d4b27096e865fc931c}\index{LogEntry@{LogEntry}!Properties@{Properties}}
+\index{Properties@{Properties}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{Properties()}{Properties()}}
+{\footnotesize\ttfamily \label{class_log_entry_ac97f44625d0d09d4b27096e865fc931c} 
+HRESULT \+\_\+\+\_\+stdcall Log\+Entry::\+\+Properties (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Prop}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Retrieves the property collection associated with this entry. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Prop} & Receives an IUnknown pointer to the property collection. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+
+
+Implements \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}.
+
+\Hypertarget{class_log_entry_aaa99d1918e5b780286f430cbd74328ff}\index{LogEntry@{LogEntry}!Read@{Read}}
+\index{Read@{Read}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{Read()}{Read()}}
+{\footnotesize\ttfamily \label{class_log_entry_aaa99d1918e5b780286f430cbd74328ff} 
+void Log\+Entry::\+\+Read (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}}]{i\+Tbl}{}\end{DoxyParamCaption})}
+
+
+
+Reads this log entry from a database table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Tbl} & The table interface to read from. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_log_entry_a452d8cc4eada4d211f0fb68cf908acd3}\index{LogEntry@{LogEntry}!UnitTest@{UnitTest}}
+\index{UnitTest@{UnitTest}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{UnitTest()}{UnitTest()}}
+{\footnotesize\ttfamily \label{class_log_entry_a452d8cc4eada4d211f0fb68cf908acd3} 
+HRESULT \+\_\+\+\_\+stdcall Log\+Entry::\+\+Unit\+Test (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}.
+
+\Hypertarget{class_log_entry_a79a9e5be8a36dae0f0589b1ded6af42a}\index{LogEntry@{LogEntry}!Write@{Write}}
+\index{Write@{Write}!LogEntry@{LogEntry}}
+\doxysubsubsection{\texorpdfstring{Write()}{Write()}}
+{\footnotesize\ttfamily \label{class_log_entry_a79a9e5be8a36dae0f0589b1ded6af42a} 
+void Log\+Entry::\+\+Write (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}}]{i\+Tbl}{}\end{DoxyParamCaption})}
+
+
+
+Writes this log entry to a database table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Tbl} & The table interface to write into. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+Testing.\+h\item 
+Testing.\+cpp\end{DoxyCompactItemize}

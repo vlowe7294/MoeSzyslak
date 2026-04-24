@@ -12,10 +12,14 @@ public:
 	HRESULT __stdcall Command(const wchar_t* szCmd);
 	HRESULT __stdcall GetReturnString(IUnknown** iStr);
 	HRESULT __stdcall Properties(IUnknown** iPrp);
-	HRESULT __stdcall UnitTest();
+	HRESULT __stdcall Login();
+	HRESULT __stdcall SaveUserList(IUnknown* iDB);
+	HRESULT __stdcall UnitTest();	
+	HRESULT __stdcall AddToMasterList(const wchar_t* szTag, const wchar_t* szPassword);
+
+	void LoadUserList(Database& db);
+	void Copy(User& usr);
 	
-	void Login();
-	void SaveUserList(Database& db);
 
 private:
 	int m_cRef;
@@ -24,7 +28,8 @@ private:
 	VLVariable* m_pPassword;
 	VLVariable* m_pIsLoggedIn;
 	VLVariable* m_pIsAdmin;
-	MoeInf<IDATETIME, CLASSID::DATETIME> m_iLastLogin;
+	VLVariable* m_pEmail;
+	MoeInf<IDATETIME, CLASSID::DATETIME> m_iLastActive;
 	StringInf m_iReturnStr;
 
 	static InterfaceCollection m_masterUserList;

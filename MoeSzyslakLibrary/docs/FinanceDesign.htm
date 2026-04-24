@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Budgeting System - Class Design Document</title>
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: white;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        code, pre {
+            background: #eee;
+            padding: 10px;
+            border-radius: 6px;
+            display: block;
+            white-space: pre-wrap;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        ul {
+            margin-top: 8px;
+        }
+
+        .diagram {
+            background: #222;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Budgeting System — High-Level Class Design</h1>
+        <p>
+            This document describes the core architecture for a modular budgeting system.
+            It defines the main classes, responsibilities, and relationships that will form
+            the foundation of the budgeting application.
+        </p>
+
+        <!-- SECTION 1 -->
+        <div class="section">
+            <h2>1. Overview</h2>
+            <p>The budgeting system supports:</p>
+            <ul>
+                <li>Tracking bank balances</li>
+                <li>Recording income and expenses</li>
+                <li>Managing recurring transactions</li>
+                <li>Automatically generating new transactions based on frequency</li>
+                <li>Providing a foundation for future UI, storage, and reporting layers</li>
+            </ul>
+        </div>
+
+        <!-- SECTION 2 -->
+        <div class="section">
+            <h2>2. Class Architecture</h2>
+
+            <h3>2.1 Transaction</h3>
+            <p>Represents a single financial event.</p>
+            <ul>
+                <li><strong>Fields:</strong> id, amount, date, category, notes, isGenerated</li>
+                <li><strong>Responsibilities:</strong> Immutable record of income/expense</li>
+            </ul>
+
+<pre><code>
+// Represents a single financial event
+class Transaction {
+    int id;
+    double amount;
+    Date date;
+    std::string category;
+    std::string notes;
+    bool isGenerated;
+};
+</code></pre>
+
+            <h3>2.2 Account</h3>
+            <p>Represents a bank account or cash pool.</p>
+            <ul>
+                <li><strong>Fields:</strong> id, name, currentBalance, transactions</li>
+                <li><strong>Responsibilities:</strong> Maintain balance and history</li>
+            </ul>
+
+<pre><code>
+class Account {
+    int id;
+    std::string name;
+    double currentBalance;
+    std::vector&lt;Transaction&gt; transactions;
+};
+</code></pre>
+
+            <h3>2.3 RecurringRule</h3>
+            <p>Defines a repeating income or expense.</p>
+            <ul>
+                <li><strong>Fields:</strong> id, name, amount, frequency, nextDueDate, category, autoApply</li>
+                <li><strong>Responsibilities:</strong> Generate transactions when due</li>
+            </ul>
+
+<pre><code>
+enum class Frequency {
+    Weekly,
+    BiWeekly,
+    Monthly,
+    Yearly
+};
+
+class RecurringRule {
+    int id;
+    std::string name;
+    double amount;
+    Frequency frequency;
+    Date nextDueDate;
+    std::string category;
+    bool autoApply;
+};
+</code></pre>
+
+            <h3>2.4 RecurrenceEngine</h3>
+            <p>Processes recurring rules and generates transactions.</p>
+
+<pre><code>
+class RecurrenceEngine {
+    std::vector&lt;RecurringRule&gt; rules;
+};
+</code></pre>
+
+            <h3>2.5 BudgetManager</h3>
+            <p>Top-level orchestrator of the budgeting system.</p>
+
+<pre><code>
+class BudgetManager {
+    std::vector&lt;Account&gt; accounts;
+    RecurrenceEngine recurrenceEngine;
+    Date currentDate;
+};
+</code></pre>
+
+        </div>
+
+        <!-- SECTION 3 -->
+        <div class="section">
+            <h2>3. Class Relationship Diagram</h2>
+            <div class="diagram">
+                BudgetManager
+                ├── Account (1..N)
+                │     └── Transaction (0..N)
+                └── RecurrenceEngine
+                └── RecurringRule (1..N)
+            </div>
+        </div>
+
+        <!-- SECTION 4 -->
+        <div class="section">
+            <h2>4. Future Extensions</h2>
+            <ul>
+                <li>JSON or SQLite storage</li>
+                <li>Console, Web, or Desktop UI</li>
+                <li>Envelope budgeting</li>
+                <li>Forecasting and analytics</li>
+                <li>Graphing and visualization</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>

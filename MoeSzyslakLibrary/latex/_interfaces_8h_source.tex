@@ -1,0 +1,437 @@
+\doxysection{Interfaces.\+h}
+\hypertarget{_interfaces_8h_source}{}\label{_interfaces_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <comdef.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <unordered\_map>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}MoeString.h"{}}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)TripPlannerInf.h"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)IOSInf.h"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)FinanceInf.h"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)NeverwinterInf.h"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)TestingInf.h"{}}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{enum}\ CLASSID}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ \ \ \ \ INVALIDCLASS\ \ \ \ =\ 0,}
+\DoxyCodeLine{00017\ \ \ \ \ INTERFACELIST\ \ \ =\ 184004,}
+\DoxyCodeLine{00018\ \ \ \ \ AREA\ \ \ \ \ \ \ \ \ \ \ \ =\ 262241,}
+\DoxyCodeLine{00019\ \ \ \ \ TABLE\ \ \ \ \ \ \ \ \ \ \ =\ 416737,}
+\DoxyCodeLine{00020\ \ \ \ \ TRIPPLANNER\ \ \ \ \ =\ 507734,}
+\DoxyCodeLine{00021\ \ \ \ \ DATETIME\ \ \ \ \ \ \ \ =\ 568996,}
+\DoxyCodeLine{00022\ \ \ \ \ MODULE\ \ \ \ \ \ \ \ \ \ =\ 628950,}
+\DoxyCodeLine{00023\ \ \ \ \ HOST\ \ \ \ \ \ \ \ \ \ \ \ =\ 647491,}
+\DoxyCodeLine{00024\ \ \ \ \ DATABASE\ \ \ \ \ \ \ \ =\ 781903,\ \ \ }
+\DoxyCodeLine{00025\ \ \ \ \ CREATURE\ \ \ \ \ \ \ \ =\ 924610}
+\DoxyCodeLine{00026\ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ std::unordered\_map<std::wstring,\ UINT>\ CLASS\_NAMES;}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ \{57779E06-\/1468-\/47C9-\/859A-\/49E07CEF5F8C\}}}
+\DoxyCodeLine{00031\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ HOST\_IID\ =}
+\DoxyCodeLine{00032\ \{\ 0x57779e06,\ 0x1468,\ 0x47c9,\ \{\ 0x85,\ 0x9a,\ 0x49,\ 0xe0,\ 0x7c,\ 0xef,\ 0x5f,\ 0x8c\ \}\ \};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{comment}{//\ \{3D2AD9D0-\/D5E1-\/4916-\/AAA5-\/8BD482662919\}}}
+\DoxyCodeLine{00035\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ DATETIME\_IID\ =}
+\DoxyCodeLine{00036\ \{\ 0x3d2ad9d0,\ 0xd5e1,\ 0x4916,\ \{\ 0xaa,\ 0xa5,\ 0x8b,\ 0xd4,\ 0x82,\ 0x66,\ 0x29,\ 0x19\ \}\ \};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{comment}{//\ \{8346DA8D-\/9EFD-\/436A-\/9545-\/8D324DE0E43E\}}}
+\DoxyCodeLine{00039\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ CREATURE\_IID\ =}
+\DoxyCodeLine{00040\ \{\ 0x8346da8d,\ 0x9efd,\ 0x436a,\ \{\ 0x95,\ 0x45,\ 0x8d,\ 0x32,\ 0x4d,\ 0xe0,\ 0xe4,\ 0x3e\ \}\ \};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{comment}{//\ \{9E39F153-\/0811-\/498B-\/B72A-\/5C810D0141A0\}}}
+\DoxyCodeLine{00043\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ AREA\_IID\ =}
+\DoxyCodeLine{00044\ \{\ 0x9e39f153,\ 0x811,\ 0x498b,\ \{\ 0xb7,\ 0x2a,\ 0x5c,\ 0x81,\ 0xd,\ 0x1,\ 0x41,\ 0xa0\ \}\ \};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \textcolor{comment}{//\ \{88C90DC5-\/A2A6-\/44B9-\/A146-\/CCB1DB6B651B\}}}
+\DoxyCodeLine{00047\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ MODULE\_IID\ =}
+\DoxyCodeLine{00048\ \{\ 0x88c90dc5,\ 0xa2a6,\ 0x44b9,\ \{\ 0xa1,\ 0x46,\ 0xcc,\ 0xb1,\ 0xdb,\ 0x6b,\ 0x65,\ 0x1b\ \}\ \};}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{comment}{//\ \{AEC035FA-\/9488-\/499C-\/9966-\/92CCEE7464AC\}}}
+\DoxyCodeLine{00051\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ NEVERWINTER\_IID\ =}
+\DoxyCodeLine{00052\ \{\ 0xaec035fa,\ 0x9488,\ 0x499c,\ \{\ 0x99,\ 0x66,\ 0x92,\ 0xcc,\ 0xee,\ 0x74,\ 0x64,\ 0xac\ \}\ \};}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{comment}{//\ \{AC597284-\/A906-\/482F-\/9BE9-\/C4E13AB43E50\}}}
+\DoxyCodeLine{00055\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ LOGENTRY\_IID\ =}
+\DoxyCodeLine{00056\ \{\ 0xac597284,\ 0xa906,\ 0x482f,\ \{\ 0x9b,\ 0xe9,\ 0xc4,\ 0xe1,\ 0x3a,\ 0xb4,\ 0x3e,\ 0x50\ \}\ \};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{//\ \{5EB13971-\/FBC0-\/44EC-\/A70B-\/1D07EC498168\}}}
+\DoxyCodeLine{00059\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ TABLE\_IID\ =}
+\DoxyCodeLine{00060\ \{\ 0x5eb13971,\ 0xfbc0,\ 0x44ec,\ \{\ 0xa7,\ 0xb,\ 0x1d,\ 0x7,\ 0xec,\ 0x49,\ 0x81,\ 0x68\ \}\ \};}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00062\ \textcolor{comment}{//\ \{905AF8A2-\/8742-\/45E7-\/86EA-\/240B54E8BA4C\}}}
+\DoxyCodeLine{00063\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ DATABASE\_IID\ =}
+\DoxyCodeLine{00064\ \{\ 0x905af8a2,\ 0x8742,\ 0x45e7,\ \{\ 0x86,\ 0xea,\ 0x24,\ 0xb,\ 0x54,\ 0xe8,\ 0xba,\ 0x4c\ \}\ \};}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{comment}{//\ \{307A069A-\/5468-\/4749-\/80FD-\/B86CD4EE3990\}}}
+\DoxyCodeLine{00067\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ IOS\_IID\ =}
+\DoxyCodeLine{00068\ \{\ 0x307a069a,\ 0x5468,\ 0x4749,\ \{\ 0x80,\ 0xfd,\ 0xb8,\ 0x6c,\ 0xd4,\ 0xee,\ 0x39,\ 0x90\ \}\ \};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{comment}{//\ \{7CDABB76-\/B191-\/42BB-\/829A-\/C97EE317EC37\}}}
+\DoxyCodeLine{00071\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ COMMGENERAL\_IID\ =}
+\DoxyCodeLine{00072\ \{\ 0x7cdabb76,\ 0xb191,\ 0x42bb,\ \{\ 0x82,\ 0x9a,\ 0xc9,\ 0x7e,\ 0xe3,\ 0x17,\ 0xec,\ 0x37\ \}\ \};}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{comment}{//\ \{3B1537E5-\/9E5D-\/4053-\/8510-\/1CEB51543F32\}}}
+\DoxyCodeLine{00075\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ USER\_IID\ =}
+\DoxyCodeLine{00076\ \{\ 0x3b1537e5,\ 0x9e5d,\ 0x4053,\ \{\ 0x85,\ 0x10,\ 0x1c,\ 0xeb,\ 0x51,\ 0x54,\ 0x3f,\ 0x32\ \}\ \};}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_h_o_s_t}{IHOST}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00081\ \{}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ ParseCommand(UINT*\ nSession,\ LPCWSTR\ cmd)\ =\ 0;}
+\DoxyCodeLine{00083\ \};}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_d_a_t_e_t_i_m_e}{IDATETIME}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00086\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetDifference(IUnknown*\ iSubAmt,\ \textcolor{keywordtype}{int}*\ nSec)\ =\ 0;}
+\DoxyCodeLine{00088\ \};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_c_r_e_a_t_u_r_e}{ICREATURE}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00091\ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Tick(\textcolor{keywordtype}{int}\ nSec)\ =\ 0;}
+\DoxyCodeLine{00093\ \};}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_a_r_e_a}{IAREA}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00096\ \{}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iPrp)\ =\ 0;}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd,\ IUnknown*\ iRetStr)\ =\ 0;}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Tick(\textcolor{keywordtype}{int}\ nSec)\ =\ 0;}
+\DoxyCodeLine{00100\ \};}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_m_o_d_u_l_e}{IMODULE}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00103\ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iPrp)\ =\ 0;}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd,\ IUnknown*\ iRetStr)\ =\ 0;}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Save(IUnknown*\ iDB)\ =\ 0;}
+\DoxyCodeLine{00107\ \};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00110\ \{}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iProp)\ =\ 0;}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd)\ =\ 0;}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr)\ =\ 0;}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ UnitTest()\ =\ 0;}
+\DoxyCodeLine{00115\ \};}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_t_a_b_l_e}{ITABLE}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00118\ \{}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ NewRow()\ =\ 0;}
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Set(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ colName,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ strVal,\ UINT\ nType)\ =\ 0;}
+\DoxyCodeLine{00121\ \};}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_d_a_t_a_b_a_s_e}{IDATABASE}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00124\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetTable(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szNme,\ IUnknown**\ iTbl)\ =\ 0;}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Load(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szFileNme)\ =\ 0;}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Save(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szFileNme)\ =\ 0;}
+\DoxyCodeLine{00128\ \};}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00131\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd)\ =\ 0;}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr)\ =\ 0;}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iPrp)\ =\ 0;}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ UnitTest()\ =\ 0;}
+\DoxyCodeLine{00136\ \};}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_i_c_o_m_m_g_e_n_e_r_a_l_p_a_g_e}{ICOMMGENERALPAGE}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00139\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iPrp)\ =\ 0;}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ UnitTest()\ =\ 0;}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Commit()\ =\ 0;}
+\DoxyCodeLine{00143\ \};}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{keywordtype}{void}\ CreateMoeSzyslakInterface(UINT\ \textcolor{keywordtype}{id},\ IUnknown**\ iunk);}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keyword}{class\ }MoeInf}
+\DoxyCodeLine{00148\ \{}
+\DoxyCodeLine{00149\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00150\ \ \ \ \ MoeInf();}
+\DoxyCodeLine{00151\ \ \ \ \ \string~MoeInf();}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{keywordtype}{void}\ Init();}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{keywordtype}{bool}\ Verify();}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach(IUnknown*\ iunk);}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ Dispose();}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach();}
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{keywordtype}{void}\ GetInterface();}
+\DoxyCodeLine{00158\ }
+\DoxyCodeLine{00159\ \ \ \ \ T*\ operator-\/>();}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown**\ ()\ \{\ \textcolor{keywordflow}{return}\ \&m\_iUnk;\ \};}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown*\ ()\ \{\ \textcolor{keywordflow}{return}\ m\_iUnk;\ \};}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ T*\ ()\ \{\ \textcolor{keywordflow}{return}\ m\_iVar;\ \};}
+\DoxyCodeLine{00163\ }
+\DoxyCodeLine{00164\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00165\ \ \ \ \ T*\ m\_iVar;}
+\DoxyCodeLine{00166\ \ \ \ \ IUnknown*\ m\_iUnk;}
+\DoxyCodeLine{00167\ \};}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>MoeInf<T,\ id>::MoeInf()}
+\DoxyCodeLine{00171\ \{}
+\DoxyCodeLine{00172\ \ \ \ \ m\_iVar\ =\ NULL;}
+\DoxyCodeLine{00173\ \ \ \ \ m\_iUnk\ =\ NULL;}
+\DoxyCodeLine{00174\ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ MoeInf<T,\ id>::\string~MoeInf()}
+\DoxyCodeLine{00177\ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ !=\ NULL)}
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ m\_iVar-\/>Release();}
+\DoxyCodeLine{00180\ \}}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{void}\ MoeInf<T,\ id>::Attach()}
+\DoxyCodeLine{00183\ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iUnk\ ==\ NULL)}
+\DoxyCodeLine{00185\ \ \ \ \ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ Init();}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00188\ \ \ \ \ \}}
+\DoxyCodeLine{00189\ }
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ !=\ NULL\ \&\&\ m\_iVar\ !=\ m\_iUnk)}
+\DoxyCodeLine{00191\ \ \ \ \ \{}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ m\_iVar-\/>Release();}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ m\_iVar\ =\ NULL;}
+\DoxyCodeLine{00194\ \ \ \ \ \}}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ ==\ NULL)}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ GetInterface();}
+\DoxyCodeLine{00198\ \}}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{void}\ MoeInf<T,\ id>::Attach(IUnknown*\ iunk)}
+\DoxyCodeLine{00201\ \{}
+\DoxyCodeLine{00202\ \ \ \ \ m\_iUnk\ =\ iunk;}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iUnk\ ==\ NULL)}
+\DoxyCodeLine{00205\ \ \ \ \ \{}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ Init();}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00208\ \ \ \ \ \}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ !=\ NULL\ \&\&\ m\_iVar\ !=\ m\_iUnk)}
+\DoxyCodeLine{00211\ \ \ \ \ \{}
+\DoxyCodeLine{00212\ \ \ \ \ \ \ \ \ m\_iVar-\/>Release();}
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ m\_iVar\ =\ NULL;}
+\DoxyCodeLine{00214\ \ \ \ \ \}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ ==\ NULL)}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ GetInterface();}
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00219\ \}}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00221\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{void}\ MoeInf<T,\ id>::Init()}
+\DoxyCodeLine{00222\ \{}
+\DoxyCodeLine{00223\ \ \ \ \ m\_iUnk\ =\ NULL;}
+\DoxyCodeLine{00224\ \ \ \ \ Dispose();}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ CreateMoeSzyslakInterface(\textcolor{keywordtype}{id},\ \&m\_iUnk);}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iUnk\ ==\ NULL)}
+\DoxyCodeLine{00229\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00231\ \ \ \ \ GetInterface();}
+\DoxyCodeLine{00232\ \ \ \ \ m\_iUnk-\/>Release();}
+\DoxyCodeLine{00233\ \}}
+\DoxyCodeLine{00234\ }
+\DoxyCodeLine{00235\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ T*\ MoeInf<T,\ id>::operator-\/>()}
+\DoxyCodeLine{00236\ \{}
+\DoxyCodeLine{00237\ \ \ \ \ Attach();}
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ ==\ NULL)}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Invalid\ Interface"{}});}
+\DoxyCodeLine{00241\ }
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_iVar;}
+\DoxyCodeLine{00243\ \}}
+\DoxyCodeLine{00244\ }
+\DoxyCodeLine{00245\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{void}\ MoeInf<T,\ id>::GetInterface()}
+\DoxyCodeLine{00246\ \{}
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{keywordflow}{switch}\ (\textcolor{keywordtype}{id})}
+\DoxyCodeLine{00248\ \ \ \ \ \{}
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::AREA:}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(AREA\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::TABLE:}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(TABLE\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00256\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00257\ }
+\DoxyCodeLine{00258\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::DATETIME:}
+\DoxyCodeLine{00259\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(DATETIME\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00261\ }
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::HOST:}
+\DoxyCodeLine{00263\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(HOST\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00265\ }
+\DoxyCodeLine{00266\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::MODULE:}
+\DoxyCodeLine{00267\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(MODULE\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00269\ }
+\DoxyCodeLine{00270\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::DATABASE:}
+\DoxyCodeLine{00271\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(DATABASE\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00272\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00273\ }
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{keywordflow}{case}\ CLASSID::CREATURE:}
+\DoxyCodeLine{00275\ \ \ \ \ \ \ \ \ m\_iUnk-\/>QueryInterface(CREATURE\_IID,\ (\textcolor{keywordtype}{void}**)\&m\_iVar);}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00277\ \ \ \ \ \}}
+\DoxyCodeLine{00278\ \}}
+\DoxyCodeLine{00279\ }
+\DoxyCodeLine{00280\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{bool}\ MoeInf<T,\ id>::Verify()}
+\DoxyCodeLine{00281\ \{}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{keywordflow}{return}\ m\_iVar\ !=\ NULL;}
+\DoxyCodeLine{00283\ \}}
+\DoxyCodeLine{00284\ }
+\DoxyCodeLine{00285\ \textcolor{keyword}{template}<\textcolor{keyword}{class}\ T,\ CLASSID\ \textcolor{keywordtype}{id}>\ \textcolor{keywordtype}{void}\ MoeInf<T,\ id>::Dispose()}
+\DoxyCodeLine{00286\ \{}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keywordflow}{if}\ (m\_iVar\ !=\ NULL)}
+\DoxyCodeLine{00288\ \ \ \ \ \{}
+\DoxyCodeLine{00289\ \ \ \ \ \ \ \ \ m\_iVar-\/>Release();}
+\DoxyCodeLine{00290\ \ \ \ \ \ \ \ \ m\_iVar\ =\ NULL;}
+\DoxyCodeLine{00291\ \ \ \ \ \}}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00293\ \}}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \textcolor{keyword}{class\ }InterfaceCollectionInf}
+\DoxyCodeLine{00297\ \{}
+\DoxyCodeLine{00298\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00299\ }
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{comment}{//\ \{19573A2D-\/9DF6-\/4260-\/AA5B-\/E5F5F1B81D4C\}}}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ GUID\ m\_iid;}
+\DoxyCodeLine{00302\ }
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{IINTERFACECOLLECTION}}\ :\ \textcolor{keyword}{public}\ IUnknown}
+\DoxyCodeLine{00304\ \ \ \ \ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Add(IUnknown*\ iObj,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szTag,\ UINT\ nClassID)\ =\ 0;}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Get(\textcolor{keywordtype}{int}\ ndx,\ IUnknown**\ iunk)\ =\ 0;}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Count(\textcolor{keywordtype}{int}*\ nCnt)\ =\ 0;}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Remove(\textcolor{keywordtype}{int}\ ndx)\ =\ 0;}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetByTag(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szTag,\ IUnknown**\ iunk)\ =\ 0;}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ ForEach(IUnknown**\ pObj)\ =\ 0;}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Clear()\ =\ 0;}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd)\ =\ 0;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr)\ =\ 0;}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ Dispose()\ =\ 0;}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ HRESULT\ \_\_stdcall\ UnitTest(IUnknown*\ iTst)\ =\ 0;}
+\DoxyCodeLine{00316\ \ \ \ \ \};}
+\DoxyCodeLine{00317\ }
+\DoxyCodeLine{00318\ \ \ \ \ InterfaceCollectionInf();}
+\DoxyCodeLine{00319\ \ \ \ \ \string~InterfaceCollectionInf();}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach(IUnknown*\ iunk\ =\ NULL);}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordtype}{bool}\ ForEach(IUnknown**\ iunk);}
+\DoxyCodeLine{00322\ \ \ \ \ \textcolor{keywordtype}{bool}\ Dispose();}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \ \ \ \ \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{IINTERFACECOLLECTION}}*\ operator-\/>();}
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown*\ ()\ \{\ \textcolor{keywordflow}{return}\ m\_iUnk;\ \};}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown**\ ()\ \{\ \textcolor{keywordflow}{return}\ \&m\_iUnk;\ \};}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{IINTERFACECOLLECTION}}*\ ()\ \{\ \textcolor{keywordflow}{return}\ m\_iVar;\ \};}
+\DoxyCodeLine{00328\ }
+\DoxyCodeLine{00329\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00330\ \ \ \ \ IUnknown*\ m\_iUnk;}
+\DoxyCodeLine{00331\ \ \ \ \ \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{IINTERFACECOLLECTION}}*\ m\_iVar;}
+\DoxyCodeLine{00332\ \};}
+\DoxyCodeLine{00333\ }
+\DoxyCodeLine{00334\ \textcolor{preprocessor}{\#include\ "{}Interfaces\(\backslash\)VariableInfCollection.h"{}}}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \textcolor{keyword}{class\ }UserInf}
+\DoxyCodeLine{00338\ \{}
+\DoxyCodeLine{00339\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ UINT\ ClassID\ =\ 325850;}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00342\ \ \ \ \ UserInf();}
+\DoxyCodeLine{00343\ \ \ \ \ \string~UserInf();}
+\DoxyCodeLine{00344\ \ \ \ \ \textcolor{keywordtype}{void}\ Init();}
+\DoxyCodeLine{00345\ }
+\DoxyCodeLine{00346\ \ \ \ \ \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}*\ operator-\/>();}
+\DoxyCodeLine{00347\ \ \ \ \ \textcolor{keyword}{operator}\ IUnknown*\ ();}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ Attach(IUnknown*\ iunk)\ \{\ m\_iUnk\ =\ iunk;\ \};}
+\DoxyCodeLine{00350\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown**\ ()\ \{\ \textcolor{keywordflow}{return}\ \&m\_iUnk;\ \};}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00353\ \ \ \ \ IUnknown*\ m\_iUnk;}
+\DoxyCodeLine{00354\ \ \ \ \ \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}*\ m\_iVar;}
+\DoxyCodeLine{00355\ \};}
+\DoxyCodeLine{00356\ }
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ }
+\DoxyCodeLine{00359\ \textcolor{keyword}{class\ }CommsInf}
+\DoxyCodeLine{00360\ \{}
+\DoxyCodeLine{00361\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00362\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ UINT\ ClassID\ =\ 197619;}
+\DoxyCodeLine{00363\ }
+\DoxyCodeLine{00364\ \ \ \ \ CommsInf();}
+\DoxyCodeLine{00365\ \ \ \ \ \string~CommsInf();\ \ \ \ }
+\DoxyCodeLine{00366\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach();}
+\DoxyCodeLine{00367\ }
+\DoxyCodeLine{00368\ \ \ \ \ \textcolor{keyword}{operator}\ IUnknown*\ ();}
+\DoxyCodeLine{00369\ \ \ \ \ \doxymbox{\hyperlink{struct_i_c_o_m_m_g_e_n_e_r_a_l_p_a_g_e}{ICOMMGENERALPAGE}}*\ operator-\/>();}
+\DoxyCodeLine{00370\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown**\ ()\ \{\ \textcolor{keywordflow}{return}\ \&m\_iUnk;\ \};}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00373\ \ \ \ \ IUnknown*\ m\_iUnk;}
+\DoxyCodeLine{00374\ \ \ \ \ \doxymbox{\hyperlink{struct_i_c_o_m_m_g_e_n_e_r_a_l_p_a_g_e}{ICOMMGENERALPAGE}}*\ m\_iVar;}
+\DoxyCodeLine{00375\ \};}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ }
+\DoxyCodeLine{00378\ }
+\DoxyCodeLine{00379\ \textcolor{keyword}{class\ }LogEntryInf}
+\DoxyCodeLine{00380\ \{}
+\DoxyCodeLine{00381\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ UINT\ ClassID\ =\ 134569;}
+\DoxyCodeLine{00383\ }
+\DoxyCodeLine{00384\ \ \ \ \ LogEntryInf();}
+\DoxyCodeLine{00385\ \ \ \ \ \string~LogEntryInf();}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach(IUnknown*\ iunk);}
+\DoxyCodeLine{00387\ }
+\DoxyCodeLine{00388\ \ \ \ \ \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}*\ operator-\/>();}
+\DoxyCodeLine{00389\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown**\ ()\ \{\ \textcolor{keywordflow}{return}\ \&m\_iUnk;\ \};}
+\DoxyCodeLine{00390\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{operator}\ IUnknown*\ ()\ \{\ \textcolor{keywordflow}{return}\ m\_iUnk;\ \};}
+\DoxyCodeLine{00391\ }
+\DoxyCodeLine{00392\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00393\ \ \ \ \ IUnknown*\ m\_iUnk;}
+\DoxyCodeLine{00394\ \ \ \ \ \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}*\ m\_iVar;}
+\DoxyCodeLine{00395\ }
+\DoxyCodeLine{00396\ \ \ \ \ \textcolor{keywordtype}{void}\ Attach();}
+\DoxyCodeLine{00397\ \};}
+\DoxyCodeLine{00398\ }
+\DoxyCodeLine{00399\ }
+\DoxyCodeLine{00400\ }
+\DoxyCodeLine{00401\ }
+\DoxyCodeLine{00402\ }
+\DoxyCodeLine{00403\ }
+\DoxyCodeLine{00404\ }
+\DoxyCodeLine{00405\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{struct_l_o_c_a_t_i_o_n}{LOCATION}}}
+\DoxyCodeLine{00406\ \{}
+\DoxyCodeLine{00407\ \ \ \ \ \textcolor{keywordtype}{double}\ x;}
+\DoxyCodeLine{00408\ \ \ \ \ \textcolor{keywordtype}{double}\ y;}
+\DoxyCodeLine{00409\ \ \ \ \ \textcolor{keywordtype}{double}\ z;}
+\DoxyCodeLine{00410\ \};}
+\DoxyCodeLine{00411\ }
+\DoxyCodeLine{00412\ \textcolor{keywordtype}{void}\ VersionAsString(IUnknown*\ iunk);}
+\DoxyCodeLine{00413\ }
+\DoxyCodeLine{00414\ }
+\DoxyCodeLine{00415\ }
+\DoxyCodeLine{00416\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_jimbo_jones_library}{JimboJonesLibrary}}}
+\DoxyCodeLine{00417\ \{}
+\DoxyCodeLine{00418\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00419\ \ \ \ \ \textcolor{keyword}{static}\ UINT\ GetJimboLibraryVersion();}
+\DoxyCodeLine{00420\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ UINT\ MinVersion\ =\ 1465;}
+\DoxyCodeLine{00421\ \ \ \ \ \textcolor{keyword}{static}\ IUnknown*\ CreateInterface(UINT\ nClassID);}
+\DoxyCodeLine{00422\ }
+\DoxyCodeLine{00423\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00424\ \ \ \ \ \textcolor{keyword}{typedef}\ UINT(\_\_cdecl*\ PROC\_GETLIBRARYVERSION)();}
+\DoxyCodeLine{00425\ \ \ \ \ \textcolor{keyword}{typedef}\ HRESULT(\_\_cdecl*\ PROC\_CREATEINTERFACE)(UINT\ nClassID,\ IUnknown**\ iunk);}
+\DoxyCodeLine{00426\ }
+\DoxyCodeLine{00427\ \ \ \ \ \textcolor{keyword}{static}\ HMODULE\ m\_hModule;}
+\DoxyCodeLine{00428\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ Init();}
+\DoxyCodeLine{00429\ }
+\DoxyCodeLine{00430\ \ \ \ \ \textcolor{keyword}{static}\ PROC\_GETLIBRARYVERSION\ m\_pGetLibraryVersion;}
+\DoxyCodeLine{00431\ \ \ \ \ \textcolor{keyword}{static}\ PROC\_CREATEINTERFACE\ m\_pCreateInterface;}
+\DoxyCodeLine{00432\ \};}
+
+\end{DoxyCode}

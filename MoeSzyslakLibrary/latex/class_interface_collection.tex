@@ -1,0 +1,202 @@
+\doxysection{Interface\+Collection Class Reference}
+\hypertarget{class_interface_collection}{}\label{class_interface_collection}\index{InterfaceCollection@{InterfaceCollection}}
+Inheritance diagram for Interface\+Collection:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_interface_collection}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_interface_collection_abacb5226e65beb6873e463b6162bee18}\label{class_interface_collection_abacb5226e65beb6873e463b6162bee18} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+\Hypertarget{class_interface_collection_ae240af9e80f9d5f1e972e333e3dbefd9}\label{class_interface_collection_ae240af9e80f9d5f1e972e333e3dbefd9} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_interface_collection_a9632844b424b9076bc1b4b268ee302d8}\label{class_interface_collection_a9632844b424b9076bc1b4b268ee302d8} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a7aa16fbb2355b399b252dff77df9bccf}{Add}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Obj, const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Tag, UINT n\+Class\+ID)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a3eb71912a51b31ae828eeb42954306f3}{Get}} (int ndx, IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}iunk)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_af70ace0f53c9e202fa72d42f446686c4}{Count}} (int \texorpdfstring{$\ast$}{*}n\+Cnt)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a3bf036a9b9eb7070acd05a5a60e85e0c}{Remove}} (int ndx)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ad958b82af726041da407b18862317423}{Get\+By\+Tag}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Tag, IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}iunk)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ae082260d77c02f903ab8b7d211c3c96c}{For\+Each}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Obj)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a85ed7fa0dae4d50b3c0aceaa6c78fbbb}{Clear}} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a7c2cffc8d2250007d72d5de8090ed4ab}{Command}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a8df721af628aeff99bad0dd25fbe5045}{Get\+Return\+String}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_aad54678045b707e0d6f3e2ad4bd0cb15}{Unit\+Test}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tst)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ac548b03b04ec375f08255a6f7a29a522}{Dispose}} ()
+\item 
+\Hypertarget{class_interface_collection_ab7a7bc68191287440856cd1200186e80}\label{class_interface_collection_ab7a7bc68191287440856cd1200186e80} 
+void {\bfseries Get\+Local\+String} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_interface_collection_a88a617d06b67af9bd7e7130e900442a0}\label{class_interface_collection_a88a617d06b67af9bd7e7130e900442a0} 
+IUnknown \texorpdfstring{$\ast$}{*} {\bfseries Get} (std::\+wstring tag)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_interface_collection_a6e474b765a660f598e0fca0a7c4c40b0}\label{class_interface_collection_a6e474b765a660f598e0fca0a7c4c40b0} 
+int {\bfseries m\+\_\+c\+Ref}
+\item 
+\Hypertarget{class_interface_collection_a510e40075f6c8e0644d57c95b83282bb}\label{class_interface_collection_a510e40075f6c8e0644d57c95b83282bb} 
+int {\bfseries m\+\_\+n\+Objects}
+\item 
+\Hypertarget{class_interface_collection_a696bdcf2fa49b2d0cdfd3811d757b911}\label{class_interface_collection_a696bdcf2fa49b2d0cdfd3811d757b911} 
+int {\bfseries m\+\_\+max\+Objects}
+\item 
+\Hypertarget{class_interface_collection_adc38f2baadc14d3b3c7f19161c8e938b}\label{class_interface_collection_adc38f2baadc14d3b3c7f19161c8e938b} 
+IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+array}
+\item 
+\Hypertarget{class_interface_collection_a1395962390cf5f1fa74bebff5c6dca46}\label{class_interface_collection_a1395962390cf5f1fa74bebff5c6dca46} 
+std::\+map$<$ std::\+wstring, IUnknown \texorpdfstring{$\ast$}{*} $>$ {\bfseries m\+\_\+object\+Map}
+\item 
+\Hypertarget{class_interface_collection_a168e5936a45fda2d0630683f2f17fa80}\label{class_interface_collection_a168e5936a45fda2d0630683f2f17fa80} 
+std::\+map$<$ UINT, UINT $>$ {\bfseries m\+\_\+class\+IDs}
+\item 
+\Hypertarget{class_interface_collection_a627c7c0314498c0b83370618e76e15f0}\label{class_interface_collection_a627c7c0314498c0b83370618e76e15f0} 
+int {\bfseries m\+\_\+n\+Current}
+\item 
+\Hypertarget{class_interface_collection_a28a85deb2cc8e1fc4573c52e0cf77195}\label{class_interface_collection_a28a85deb2cc8e1fc4573c52e0cf77195} 
+IUnknown \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+i\+Ret\+String}
+\item 
+\Hypertarget{class_interface_collection_a2e7eb163f10747cb181779307fab97ce}\label{class_interface_collection_a2e7eb163f10747cb181779307fab97ce} 
+\doxymbox{\hyperlink{class_string_inf}{String\+Inf}} {\bfseries m\+\_\+i\+Local\+Str}
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{class_interface_collection_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_interface_collection_a7aa16fbb2355b399b252dff77df9bccf}\index{InterfaceCollection@{InterfaceCollection}!Add@{Add}}
+\index{Add@{Add}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Add()}{Add()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a7aa16fbb2355b399b252dff77df9bccf} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Add (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}}]{i\+Obj}{, }\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Tag}{, }\item[{UINT}]{n\+Class\+ID}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_a85ed7fa0dae4d50b3c0aceaa6c78fbbb}\index{InterfaceCollection@{InterfaceCollection}!Clear@{Clear}}
+\index{Clear@{Clear}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Clear()}{Clear()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a85ed7fa0dae4d50b3c0aceaa6c78fbbb} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Clear (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_a7c2cffc8d2250007d72d5de8090ed4ab}\index{InterfaceCollection@{InterfaceCollection}!Command@{Command}}
+\index{Command@{Command}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Command()}{Command()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a7c2cffc8d2250007d72d5de8090ed4ab} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Command (\begin{DoxyParamCaption}\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Cmd}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_af70ace0f53c9e202fa72d42f446686c4}\index{InterfaceCollection@{InterfaceCollection}!Count@{Count}}
+\index{Count@{Count}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Count()}{Count()}}
+{\footnotesize\ttfamily \label{class_interface_collection_af70ace0f53c9e202fa72d42f446686c4} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Count (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{n\+Cnt}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_ac548b03b04ec375f08255a6f7a29a522}\index{InterfaceCollection@{InterfaceCollection}!Dispose@{Dispose}}
+\index{Dispose@{Dispose}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Dispose()}{Dispose()}}
+{\footnotesize\ttfamily \label{class_interface_collection_ac548b03b04ec375f08255a6f7a29a522} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Dispose (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_ae082260d77c02f903ab8b7d211c3c96c}\index{InterfaceCollection@{InterfaceCollection}!ForEach@{ForEach}}
+\index{ForEach@{ForEach}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{ForEach()}{ForEach()}}
+{\footnotesize\ttfamily \label{class_interface_collection_ae082260d77c02f903ab8b7d211c3c96c} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+For\+Each (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{p\+Obj}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_a3eb71912a51b31ae828eeb42954306f3}\index{InterfaceCollection@{InterfaceCollection}!Get@{Get}}
+\index{Get@{Get}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Get()}{Get()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a3eb71912a51b31ae828eeb42954306f3} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Get (\begin{DoxyParamCaption}\item[{int}]{ndx}{, }\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{iunk}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_ad958b82af726041da407b18862317423}\index{InterfaceCollection@{InterfaceCollection}!GetByTag@{GetByTag}}
+\index{GetByTag@{GetByTag}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{GetByTag()}{GetByTag()}}
+{\footnotesize\ttfamily \label{class_interface_collection_ad958b82af726041da407b18862317423} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Get\+By\+Tag (\begin{DoxyParamCaption}\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Tag}{, }\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{iunk}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_a8df721af628aeff99bad0dd25fbe5045}\index{InterfaceCollection@{InterfaceCollection}!GetReturnString@{GetReturnString}}
+\index{GetReturnString@{GetReturnString}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{GetReturnString()}{GetReturnString()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a8df721af628aeff99bad0dd25fbe5045} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Get\+Return\+String (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_a3bf036a9b9eb7070acd05a5a60e85e0c}\index{InterfaceCollection@{InterfaceCollection}!Remove@{Remove}}
+\index{Remove@{Remove}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{Remove()}{Remove()}}
+{\footnotesize\ttfamily \label{class_interface_collection_a3bf036a9b9eb7070acd05a5a60e85e0c} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Remove (\begin{DoxyParamCaption}\item[{int}]{ndx}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+\Hypertarget{class_interface_collection_aad54678045b707e0d6f3e2ad4bd0cb15}\index{InterfaceCollection@{InterfaceCollection}!UnitTest@{UnitTest}}
+\index{UnitTest@{UnitTest}!InterfaceCollection@{InterfaceCollection}}
+\doxysubsubsection{\texorpdfstring{UnitTest()}{UnitTest()}}
+{\footnotesize\ttfamily \label{class_interface_collection_aad54678045b707e0d6f3e2ad4bd0cb15} 
+HRESULT \+\_\+\+\_\+stdcall Interface\+Collection::\+\+Unit\+Test (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}}]{i\+Tst}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{Interface\+Collection\+Inf::\+\+IINTERFACECOLLECTION}}.
+
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+Interface\+Collection.\+h\item 
+Interface\+Collection.\+cpp\end{DoxyCompactItemize}

@@ -68,6 +68,10 @@ GUID StringInf::m_iid =
 
 StringInf::StringInf()
 {
+	static int nID = 0;
+	nID++;
+	m_nID = nID;
+
 	m_iUnk = NULL;
 	m_iVar = NULL;
 	m_nBufSize = 255;
@@ -123,6 +127,9 @@ void StringInf::Init()
 
 void StringInf::GetInterface()
 {
+	if (m_iUnk == NULL)
+		Init();
+
 	if (m_iUnk != NULL)
 		m_iUnk->QueryInterface(m_iid, (void**)&m_iVar);
 }
@@ -131,7 +138,7 @@ void StringInf::BufferSize(UINT nSize)
 {
 	wchar_t* pNew;
 
-	if (nSize < m_nBufSize)
+	if (nSize <= m_nBufSize)
 		return;
 
 	pNew = new wchar_t[nSize];

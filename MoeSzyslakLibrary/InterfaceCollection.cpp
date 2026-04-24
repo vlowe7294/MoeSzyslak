@@ -172,6 +172,8 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 	VLStringCollection cmds;
 	HRESULT hr = E_FAIL;
 	IOSInf iIOS;
+	FinanceInf iFnc;
+	UserInf iUsr;
 
 	
 	cmds.Split(szCmd, L' ');
@@ -241,6 +243,18 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		hr = iIOS->Command(subCmd.c_str());
 		break;
 
+	case UserInf::ClassID:
+		iUsr.Attach(iunk);
+		hr = iUsr->Command(subCmd.c_str());
+		iUsr->GetReturnString(&m_iRetString);
+		break;
+
+	case FinanceInf::ClassID:
+		iFnc.Attach(iunk);
+		hr = iFnc->Command(subCmd.c_str());
+		iFnc->GetReturnString(&m_iRetString);
+		break;
+
 	case CLASSID::TRIPPLANNER:
 		itrp.Attach(iunk);
 		hr = itrp->Command(subCmd.c_str());
@@ -257,7 +271,7 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		iNvr.Attach(iunk);
 		hr = iNvr->Command(subCmd.c_str());
 		iNvr->GetReturnString(&m_iRetString);
-		break;
+		break;	
 	}
 
 	return hr;

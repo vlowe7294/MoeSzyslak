@@ -137,7 +137,8 @@ class TestRunner:
 
 
 if __name__ == "__main__":
-    TestRunner.UnitTest()
+    tst = TestRunner()
+    tst.select_test_class()
     
     
     

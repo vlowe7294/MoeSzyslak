@@ -139,7 +139,6 @@
                     throw new Exception("Should be 5 log entries.");
 
 
-                db.Dispose();
                 tst.Dispose();
             }
             catch (Exception ex)

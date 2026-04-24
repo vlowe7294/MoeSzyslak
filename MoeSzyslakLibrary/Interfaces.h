@@ -2,6 +2,8 @@
 
 #include <comdef.h>
 #include <stdexcept>
+#include <unordered_map>
+#include <atomic>
 #include "MoeString.h"
 #include "Interfaces\TripPlannerInf.h"
 #include "Interfaces\IOSInf.h"
@@ -21,8 +23,10 @@ enum CLASSID
 	MODULE			= 628950,
 	HOST			= 647491,
 	DATABASE		= 781903,	
-	CREATURE		= 924610
+	CREATURE		= 924610,	
 };
+
+extern const std::unordered_map<std::wstring, UINT> CLASS_NAMES;
 
 // {57779E06-1468-47C9-859A-49E07CEF5F8C}
 static const GUID HOST_IID =
@@ -82,6 +86,7 @@ struct IHOST : public IUnknown
 struct IDATETIME : public IUnknown
 {
 	virtual HRESULT __stdcall GetDifference(IUnknown* iSubAmt, int* nSec) = 0;
+	virtual HRESULT __stdcall SetToNow() = 0;
 };
 
 struct ICREATURE : public IUnknown
@@ -105,9 +110,31 @@ struct IMODULE : public IUnknown
 
 struct ILOGENTRY : public IUnknown
 {
+	/**
+	 * @brief Retrieves the property collection associated with this entry.
+	 * @param iProp Receives an IUnknown pointer to the property collection.
+	 * @return S_OK on success.
+	 */
 	virtual HRESULT __stdcall Properties(IUnknown** iProp) = 0;
+
+	/**
+	 * @brief Executes a command against this log entry.
+	 *
+	 * Supported commands:
+	 * - `get <property>` — retrieves a property value.
+	 *
+	 * @param szCmd The command string.
+	 * @return S_OK on success, or an HRESULT error code.
+	 */
 	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
+
+	/**
+	 * @brief Retrieves the return string produced by the last command.
+	 * @param iStr Receives an IUnknown pointer to the return string.
+	 * @return S_OK on success.
+	 */
 	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+
 	virtual HRESULT __stdcall UnitTest() = 0;
 };
 
@@ -115,6 +142,8 @@ struct ITABLE : public IUnknown
 {
 	virtual HRESULT __stdcall NewRow() = 0;
 	virtual HRESULT __stdcall Set(const wchar_t* colName, const wchar_t* strVal, UINT nType) = 0;
+	virtual HRESULT __stdcall Get(const wchar_t* colName, IUnknown* iStrVal) = 0;
+	virtual HRESULT __stdcall GoToTopRow() = 0;
 };
 
 struct IDATABASE : public IUnknown
@@ -129,6 +158,9 @@ struct IUSER : public IUnknown
 	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
 	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
 	virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
+	virtual HRESULT __stdcall Login() = 0;
+	virtual HRESULT __stdcall SaveUserList(IUnknown* iDB) = 0;
+	virtual HRESULT __stdcall AddToMasterList(const wchar_t* szTag, const wchar_t* szPassword) = 0;
 	virtual HRESULT __stdcall UnitTest() = 0;
 };
 

@@ -1,0 +1,135 @@
+\doxysection{VLVariable Class Reference}
+\hypertarget{class_v_l_variable}{}\label{class_v_l_variable}\index{VLVariable@{VLVariable}}
+Inheritance diagram for VLVariable:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_v_l_variable}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_v_l_variable_a9806a4d1d92aced9be492a50dfe1e05a}\label{class_v_l_variable_a9806a4d1d92aced9be492a50dfe1e05a} 
+enum {\bfseries VAR\+\_\+\+TYPE} \{ \newline
+{\bfseries TYPE\+\_\+\+STRING}
+, {\bfseries TYPE\+\_\+\+DATE}
+, {\bfseries TYPE\+\_\+\+INT}
+, {\bfseries TYPE\+\_\+\+BOOL}
+, \newline
+{\bfseries TYPE\+\_\+\+INTERFACE}
+, {\bfseries TYPE\+\_\+\+FLOAT}
+, {\bfseries TYPE\+\_\+\+COLLECTION}
+, {\bfseries TYPE\+\_\+\+MAX}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_v_l_variable_a4f69562adc48da65ccc2504e6d9cc338}\label{class_v_l_variable_a4f69562adc48da65ccc2504e6d9cc338} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+\Hypertarget{class_v_l_variable_ae657af2a66ce66514cee2ab9fe4b76a1}\label{class_v_l_variable_ae657af2a66ce66514cee2ab9fe4b76a1} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_v_l_variable_a1b0f92877a4002e7185fd6c34d367ca4}\label{class_v_l_variable_a1b0f92877a4002e7185fd6c34d367ca4} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+\Hypertarget{class_v_l_variable_a9b7bd445de49637a5e0dbc2505d6a7a6}\label{class_v_l_variable_a9b7bd445de49637a5e0dbc2505d6a7a6} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+As\+Bool} (BOOL \texorpdfstring{$\ast$}{*}b\+Val)
+\item 
+\Hypertarget{class_v_l_variable_a165ca45ac572e0157557195fab2617dd}\label{class_v_l_variable_a165ca45ac572e0157557195fab2617dd} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+As\+Bool} (BOOL b\+Val)
+\item 
+\Hypertarget{class_v_l_variable_a60e3c5a880ef8e08733eac8ae01de673}\label{class_v_l_variable_a60e3c5a880ef8e08733eac8ae01de673} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Command} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\item 
+\Hypertarget{class_v_l_variable_af74a85e396629749a9a894b1bdd0b606}\label{class_v_l_variable_af74a85e396629749a9a894b1bdd0b606} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+Return\+String} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\item 
+\Hypertarget{class_v_l_variable_ad5df692f3705a59425ec956dda2c5c5b}\label{class_v_l_variable_ad5df692f3705a59425ec956dda2c5c5b} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+Type} (UINT \texorpdfstring{$\ast$}{*}n\+Type)
+\item 
+\Hypertarget{class_v_l_variable_a6942e24c27a295a59ffee0a2f09348a4}\label{class_v_l_variable_a6942e24c27a295a59ffee0a2f09348a4} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+Type} (UINT n\+Type)
+\item 
+\Hypertarget{class_v_l_variable_a4b80655df8a71b68b2a57e7b1e006b85}\label{class_v_l_variable_a4b80655df8a71b68b2a57e7b1e006b85} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+Display\+Name} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Nme\+Str)
+\item 
+\Hypertarget{class_v_l_variable_ad8c5520444523f7ad16802a4c53f7403}\label{class_v_l_variable_ad8c5520444523f7ad16802a4c53f7403} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Unit\+Test} ()
+\item 
+\Hypertarget{class_v_l_variable_a6e48241d6fddacd25d5bbedbc3db81da}\label{class_v_l_variable_a6e48241d6fddacd25d5bbedbc3db81da} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+String} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\item 
+\Hypertarget{class_v_l_variable_a9315eaea16532080e51b669e6b97a052}\label{class_v_l_variable_a9315eaea16532080e51b669e6b97a052} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+String} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Str)
+\item 
+\Hypertarget{class_v_l_variable_a19b2fb0503a8a8730268a62a5765d3ca}\label{class_v_l_variable_a19b2fb0503a8a8730268a62a5765d3ca} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+As\+Int} (int n\+Val, int ndx)
+\item 
+\Hypertarget{class_v_l_variable_a925db26117934177a0059a4be19c9d15}\label{class_v_l_variable_a925db26117934177a0059a4be19c9d15} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+As\+Int} (int ndx, int \texorpdfstring{$\ast$}{*}n\+Val)
+\item 
+\Hypertarget{class_v_l_variable_a448e94a5533050b9cf4119c8472bbd3a}\label{class_v_l_variable_a448e94a5533050b9cf4119c8472bbd3a} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+As\+Float} (int ndx, double f\+Val)
+\item 
+\Hypertarget{class_v_l_variable_ae5c6ae22eb6b3a8e06c6e4ee2476a10b}\label{class_v_l_variable_ae5c6ae22eb6b3a8e06c6e4ee2476a10b} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+As\+Float} (int ndx, double \texorpdfstring{$\ast$}{*}f\+Val)
+\item 
+\Hypertarget{class_v_l_variable_a2a91dd80254e2109f519037f1aa476df}\label{class_v_l_variable_a2a91dd80254e2109f519037f1aa476df} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+Interface} (IUnknown \texorpdfstring{$\ast$}{*}iunk, UINT n\+Class\+ID)
+\item 
+\Hypertarget{class_v_l_variable_a3c9e63eeeee50cc830dc255b2e0e5833}\label{class_v_l_variable_a3c9e63eeeee50cc830dc255b2e0e5833} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+Interface} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}iunk)
+\item 
+\Hypertarget{class_v_l_variable_a547e8970ded6c8ba2f3f6e41a1d04c55}\label{class_v_l_variable_a547e8970ded6c8ba2f3f6e41a1d04c55} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Get\+Locked} (BOOL \texorpdfstring{$\ast$}{*}b\+Locked)
+\item 
+\Hypertarget{class_v_l_variable_a142c03fa9616f3b87ff2c21a9f769b4d}\label{class_v_l_variable_a142c03fa9616f3b87ff2c21a9f769b4d} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Set\+Locked} (BOOL b\+Locked)
+\item 
+\Hypertarget{class_v_l_variable_a1b3ed2406e80ee6d000ecd9ed79a2219}\label{class_v_l_variable_a1b3ed2406e80ee6d000ecd9ed79a2219} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Save} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\item 
+\Hypertarget{class_v_l_variable_aa387c8b519760b296bb6cd0903cca852}\label{class_v_l_variable_aa387c8b519760b296bb6cd0903cca852} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Copy} (IUnknown \texorpdfstring{$\ast$}{*}i\+Var)
+\item 
+\Hypertarget{class_v_l_variable_a42aa15efa75184154ad0769d9eeb12f7}\label{class_v_l_variable_a42aa15efa75184154ad0769d9eeb12f7} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Has\+Changed} (BOOL \texorpdfstring{$\ast$}{*}b\+Changed)
+\item 
+\Hypertarget{class_v_l_variable_ae770f38334e236caaadb9455c4a6c746}\label{class_v_l_variable_ae770f38334e236caaadb9455c4a6c746} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Compare} (IUnknown \texorpdfstring{$\ast$}{*}i\+Var, int \texorpdfstring{$\ast$}{*}n\+Cmp)
+\item 
+\Hypertarget{class_v_l_variable_a7f14f51ee243890a1c0bf14c52b2f8ba}\label{class_v_l_variable_a7f14f51ee243890a1c0bf14c52b2f8ba} 
+void {\bfseries Turn\+Off\+Changed} ()
+\item 
+\Hypertarget{class_v_l_variable_aa46667814eb96fb312b859f52d873bb5}\label{class_v_l_variable_aa46667814eb96fb312b859f52d873bb5} 
+void {\bfseries Can\+Be\+Empty} (bool b\+Can\+Be\+Empty)
+\item 
+\Hypertarget{class_v_l_variable_a9d885fe087d76e55b639d42d0a51a9c7}\label{class_v_l_variable_a9d885fe087d76e55b639d42d0a51a9c7} 
+\doxymbox{\hyperlink{class_v_l_date_time}{VLDate\+Time}} \& {\bfseries Get\+Date\+Time} ()
+\item 
+\Hypertarget{class_v_l_variable_a1ae16cb7b422eeae725f05bc30d43ecb}\label{class_v_l_variable_a1ae16cb7b422eeae725f05bc30d43ecb} 
+void {\bfseries Copy} (\doxymbox{\hyperlink{class_v_l_variable}{VLVariable}} \&i\+Cpy\+Frm)
+\item 
+\Hypertarget{class_v_l_variable_af3463868507a6cbab0f1605b4df5948d}\label{class_v_l_variable_af3463868507a6cbab0f1605b4df5948d} 
+void {\bfseries Set\+Limits} (int n\+Min, int n\+Max)
+\item 
+\Hypertarget{class_v_l_variable_aa9d14917bed6ee841442b9e112096665}\label{class_v_l_variable_aa9d14917bed6ee841442b9e112096665} 
+void {\bfseries Save\+To\+File} (VLFile \&fle)
+\item 
+\Hypertarget{class_v_l_variable_af6b1b1d69cdf7fa12174003ccdd93c85}\label{class_v_l_variable_af6b1b1d69cdf7fa12174003ccdd93c85} 
+void {\bfseries Load} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\item 
+\Hypertarget{class_v_l_variable_a1b00b07f2bbd27f7993709e06e69a157}\label{class_v_l_variable_a1b00b07f2bbd27f7993709e06e69a157} 
+void {\bfseries Load\+From\+File} (VLFile \&fle)
+\item 
+\Hypertarget{class_v_l_variable_aea817a3f16cf9d0f6bd7d78bdaa007fd}\label{class_v_l_variable_aea817a3f16cf9d0f6bd7d78bdaa007fd} 
+wstring {\bfseries Get\+String} ()
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+VLVariable.\+h\item 
+VLVariable.\+cpp\end{DoxyCompactItemize}

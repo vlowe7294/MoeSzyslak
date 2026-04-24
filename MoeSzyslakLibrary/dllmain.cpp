@@ -10,6 +10,7 @@
 #include "Testing.h"
 #include "IOS\IOS.h"
 #include "User.h"
+#include "Finance.h"
 
 
 
@@ -51,7 +52,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1559
+#define VERSION 1573
 
 VLString g_dllPath;
 
@@ -119,6 +120,10 @@ void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
 
     case StringInf::ClassID:
         *iunk = (IUnknown*)new VLString();
+        break;
+
+    case FinanceInf::ClassID:
+        *iunk = (IUnknown*)new Finance();
         break;
 
     case TestingInf::ClassID:
@@ -194,6 +199,61 @@ UI_EXPORT void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT 
     iRetStr.BufferSize(len);
     wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
     iRetStr->Set(L"");
+}
+
+const wchar_t* DEFAULT_HTML_TEMPLATE = LR"(
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Moe Szyslak Library</title>
+</head> 
+<body>
+</body>
+</html>
+)";
+
+UI_EXPORT void _cdecl MoeSzyslakHTML(UINT nClassID, const wchar_t* szGet, wchar_t* szRet, UINT len)
+{
+    static StringInf iRetStr;
+    static FinanceInf iFnce;
+
+    if ((IUnknown*)iRetStr == NULL)
+        iRetStr.Init();
+
+    iRetStr.BufferSize(len);
+
+    if (nClassID == FinanceInf::ClassID)
+    {
+        if ((IUnknown*)iFnce == NULL)
+            iFnce.Attach();
+
+        iFnce->HTMLPage(szGet, iRetStr);
+        wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
+        return;
+    }
+
+    wstring htm = DEFAULT_HTML_TEMPLATE, str;
+
+    
+
+    int i = htm.find(L"</body>");
+
+    if (i > 0)
+    {
+        str = htm.substr(0, i);
+        VersionAsString(iRetStr);
+        str += L"<div>Moe Szyslak Library " + wstring(iRetStr);
+
+        str += L"</div>";
+        str += htm.substr(i);
+        htm = str;
+    }
+
+    
+
+    
+    iRetStr.Set(htm.c_str());
+    wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
 }
 
 const wchar_t* GetLibraryPath()

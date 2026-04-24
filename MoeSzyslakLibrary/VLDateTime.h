@@ -13,11 +13,13 @@ public:
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
+	HRESULT __stdcall GetDifference(IUnknown* iSubAmt, int* nMin);
+	HRESULT __stdcall SetToNow();
+
 	HRESULT __stdcall SetDay(UINT yr, UINT mnth, UINT dy);
 	HRESULT __stdcall SetTime(UINT hr, UINT min, UINT sec);
 	HRESULT __stdcall GetDay(UINT* yr, UINT* mnth, UINT* dy);
-	HRESULT __stdcall GetTime(UINT* hr, UINT* min, UINT* sec);
-	HRESULT __stdcall GetDifference(IUnknown* iSubAmt, int* nMin);
+	HRESULT __stdcall GetTime(UINT* hr, UINT* min, UINT* sec);	
 	HRESULT __stdcall ToString(IUnknown* iStr);
 	HRESULT __stdcall TimeFormat(IUnknown* iStr);
 	HRESULT __stdcall Copy(IUnknown* iCpyFrom);
@@ -35,7 +37,7 @@ public:
 	void Copy(VLDateTime& tm);
 	void Parse(std::wstring inStr);
 	bool Compare(VLDateTime& dt);
-	void SetToNow();
+	
 
 	bool operator > (VLDateTime& dt);
 	bool operator >= (VLDateTime& dt);

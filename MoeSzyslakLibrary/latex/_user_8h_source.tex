@@ -1,0 +1,38 @@
+\doxysection{User.\+h}
+\hypertarget{_user_8h_source}{}\label{_user_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Utilities\(\backslash\)Database.h"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keyword}{class\ }User\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}}
+\DoxyCodeLine{00005\ \{}
+\DoxyCodeLine{00006\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00007\ \ \ \ \ User();}
+\DoxyCodeLine{00008\ \ \ \ \ \string~User();}
+\DoxyCodeLine{00009\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00010\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00011\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00012\ \ \ \ \ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00013\ \ \ \ \ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr);}
+\DoxyCodeLine{00014\ \ \ \ \ HRESULT\ \_\_stdcall\ Properties(IUnknown**\ iPrp);}
+\DoxyCodeLine{00015\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest();}
+\DoxyCodeLine{00016\ \ \ \ \ }
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{void}\ Login();}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{void}\ SaveUserList(Database\&\ db);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00022\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}*\ m\_pProperties;}
+\DoxyCodeLine{00023\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pName;}
+\DoxyCodeLine{00024\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pPassword;}
+\DoxyCodeLine{00025\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pIsLoggedIn;}
+\DoxyCodeLine{00026\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pIsAdmin;}
+\DoxyCodeLine{00027\ \ \ \ \ \doxymbox{\hyperlink{class_moe_inf}{MoeInf<IDATETIME,\ CLASSID::DATETIME>}}\ m\_iLastLogin;}
+\DoxyCodeLine{00028\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iReturnStr;}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{class_interface_collection}{InterfaceCollection}}\ m\_masterUserList;}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{bool}\ Compare(User\&\ usr);}
+\DoxyCodeLine{00033\ \};}
+
+\end{DoxyCode}

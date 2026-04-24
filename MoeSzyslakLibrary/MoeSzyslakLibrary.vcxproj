@@ -133,6 +133,10 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>MoeSzyslak.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -153,8 +157,13 @@
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>MoeSzyslak.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Finance.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Host.h" />
     <ClInclude Include="InterfaceCollection.h" />
@@ -176,6 +185,7 @@
     <ClInclude Include="Neverwinter\NeverwinterNights.h" />
     <ClInclude Include="Neverwinter\Placeable.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="sqlite3.h" />
     <ClInclude Include="Testing.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="TripPlanner.h" />
@@ -188,9 +198,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Finance.cpp" />
     <ClCompile Include="Host.cpp" />
     <ClCompile Include="InterfaceCollection.cpp" />
     <ClCompile Include="Interfaces.cpp" />
+    <ClCompile Include="Interfaces\FinanceInf.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Interfaces\IOSInf.cpp" />
     <ClCompile Include="Interfaces\MoeInterfaces.cpp" />
     <ClCompile Include="Interfaces\NeverwinterInf.cpp" />
@@ -206,14 +221,20 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="IOS\CommGeneralPage.cpp" />
+    <ClCompile Include="IOS\CommGeneralPage.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="IOS\IOS.cpp" />
     <ClCompile Include="IOS\PDU.cpp" />
     <ClCompile Include="IOS\Scenario.cpp" />
     <ClCompile Include="MoeString.cpp" />
     <ClCompile Include="Neverwinter\Area.cpp" />
     <ClCompile Include="Neverwinter\Creature.cpp" />
-    <ClCompile Include="Neverwinter\Module.cpp" />
+    <ClCompile Include="Neverwinter\Module.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Neverwinter\NeverwinterNights.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\pch.h</PrecompiledHeaderFile>
@@ -225,17 +246,27 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Testing.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="TripPlanner.cpp" />
     <ClCompile Include="User.cpp" />
-    <ClCompile Include="Utilities\Database.cpp" />
+    <ClCompile Include="Utilities\Database.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Utilities\VLFile.cpp" />
     <ClCompile Include="VLDateTime.cpp" />
     <ClCompile Include="VLString.cpp" />
     <ClCompile Include="VLVariable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="docs\FinanceDesign.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="MoeSzyslak.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

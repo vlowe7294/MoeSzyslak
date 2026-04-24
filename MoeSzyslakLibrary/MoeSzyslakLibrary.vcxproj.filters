@@ -25,6 +25,9 @@
     <Filter Include="IOS">
       <UniqueIdentifier>{34f9f366-897c-4845-b587-d42b8db139cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{ff14ab4b-3b62-4f79-945b-55a219e5fe50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -115,6 +118,12 @@
       <Filter>MoeInterfaces</Filter>
     </ClInclude>
     <ClInclude Include="tinyxml2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Finance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -209,10 +218,22 @@
     <ClCompile Include="tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Finance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\FinanceInf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MoeSzyslak.def">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="docs\FinanceDesign.htm">
+      <Filter>Docs</Filter>
     </None>
   </ItemGroup>
 </Project>

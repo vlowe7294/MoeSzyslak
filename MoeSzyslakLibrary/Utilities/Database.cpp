@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "..\pch.h"
 #include "Database.h"
 
 
@@ -91,6 +91,25 @@ void Row::Load(VLFile& fle, VLStringCollection& colNames)
 
 }
 
+void Row::WriteToSQL(wstring tbl, VLStringCollection& columns, sqlite3* db)
+{
+	wstring sql = L"INSERT INTO " + tbl + L" (", col;
+	int i = 0;
+
+	if (columns.GetCount() == 0) // no columns, nothing to do
+		return;
+
+	while (columns.ForEach(col))
+	{
+		if (i > 0)
+			sql += L",";
+		sql += L"`" + col + L"`";
+		i++;
+	}
+
+	sql += L") VALUES (";
+}
+
 
 
 
@@ -163,6 +182,25 @@ HRESULT __stdcall Table::Set(const wchar_t* colName, const wchar_t* strVal, UINT
 		m_columns.Add(colName);
 
 	m_pCurrentRow->Set(colName, strVal, (VLVariable::VAR_TYPE)nType);
+	return S_OK;
+}
+
+HRESULT __stdcall Table::Get(const wchar_t* colName, IUnknown* iunk)
+{
+	wstring val = Get(colName);
+	StringInf iStrVal;
+
+	iStrVal.Attach(iunk);
+	iStrVal.Set(val.c_str());
+	return S_OK;
+}
+
+HRESULT __stdcall Table::GoToTopRow()
+{
+	m_pCurrentRow->Release();
+	m_rows.Get(0, (IUnknown**)&m_pCurrentRow);
+	m_pCurrentRow->AddRef();
+	m_nRowNdx = 0;
 	return S_OK;
 }
 
@@ -265,17 +303,7 @@ void Table::Load(VLFile& fle)
 		}
 
 		m_pCurrentRow->Load(fle, m_columns);
-		m_rows.Add(m_pCurrentRow, L"", 0);
-
 	}
-}
-
-void Table::GoToTopRow()
-{
-	m_pCurrentRow->Release();
-	m_rows.Get(0, (IUnknown**)&m_pCurrentRow);
-	m_pCurrentRow->AddRef();
-	m_nRowNdx = 0;
 }
 
 void Table::NextRow()
@@ -361,6 +389,102 @@ wstring Table::GetColumn(int ndx)
 	return m_columns.Get(ndx);
 }
 
+void Table::WriteToSQL(wstring& errMsg, sqlite3* db)
+{
+	sqlite3_stmt* stmt;
+	wstring col;
+	int nCols = 0;
+	Row* pRow = NULL;
+
+
+	wstring sql = L"DROP TABLE IF EXISTS ";
+	sql += m_name ;
+	int rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
+
+	if (rc != SQLITE_OK)
+	{
+		errMsg = (const wchar_t*)sqlite3_errmsg16(db);
+		return;
+	}
+
+	rc = sqlite3_step(stmt);
+
+	if (rc != SQLITE_DONE)
+	{
+		errMsg = (const wchar_t*)sqlite3_errmsg16(db);
+	}
+
+	sqlite3_finalize(stmt);	
+	
+	// Using a wide string for the SQL command
+	sql = L"CREATE TABLE ";
+	sql += m_name + L" (`";
+
+	while (m_columns.ForEach(col))
+	{
+		if (nCols > 0)
+			sql += L", `";
+		sql += col + L"` TEXT NULL";
+		nCols++;
+	}
+	
+	sql += L");";	
+	
+	// 1. Prepare the statement using the UTF-16 version
+	// The -1 tells SQLite to read until the null terminator
+	rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
+
+	if (rc != SQLITE_OK)
+	{
+		// Use errmsg16 to get the error as a wide string if needed
+		errMsg = (const wchar_t*)sqlite3_errmsg16(db);
+		return;
+	}
+
+	// 2. Execute the statement
+	rc = sqlite3_step(stmt);
+
+	if (rc != SQLITE_DONE)
+	{
+		errMsg = (const wchar_t*)sqlite3_errmsg16(db);
+	}
+	// 3. Always finalize to prevent memory leaks
+	sqlite3_finalize(stmt);
+
+	while (m_rows.ForEach((IUnknown**)&pRow) == S_OK)
+	{
+		pRow->WriteToSQL(m_name, m_columns, db);
+	}
+}
+
+void Table::ReadFromSQL(sqlite3* db)
+{
+	// Construct the pragma query
+	wstring sql = L"PRAGMA table_info(" + m_name + L");";
+	sqlite3_stmt* stmt;
+	const unsigned char* colName;
+
+	int rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
+
+	if (rc == SQLITE_OK)
+	{
+		while (sqlite3_step(stmt) == SQLITE_ROW) 
+		{
+			colName = sqlite3_column_text(stmt, 1);
+		}
+	}
+
+	sqlite3_finalize(stmt);
+}
+
+void Table::Clear()
+{
+	m_columns.Clear();
+	m_rows.Clear();
+	m_pCurrentRow->Release();
+	m_pCurrentRow = new Row();
+	m_rows.Add(m_pCurrentRow, L"", 0);
+}
 
 
 
@@ -527,7 +651,63 @@ void Database::Import(wstring strXml)
 		s = strXml.find(L"<table", e);
 
 	}
-	
+}
 
+void Database::WriteToSQL()
+{
+	sqlite3* db;
+	wstring errMsg;
+	int rc;
+
+	// Open database
+	rc = sqlite3_open("test.db", &db);
+
+	if (rc != SQLITE_OK) 
+		return;
+
+	Table* pTbl = NULL;
+	
+	while (m_iTables.ForEach((IUnknown**)&pTbl) == S_OK)
+	{
+		pTbl->WriteToSQL(errMsg, db);
+	}
+
+	
+	// Always close the connection when finished
+	sqlite3_close(db);
+}
+
+void Database::ReadFromSQL()
+{
+	sqlite3* db;
+	string errMsg;
+	int rc;
+	// Open database
+	rc = sqlite3_open("test.db", &db);
+	if (rc != SQLITE_OK)
+
+	if (sqlite3_open("mydb.sqlite", &db) != SQLITE_OK) 
+	{
+		errMsg = sqlite3_errmsg(db);
+		return;
+	}
+
+	std::vector<std::string> tables;
+	const char* sql = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
+
+	sqlite3_stmt* stmt;
+	sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+	while (sqlite3_step(stmt) == SQLITE_ROW) 
+	{
+		Table* pTbl = new Table();
+		string tbl = (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+		pTbl->Name(std::wstring(tbl.begin(), tbl.end()).c_str());
+
+		pTbl->ReadFromSQL(db);
+		pTbl->Release();
+	}
+
+	
 }
 

@@ -49,8 +49,6 @@ public:
 
 	void TurnOffChanged();
 
-	inline void CanBeEmpty(bool bCanBeEmpty) { m_bCanBeEmpty = bCanBeEmpty; }
-
 	VLDateTime& GetDateTime();
 	void Copy(VLVariable& iCpyFrm);
 	void SetLimits(int nMin, int nMax);
@@ -58,6 +56,9 @@ public:
 	void Load(IUnknown* iTbl);
 	void LoadFromFile(VLFile& fle);
 	wstring GetString();
+	
+	inline void CanBeEmpty(bool bCanBeEmpty) { m_bCanBeEmpty = bCanBeEmpty; }
+	inline wstring DisplayName() { return (const wchar_t*)m_iDisplayName; };
 
 private:
 	int m_cRef;

@@ -236,6 +236,13 @@ HRESULT __stdcall VLDateTime::Copy(IUnknown* iUnk)
     return S_OK;
 }
 
+HRESULT __stdcall VLDateTime::SetToNow()
+{
+    VLDateTime nw;
+    Copy(nw);
+    return S_OK;
+}
+
 void VLDateTime::GetFromTimeStruct()
 {
     tm t;
@@ -313,12 +320,6 @@ void VLDateTime::Copy(VLDateTime& tm)
     m_nMin = tm.m_nMin;
     m_nSec = tm.m_nSec;
     m_timeSec = tm.m_timeSec;
-}
-
-void VLDateTime::SetToNow()
-{
-    VLDateTime nw;
-    Copy(nw);
 }
 
 bool VLDateTime::Compare(VLDateTime& dt)

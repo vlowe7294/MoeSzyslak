@@ -1,0 +1,88 @@
++--------------------------------------------------+
+|                 WORLD EDITOR MENU                |
++--------------------------------------------------+
+| 1. Rename World                                  |
+| 2. List Rooms                                    |
+| 3. Add Room                                      |
+| 4. Edit Room                                     |
+| 5. Delete Room                                   |
+| 6. Back to Main Menu                             |
++--------------------------------------------------+
+
+                |
+                v
+        +------------------+
+        | Get user choice  |
+        +------------------+
+                |
+                v
++--------------------------------------------------+
+| Choice == 1: Rename World                        |
++--------------------------------------------------+
+| Prompt: "Enter new world name"                   |
+| If not empty:                                    |
+|     - Set module name                            |
+|     - Commit to engine                           |
+|     - Print confirmation                         |
+| Else:                                            |
+|     - Print "Name cannot be empty"               |
++--------------------------------------------------+
+
+                |
+                v
++--------------------------------------------------+
+| Choice == 2: List Rooms                          |
++--------------------------------------------------+
+| Call module.list_rooms()                         |
+| Print start room and exits                       |
++--------------------------------------------------+
+
+                |
+                v
++--------------------------------------------------+
+| Choice == 3: Add Room                            |
++--------------------------------------------------+
+| (Future expansion point)                         |
+| Prompt for room name                             |
+| Prompt for description                           |
+| Create new Room                                  |
+| Add to world structure                           |
++--------------------------------------------------+
+
+                |
+                v
++--------------------------------------------------+
+| Choice == 4: Edit Room                           |
++--------------------------------------------------+
+| Prompt for room name                             |
+| If room exists:                                  |
+|     Show Edit Menu:                              |
+|       1. Change Description                      |
+|       2. Add Exit                                |
+|       3. Remove Exit                             |
+|       4. Back                                    |
+|     Loop until user chooses Back                 |
+| Else:                                            |
+|     Print "Room not found"                       |
++--------------------------------------------------+
+
+                |
+                v
++--------------------------------------------------+
+| Choice == 5: Delete Room                         |
++--------------------------------------------------+
+| Prompt for room name                             |
+| If room exists:                                  |
+|     - Remove room                                |
+|     - Remove reverse links                       |
+| Else:                                            |
+|     - Print "Room not found"                     |
++--------------------------------------------------+
+
+                |
+                v
++--------------------------------------------------+
+| Choice == 6: Back to Main Menu                   |
++--------------------------------------------------+
+| Exit world editor loop                           |
++--------------------------------------------------+

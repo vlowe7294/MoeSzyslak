@@ -1,0 +1,66 @@
+\doxysection{VLDate\+Time.\+h}
+\hypertarget{_v_l_date_time_8h_source}{}\label{_v_l_date_time_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}InterfaceCollection.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Interfaces.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{class\ }VLDateTime\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_i_d_a_t_e_t_i_m_e}{IDATETIME}}}
+\DoxyCodeLine{00007\ \{}
+\DoxyCodeLine{00008\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00009\ \ \ \ \ VLDateTime(VLDateTime\&\ dt);}
+\DoxyCodeLine{00010\ \ \ \ \ VLDateTime();}
+\DoxyCodeLine{00011\ \ \ \ \ VLDateTime(\textcolor{keywordtype}{int}\ yr,\ \textcolor{keywordtype}{int}\ mnth,\ \textcolor{keywordtype}{int}\ dy);}
+\DoxyCodeLine{00012\ \ \ \ \ \string~VLDateTime();}
+\DoxyCodeLine{00013\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00014\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00015\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00016\ \ \ \ \ HRESULT\ \_\_stdcall\ SetDay(UINT\ yr,\ UINT\ mnth,\ UINT\ dy);}
+\DoxyCodeLine{00017\ \ \ \ \ HRESULT\ \_\_stdcall\ SetTime(UINT\ hr,\ UINT\ min,\ UINT\ sec);}
+\DoxyCodeLine{00018\ \ \ \ \ HRESULT\ \_\_stdcall\ GetDay(UINT*\ yr,\ UINT*\ mnth,\ UINT*\ dy);}
+\DoxyCodeLine{00019\ \ \ \ \ HRESULT\ \_\_stdcall\ GetTime(UINT*\ hr,\ UINT*\ min,\ UINT*\ sec);}
+\DoxyCodeLine{00020\ \ \ \ \ HRESULT\ \_\_stdcall\ GetDifference(IUnknown*\ iSubAmt,\ \textcolor{keywordtype}{int}*\ nMin);}
+\DoxyCodeLine{00021\ \ \ \ \ HRESULT\ \_\_stdcall\ ToString(IUnknown*\ iStr);}
+\DoxyCodeLine{00022\ \ \ \ \ HRESULT\ \_\_stdcall\ TimeFormat(IUnknown*\ iStr);}
+\DoxyCodeLine{00023\ \ \ \ \ HRESULT\ \_\_stdcall\ Copy(IUnknown*\ iCpyFrom);}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ HRESULT\ \_\_stdcall\ Get(IUnknown*\ iDta);}
+\DoxyCodeLine{00027\ \ \ \ \ HRESULT\ \_\_stdcall\ ReadFromXML(LPCWSTR\ szPath)\ \{\ \textcolor{keywordflow}{return}\ E\_FAIL;\ \};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{void}\ AddSeconds(\textcolor{keywordtype}{double}\ nSec);}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{void}\ AddMinutes(\textcolor{keywordtype}{int}\ nMin);}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{void}\ AddDays(\textcolor{keywordtype}{int}\ nDays);}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{void}\ AddMonths(\textcolor{keywordtype}{int}\ nMonths);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{void}\ Print();}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{void}\ Copy(VLDateTime\&\ tm);}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{void}\ Parse(std::wstring\ inStr);}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{bool}\ Compare(VLDateTime\&\ dt);}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{void}\ SetToNow();}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{bool}\ operator\ >\ (VLDateTime\&\ dt);}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{bool}\ operator\ >=\ (VLDateTime\&\ dt);}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetYear()\ \{\ \textcolor{keywordflow}{return}\ m\_data[0];\ \};}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetMonth()\ \{\ \textcolor{keywordflow}{return}\ m\_data[1];\ \};}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetDay()\ \{\ \textcolor{keywordflow}{return}\ m\_data[2];\ \};}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetMinutes()\ \{\ \textcolor{keywordflow}{return}\ m\_nMin\ \%\ 60;\ \};}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetHours()\ \{\ \textcolor{keywordflow}{return}\ m\_nMin\ /\ 60;\ \};}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetSeconds()\ \{\ \textcolor{keywordflow}{return}\ (\textcolor{keywordtype}{int})m\_nSec;\ \};}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{inline}\ time\_t\ GetTotalSeconds()\ \{\ \textcolor{keywordflow}{return}\ m\_timeSec;\ \};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_data[3];}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_nMin;}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{double}\ m\_nSec;}
+\DoxyCodeLine{00057\ \ \ \ \ time\_t\ m\_timeSec;}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{void}\ SetTimeStruct();}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{void}\ GetFromTimeStruct();}
+\DoxyCodeLine{00061\ \};}
+
+\end{DoxyCode}

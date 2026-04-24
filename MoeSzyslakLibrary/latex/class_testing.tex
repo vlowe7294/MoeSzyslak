@@ -1,0 +1,282 @@
+\doxysection{Testing Class Reference}
+\hypertarget{class_testing}{}\label{class_testing}\index{Testing@{Testing}}
+
+
+Provides a complete automated testing framework for COM‑based components, including logging, verification, reporting, and subsystem‑specific test execution.  
+
+
+
+
+{\ttfamily \+\#include $<$Testing.\+h$>$}
+
+Inheritance diagram for Testing:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_testing}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_testing_a5ecbeb5bdff85ae42aa8b1614220b8ae}\label{class_testing_a5ecbeb5bdff85ae42aa8b1614220b8ae} 
+{\bfseries Testing} ()
+\begin{DoxyCompactList}\small\item\em Constructs a new \doxylink{class_testing}{Testing} object. \end{DoxyCompactList}\item 
+\Hypertarget{class_testing_ac392c66e3719ec5c1df36be4150d8b0f}\label{class_testing_ac392c66e3719ec5c1df36be4150d8b0f} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+\Hypertarget{class_testing_a7d9f5b7131a586762381fd8297c13345}\label{class_testing_a7d9f5b7131a586762381fd8297c13345} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_testing_a5046ed813e5ac0635332003ff4416860}\label{class_testing_a5046ed813e5ac0635332003ff4416860} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a3ee83c3d876d9c4e6c2cbd5d2b2f849a}{Properties}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Prp)
+\begin{DoxyCompactList}\small\item\em Retrieves the property collection for this test runner. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a8b7176c9219610fce7b6784e4d6b6c35}{Command}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\begin{DoxyCompactList}\small\item\em Executes a command string against the testing framework. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_af344855c0c47c81bdd74326e1cc39635}{Get\+Return\+String}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\begin{DoxyCompactList}\small\item\em Retrieves the return string from the last command. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a2617640a965eab91b91b0b772fc35726}{Run\+Test}} (UINT n\+Class\+ID)
+\begin{DoxyCompactList}\small\item\em Runs a test suite based on a class ID. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a89096d83c539ad2cc981dde2c28ba833}{Verify\+Variable}} (LPCWSTR var\+Name, LPCWSTR val)
+\begin{DoxyCompactList}\small\item\em Verifies that a stored test variable matches an expected value. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a258b724159568fd6f823fe409eaebb68}{Verify\+HResult}} (HRESULT hr, LPCWSTR sz\+Msg)
+\begin{DoxyCompactList}\small\item\em Verifies that an HRESULT indicates success. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a1f445c6b12bfce877bfac5932a8cef81}{Message}} (LPCWSTR sz\+Msg)
+\begin{DoxyCompactList}\small\item\em Logs a message to the test report. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a8b7f1cd2222a858437dd8b759bbbc385}{Load}} (LPCWSTR sz\+File\+Path)
+\begin{DoxyCompactList}\small\item\em Loads test results and test values from a database file. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a6431de8d5f275f897fe816e064346c8b}{Get\+Test\+Data}} (LPCWSTR sz\+Name, IUnknown \texorpdfstring{$\ast$}{*}i\+Str)
+\begin{DoxyCompactList}\small\item\em Retrieves a test data value by name. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_testing_a62b7eacd716c9eb175059090b7151ffd}{Set\+Test\+Data}} (LPCWSTR sz\+Name, LPCWSTR sz\+Val)
+\begin{DoxyCompactList}\small\item\em Sets a test data value. \end{DoxyCompactList}\item 
+\Hypertarget{class_testing_af56c4086792bc20c9be4752190c8ecdb}\label{class_testing_af56c4086792bc20c9be4752190c8ecdb} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Unit\+Test} ()
+\item 
+\Hypertarget{class_testing_ae93d2cfd7bd935cbb90c25cf468250a7}\label{class_testing_ae93d2cfd7bd935cbb90c25cf468250a7} 
+wstring {\bfseries HTMLPage} (wstring str\+Var)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Provides a complete automated testing framework for COM‑based components, including logging, verification, reporting, and subsystem‑specific test execution. 
+
+\doxylink{class_testing}{Testing} implements the ITESTING interface and supports:\+
+\begin{DoxyItemize}
+\item Running subsystem tests by class ID
+\item Logging messages with timestamps and memory usage
+\item Loading and saving test data
+\item Generating HTML and XML reports
+\item Verifying values and HRESULTs 
+\end{DoxyItemize}
+
+\label{doc-func-members}
+\Hypertarget{class_testing_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_testing_a8b7176c9219610fce7b6784e4d6b6c35}\index{Testing@{Testing}!Command@{Command}}
+\index{Command@{Command}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{Command()}{Command()}}
+{\footnotesize\ttfamily \label{class_testing_a8b7176c9219610fce7b6784e4d6b6c35} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Command (\begin{DoxyParamCaption}\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Cmd}{}\end{DoxyParamCaption})}
+
+
+
+Executes a command string against the testing framework. 
+
+Supported commands include:\+
+\begin{DoxyItemize}
+\item {\ttfamily get \texorpdfstring{$<$}{<}property\texorpdfstring{$>$}{>}}
+\item {\ttfamily log \texorpdfstring{$<$}{<}message\texorpdfstring{$>$}{>}}
+\item {\ttfamily load \texorpdfstring{$<$}{<}file\texorpdfstring{$>$}{>}}
+\item {\ttfamily message \texorpdfstring{$<$}{<}text\texorpdfstring{$>$}{>}}
+\item {\ttfamily runtest \texorpdfstring{$<$}{<}class\+ID\texorpdfstring{$>$}{>}}
+\item {\ttfamily set \texorpdfstring{$<$}{<}name\texorpdfstring{$>$}{>} \texorpdfstring{$<$}{<}value\texorpdfstring{$>$}{>}}
+\item {\ttfamily settestdata \texorpdfstring{$<$}{<}name\texorpdfstring{$>$}{>} \texorpdfstring{$<$}{<}value\texorpdfstring{$>$}{>}}
+\item {\ttfamily testvalues \texorpdfstring{$<$}{<}command\texorpdfstring{$>$}{>}}
+\item {\ttfamily unittest}
+\end{DoxyItemize}
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Cmd} & The command text. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success, or an HRESULT error code. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_af344855c0c47c81bdd74326e1cc39635}\index{Testing@{Testing}!GetReturnString@{GetReturnString}}
+\index{GetReturnString@{GetReturnString}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{GetReturnString()}{GetReturnString()}}
+{\footnotesize\ttfamily \label{class_testing_af344855c0c47c81bdd74326e1cc39635} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Get\+Return\+String (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Str}{}\end{DoxyParamCaption})}
+
+
+
+Retrieves the return string from the last command. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Str} & Receives an IUnknown pointer to the return string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a6431de8d5f275f897fe816e064346c8b}\index{Testing@{Testing}!GetTestData@{GetTestData}}
+\index{GetTestData@{GetTestData}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{GetTestData()}{GetTestData()}}
+{\footnotesize\ttfamily \label{class_testing_a6431de8d5f275f897fe816e064346c8b} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Get\+Test\+Data (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+Name}{, }\item[{IUnknown \texorpdfstring{$\ast$}{*}}]{i\+Str}{}\end{DoxyParamCaption})}
+
+
+
+Retrieves a test data value by name. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Name} & The variable name. \\
+\hline
+{\em i\+Str} & Receives an IUnknown pointer to the string interface containing the value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a8b7f1cd2222a858437dd8b759bbbc385}\index{Testing@{Testing}!Load@{Load}}
+\index{Load@{Load}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{Load()}{Load()}}
+{\footnotesize\ttfamily \label{class_testing_a8b7f1cd2222a858437dd8b759bbbc385} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Load (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+File\+Path}{}\end{DoxyParamCaption})}
+
+
+
+Loads test results and test values from a database file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+File\+Path} & The path to the database file. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a1f445c6b12bfce877bfac5932a8cef81}\index{Testing@{Testing}!Message@{Message}}
+\index{Message@{Message}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{Message()}{Message()}}
+{\footnotesize\ttfamily \label{class_testing_a1f445c6b12bfce877bfac5932a8cef81} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Message (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+Msg}{}\end{DoxyParamCaption})}
+
+
+
+Logs a message to the test report. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Msg} & The message text. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a3ee83c3d876d9c4e6c2cbd5d2b2f849a}\index{Testing@{Testing}!Properties@{Properties}}
+\index{Properties@{Properties}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{Properties()}{Properties()}}
+{\footnotesize\ttfamily \label{class_testing_a3ee83c3d876d9c4e6c2cbd5d2b2f849a} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Properties (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Prp}{}\end{DoxyParamCaption})}
+
+
+
+Retrieves the property collection for this test runner. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i\+Prp} & Receives an IUnknown pointer to the property collection. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a2617640a965eab91b91b0b772fc35726}\index{Testing@{Testing}!RunTest@{RunTest}}
+\index{RunTest@{RunTest}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{RunTest()}{RunTest()}}
+{\footnotesize\ttfamily \label{class_testing_a2617640a965eab91b91b0b772fc35726} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Run\+Test (\begin{DoxyParamCaption}\item[{UINT}]{n\+Class\+ID}{}\end{DoxyParamCaption})}
+
+
+
+Runs a test suite based on a class ID. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em n\+Class\+ID} & The class ID to test. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a62b7eacd716c9eb175059090b7151ffd}\index{Testing@{Testing}!SetTestData@{SetTestData}}
+\index{SetTestData@{SetTestData}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{SetTestData()}{SetTestData()}}
+{\footnotesize\ttfamily \label{class_testing_a62b7eacd716c9eb175059090b7151ffd} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Set\+Test\+Data (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+Name}{, }\item[{LPCWSTR}]{sz\+Val}{}\end{DoxyParamCaption})}
+
+
+
+Sets a test data value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Name} & The variable name. \\
+\hline
+{\em sz\+Val} & The value to assign. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK on success. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a258b724159568fd6f823fe409eaebb68}\index{Testing@{Testing}!VerifyHResult@{VerifyHResult}}
+\index{VerifyHResult@{VerifyHResult}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{VerifyHResult()}{VerifyHResult()}}
+{\footnotesize\ttfamily \label{class_testing_a258b724159568fd6f823fe409eaebb68} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Verify\+HResult (\begin{DoxyParamCaption}\item[{HRESULT}]{hr}{, }\item[{LPCWSTR}]{sz\+Msg}{}\end{DoxyParamCaption})}
+
+
+
+Verifies that an HRESULT indicates success. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hr} & The HRESULT to check. \\
+\hline
+{\em sz\+Msg} & The error message to log if the HRESULT fails. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The original HRESULT. 
+\end{DoxyReturn}
+\Hypertarget{class_testing_a89096d83c539ad2cc981dde2c28ba833}\index{Testing@{Testing}!VerifyVariable@{VerifyVariable}}
+\index{VerifyVariable@{VerifyVariable}!Testing@{Testing}}
+\doxysubsubsection{\texorpdfstring{VerifyVariable()}{VerifyVariable()}}
+{\footnotesize\ttfamily \label{class_testing_a89096d83c539ad2cc981dde2c28ba833} 
+HRESULT \+\_\+\+\_\+stdcall Testing::\+\+Verify\+Variable (\begin{DoxyParamCaption}\item[{LPCWSTR}]{var\+Name}{, }\item[{LPCWSTR}]{val}{}\end{DoxyParamCaption})}
+
+
+
+Verifies that a stored test variable matches an expected value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em var\+Name} & The variable name. \\
+\hline
+{\em val} & The expected value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK if the values match, otherwise E\+\_\+\+FAIL. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+Testing.\+h\item 
+Testing.\+cpp\end{DoxyCompactItemize}

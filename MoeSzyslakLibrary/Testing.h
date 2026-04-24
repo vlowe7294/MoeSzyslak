@@ -4,6 +4,28 @@
 #include "VLString.h"
 #include "Utilities/Database.h"
 
+// There is one global instance of this class that is used to track memory usage during testing.  
+// It can be used to detect memory leaks by comparing memory usage before and after tests are run.
+// Each time an instance of a class is created that should be tracked, it calls IncrementInstance with its class ID.
+// When an instance is destroyed, it calls DecrementInstance.  When the MemoryChecker is destroyed at program exit, 
+// it reports any class IDs that still have instances allocated.
+
+class MemoryChecker
+{
+public:
+	MemoryChecker();
+	~MemoryChecker();
+	void IncrementInstance(UINT nClassID);
+	void DecrementInstance(UINT nClassID);
+
+private:
+	int* m_pInstances;
+	int* m_pclassIDs;
+};
+
+extern MemoryChecker g_memoryChecker;
+
+
 /**
  * @class LogEntry
  * @brief Represents a single diagnostic or test log entry containing text,
@@ -72,7 +94,7 @@ public:
 	void Read(IUnknown* iTbl);
 
 	wstring GetHTML();
-
+	
 private:
 	int m_cRef;                         ///< COM reference count.
 	VariableCollection* m_pProperties;  ///< Property collection for this entry.
@@ -194,9 +216,8 @@ public:
 	HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal);
 	
 
+	HRESULT __stdcall HTMLPage(LPCWSTR szVar, IUnknown* iStr);
 	HRESULT __stdcall UnitTest();
-
-	wstring HTMLPage(wstring strVar);
 
 private:
 	int m_cRef;                          ///< COM reference count.
@@ -214,6 +235,7 @@ private:
 	StringInf m_iRetStr;                 ///< Return string buffer.
 	VariableCollection* m_pTestValues;   ///< Loaded test data values.
 	static const wchar_t* HTML_TEMPLATE;
+	
 
 	/** @brief Runs variable subsystem tests. */
 	void VariableTest();
@@ -254,3 +276,5 @@ private:
 	void Report();
 
 };
+
+

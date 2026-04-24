@@ -1,0 +1,104 @@
+\doxysection{Variable\+Collection Class Reference}
+\hypertarget{class_variable_collection}{}\label{class_variable_collection}\index{VariableCollection@{VariableCollection}}
+Inheritance diagram for Variable\+Collection:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_variable_collection}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_variable_collection_ac68276ea50bc97adfc8c54c9d439f8e7}\label{class_variable_collection_ac68276ea50bc97adfc8c54c9d439f8e7} 
+\doxymbox{\hyperlink{class_v_l_variable}{VLVariable}} \texorpdfstring{$\ast$}{*} {\bfseries New\+Variable} (wstring sz\+Tag)
+\item 
+\Hypertarget{class_variable_collection_a853875aaf4a7cc26e0011390bee23e52}\label{class_variable_collection_a853875aaf4a7cc26e0011390bee23e52} 
+void {\bfseries Set} (wstring sz\+Tag, wstring sz\+Value, VLVariable::\+\+VAR\+\_\+\+TYPE type)
+\item 
+\Hypertarget{class_variable_collection_a03b7b2f92a764a6bdf812e9dd06e406f}\label{class_variable_collection_a03b7b2f92a764a6bdf812e9dd06e406f} 
+wstring {\bfseries Get} (wstring sz\+Tag)
+\item 
+\Hypertarget{class_variable_collection_a11fe34fc3a46ada4cb22456bb13ec2ff}\label{class_variable_collection_a11fe34fc3a46ada4cb22456bb13ec2ff} 
+void {\bfseries Save} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\item 
+\Hypertarget{class_variable_collection_af59447894fe43e68a964dc94bfc52717}\label{class_variable_collection_af59447894fe43e68a964dc94bfc52717} 
+void {\bfseries Load} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tbl)
+\item 
+\Hypertarget{class_variable_collection_a075b8a369ec9972df9b4c6d3d649a5fe}\label{class_variable_collection_a075b8a369ec9972df9b4c6d3d649a5fe} 
+bool {\bfseries For\+Each} (\doxymbox{\hyperlink{class_v_l_variable}{VLVariable}} \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Var)
+\item 
+\Hypertarget{class_variable_collection_aee48a82709555288f7a3246915bf1c6e}\label{class_variable_collection_aee48a82709555288f7a3246915bf1c6e} 
+\doxymbox{\hyperlink{class_v_l_variable}{VLVariable}} \texorpdfstring{$\ast$}{*} {\bfseries Get} (int ndx)
+\item 
+\Hypertarget{class_variable_collection_aa03faf378d8b7cb9264fdd0d496a09af}\label{class_variable_collection_aa03faf378d8b7cb9264fdd0d496a09af} 
+void {\bfseries Turn\+Off\+Changed} ()
+\item 
+\Hypertarget{class_variable_collection_adbac137ead2969dcebc696e41180eeb7}\label{class_variable_collection_adbac137ead2969dcebc696e41180eeb7} 
+bool {\bfseries Has\+Changed} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \doxymbox{\hyperlink{class_interface_collection}{Interface\+Collection}}}
+\begin{DoxyCompactItemize}
+\item 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a7aa16fbb2355b399b252dff77df9bccf}{Add}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Obj, const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Tag, UINT n\+Class\+ID)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a3eb71912a51b31ae828eeb42954306f3}{Get}} (int ndx, IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}iunk)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_af70ace0f53c9e202fa72d42f446686c4}{Count}} (int \texorpdfstring{$\ast$}{*}n\+Cnt)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a3bf036a9b9eb7070acd05a5a60e85e0c}{Remove}} (int ndx)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ad958b82af726041da407b18862317423}{Get\+By\+Tag}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Tag, IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}iunk)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ae082260d77c02f903ab8b7d211c3c96c}{For\+Each}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Obj)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a85ed7fa0dae4d50b3c0aceaa6c78fbbb}{Clear}} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a7c2cffc8d2250007d72d5de8090ed4ab}{Command}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_a8df721af628aeff99bad0dd25fbe5045}{Get\+Return\+String}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_aad54678045b707e0d6f3e2ad4bd0cb15}{Unit\+Test}} (IUnknown \texorpdfstring{$\ast$}{*}i\+Tst)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_interface_collection_ac548b03b04ec375f08255a6f7a29a522}{Dispose}} ()
+\item 
+void {\bfseries Get\+Local\+String} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Protected Member Functions inherited from \doxymbox{\hyperlink{class_interface_collection}{Interface\+Collection}}}
+\begin{DoxyCompactItemize}
+\item 
+IUnknown \texorpdfstring{$\ast$}{*} {\bfseries Get} (std::\+wstring tag)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \doxymbox{\hyperlink{class_interface_collection}{Interface\+Collection}}}
+\begin{DoxyCompactItemize}
+\item 
+int {\bfseries m\+\_\+c\+Ref}
+\item 
+int {\bfseries m\+\_\+n\+Objects}
+\item 
+int {\bfseries m\+\_\+max\+Objects}
+\item 
+IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+array}
+\item 
+std::\+map$<$ std::\+wstring, IUnknown \texorpdfstring{$\ast$}{*} $>$ {\bfseries m\+\_\+object\+Map}
+\item 
+std::\+map$<$ UINT, UINT $>$ {\bfseries m\+\_\+class\+IDs}
+\item 
+int {\bfseries m\+\_\+n\+Current}
+\item 
+IUnknown \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+i\+Ret\+String}
+\item 
+\doxymbox{\hyperlink{class_string_inf}{String\+Inf}} {\bfseries m\+\_\+i\+Local\+Str}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+VLVariable.\+h\item 
+VLVariable.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,45 @@
+\doxysection{Interface\+Collection.\+h}
+\hypertarget{_interface_collection_8h_source}{}\label{_interface_collection_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Interfaces.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <map>}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{class\ }InterfaceCollection\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_interface_collection_inf_1_1_i_i_n_t_e_r_f_a_c_e_c_o_l_l_e_c_t_i_o_n}{InterfaceCollectionInf::IINTERFACECOLLECTION}}}
+\DoxyCodeLine{00007\ \{}
+\DoxyCodeLine{00008\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00009\ \ \ \ \ InterfaceCollection();}
+\DoxyCodeLine{00010\ \ \ \ \ \string~InterfaceCollection();}
+\DoxyCodeLine{00011\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00012\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00013\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00014\ \ \ \ \ HRESULT\ \_\_stdcall\ Add(IUnknown*\ iObj,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szTag,\ UINT\ nClassID);}
+\DoxyCodeLine{00015\ \ \ \ \ HRESULT\ \_\_stdcall\ Get(\textcolor{keywordtype}{int}\ ndx,\ IUnknown**\ iunk);}
+\DoxyCodeLine{00016\ \ \ \ \ HRESULT\ \_\_stdcall\ Count(\textcolor{keywordtype}{int}*\ nCnt);}
+\DoxyCodeLine{00017\ \ \ \ \ HRESULT\ \_\_stdcall\ Remove(\textcolor{keywordtype}{int}\ ndx);}
+\DoxyCodeLine{00018\ \ \ \ \ HRESULT\ \_\_stdcall\ GetByTag(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szTag,\ IUnknown**\ iunk);}
+\DoxyCodeLine{00019\ \ \ \ \ HRESULT\ \_\_stdcall\ ForEach(IUnknown**\ pObj);}
+\DoxyCodeLine{00020\ \ \ \ \ HRESULT\ \_\_stdcall\ Clear();}
+\DoxyCodeLine{00021\ \ \ \ \ HRESULT\ \_\_stdcall\ Command(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00022\ \ \ \ \ HRESULT\ \_\_stdcall\ GetReturnString(IUnknown**\ iStr);}
+\DoxyCodeLine{00023\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest(IUnknown*\ iTst);}
+\DoxyCodeLine{00024\ \ \ \ \ HRESULT\ \_\_stdcall\ Dispose();}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ GetLocalString(IUnknown**\ iStr);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_nObjects;}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_maxObjects;}
+\DoxyCodeLine{00032\ \ \ \ \ IUnknown**\ m\_array;}
+\DoxyCodeLine{00033\ \ \ \ \ std::map<std::wstring,\ IUnknown*>\ m\_objectMap;}
+\DoxyCodeLine{00034\ \ \ \ \ std::map<UINT,\ UINT>\ m\_classIDs;}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_nCurrent;}
+\DoxyCodeLine{00036\ \ \ \ \ IUnknown*\ m\_iRetString;}
+\DoxyCodeLine{00037\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iLocalStr;\ \ }
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ IUnknown*\ Get(std::wstring\ tag);}
+\DoxyCodeLine{00040\ \};}
+
+\end{DoxyCode}

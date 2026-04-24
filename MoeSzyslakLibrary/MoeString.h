@@ -69,6 +69,8 @@ private:
 	UINT m_nBufSize;
 	wchar_t* m_pBuf;
 
+	int m_nID;
+
 	void GetInterface();
 	
 };

@@ -1,0 +1,88 @@
+\doxysection{VLString Class Reference}
+\hypertarget{class_v_l_string}{}\label{class_v_l_string}\index{VLString@{VLString}}
+Inheritance diagram for VLString:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_v_l_string}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_v_l_string_a5a3023b760884d014da447922df6199b}\label{class_v_l_string_a5a3023b760884d014da447922df6199b} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+\Hypertarget{class_v_l_string_aaf1d75afa46f9c590608be6159fce433}\label{class_v_l_string_aaf1d75afa46f9c590608be6159fce433} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_v_l_string_a027921fb077cda237b4538e43a8078c5}\label{class_v_l_string_a027921fb077cda237b4538e43a8078c5} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_v_l_string_a515cbdda1bbd24184a0e0995c7319cd9}{Set}} (LPCWSTR sz\+Fmt\+Str)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_v_l_string_a4ac1e5618de1cfab322f091c81ab5ede}{Get}} (wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Str, UINT ndx, UINT n\+Max\+Len)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_v_l_string_a751a7f9918f3b70041ee3c89b3a8b726}{Append}} (LPCWSTR sz\+Str)
+\item 
+\Hypertarget{class_v_l_string_acfac2d907013b05685b54fc19e9c5cb5}\label{class_v_l_string_acfac2d907013b05685b54fc19e9c5cb5} 
+void {\bfseries Set\+Buffer\+Len} (UINT n\+Len)
+\item 
+\Hypertarget{class_v_l_string_a7c09c7e2917a38426da0363c03bc0546}\label{class_v_l_string_a7c09c7e2917a38426da0363c03bc0546} 
+int {\bfseries Find} (LPCWSTR sz\+Str, int ndx=0)
+\item 
+\Hypertarget{class_v_l_string_ac2561d3cb122aa35cb3ebf338fbacc53}\label{class_v_l_string_ac2561d3cb122aa35cb3ebf338fbacc53} 
+void {\bfseries Make\+Lower\+Case} ()
+\item 
+\Hypertarget{class_v_l_string_aded5f56ede6ac0baf2e88a128bfb7dae}\label{class_v_l_string_aded5f56ede6ac0baf2e88a128bfb7dae} 
+void {\bfseries Replace} (LPCWSTR sz\+From, LPCWSTR sz\+To)
+\item 
+\Hypertarget{class_v_l_string_ac727d57e1e42e100b6c87d5a05c5a861}\label{class_v_l_string_ac727d57e1e42e100b6c87d5a05c5a861} 
+{\bfseries operator wchar\+\_\+t \texorpdfstring{$\ast$}{*}} ()
+\item 
+\Hypertarget{class_v_l_string_a15a78c42d6eb06043be248bbbfed7860}\label{class_v_l_string_a15a78c42d6eb06043be248bbbfed7860} 
+wstring {\bfseries Get} ()
+\item 
+\Hypertarget{class_v_l_string_a6c1b9d70d5a96da6e58defc7f8b65aa7}\label{class_v_l_string_a6c1b9d70d5a96da6e58defc7f8b65aa7} 
+size\+\_\+t {\bfseries Get\+Length} ()
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{class_v_l_string_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_v_l_string_a751a7f9918f3b70041ee3c89b3a8b726}\index{VLString@{VLString}!Append@{Append}}
+\index{Append@{Append}!VLString@{VLString}}
+\doxysubsubsection{\texorpdfstring{Append()}{Append()}}
+{\footnotesize\ttfamily \label{class_v_l_string_a751a7f9918f3b70041ee3c89b3a8b726} 
+HRESULT \+\_\+\+\_\+stdcall VLString::\+\+Append (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+Str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_string_inf_1_1_i_s_t_r_i_n_g}{String\+Inf::\+\+ISTRING}}.
+
+\Hypertarget{class_v_l_string_a4ac1e5618de1cfab322f091c81ab5ede}\index{VLString@{VLString}!Get@{Get}}
+\index{Get@{Get}!VLString@{VLString}}
+\doxysubsubsection{\texorpdfstring{Get()}{Get()}}
+{\footnotesize\ttfamily \label{class_v_l_string_a4ac1e5618de1cfab322f091c81ab5ede} 
+HRESULT \+\_\+\+\_\+stdcall VLString::\+\+Get (\begin{DoxyParamCaption}\item[{wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Str}{, }\item[{UINT}]{ndx}{, }\item[{UINT}]{n\+Max\+Len}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_string_inf_1_1_i_s_t_r_i_n_g}{String\+Inf::\+\+ISTRING}}.
+
+\Hypertarget{class_v_l_string_a515cbdda1bbd24184a0e0995c7319cd9}\index{VLString@{VLString}!Set@{Set}}
+\index{Set@{Set}!VLString@{VLString}}
+\doxysubsubsection{\texorpdfstring{Set()}{Set()}}
+{\footnotesize\ttfamily \label{class_v_l_string_a515cbdda1bbd24184a0e0995c7319cd9} 
+HRESULT \+\_\+\+\_\+stdcall VLString::\+\+Set (\begin{DoxyParamCaption}\item[{LPCWSTR}]{sz\+Fmt\+Str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_string_inf_1_1_i_s_t_r_i_n_g}{String\+Inf::\+\+ISTRING}}.
+
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+VLString.\+h\item 
+VLString.\+cpp\end{DoxyCompactItemize}

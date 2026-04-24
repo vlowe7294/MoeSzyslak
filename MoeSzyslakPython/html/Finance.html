@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Budgeting System</title>
+    <style>
+        body {
+            font-family: Segoe UI, Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .balance-box {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+            table th, table td {
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            table th {
+                background: #eee;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        input, select {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #27ae60;
+            }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Budgeting System</h1>
+    </header>
+
+    <div class="container">
+
+        <!-- BALANCE SECTION -->
+        <div class="section">
+            <h2>Current Balance</h2>
+            <div id="accountBalance" class="balance-box">
+                $0.00
+            </div>
+        </div>
+
+        <!-- ADD TRANSACTION -->
+        <div class="section">
+            <h2>Add Transaction</h2>
+
+            <form id="addTransactionForm">
+                <div class="form-grid">
+                    <div>
+                        <label>Amount</label>
+                        <input type="number" id="transactionAmount" step="0.01">
+                    </div>
+
+                    <div>
+                        <label>Date</label>
+                        <input type="date" id="transactionDate">
+                    </div>
+
+                    <div>
+                        <label>Category</label>
+                        <input type="text" id="transactionCategory">
+                    </div>
+
+                    <div>
+                        <label>Notes</label>
+                        <input type="text" id="transactionNotes">
+                    </div>
+                </div>
+
+                <button type="button" id="addTransactionButton">Add Transaction</button>
+            </form>
+        </div>
+
+        <!-- TRANSACTION LIST -->
+        <div class="section">
+            <h2>Transaction History</h2>
+
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JS will populate -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RECURRING RULES -->
+        <div class="section">
+            <h2>Recurring Rules</h2>
+
+            <form id="addRuleForm">
+                <div class="form-grid">
+                    <div>
+                        <label>Name</label>
+                        <input type="text" id="ruleName">
+                    </div>
+
+                    <div>
+                        <label>Amount</label>
+                        <input type="number" id="ruleAmount" step="0.01">
+                    </div>
+
+                    <div>
+                        <label>Frequency</label>
+                        <select id="ruleFrequency">
+                            <option value="Weekly">Weekly</option>
+                            <option value="BiWeekly">Bi-Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Next Due Date</label>
+                        <input type="date" id="ruleNextDate">
+                    </div>
+                </div>
+
+                <button type="button" id="addRuleButton">Add Rule</button>
+            </form>
+
+            <table id="recurringRulesTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        <th>Next Due</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JS will populate -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>

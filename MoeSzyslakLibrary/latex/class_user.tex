@@ -1,0 +1,85 @@
+\doxysection{User Class Reference}
+\hypertarget{class_user}{}\label{class_user}\index{User@{User}}
+Inheritance diagram for User:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_user}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_user_a727ac753d249d10baf9a8c79eaa3c7d9}\label{class_user_a727ac753d249d10baf9a8c79eaa3c7d9} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Add\+Ref} ()
+\item 
+\Hypertarget{class_user_a69a722695f2e9ada11ccd232c48d047e}\label{class_user_a69a722695f2e9ada11ccd232c48d047e} 
+ULONG \+\_\+\+\_\+stdcall {\bfseries Release} ()
+\item 
+\Hypertarget{class_user_a97a4e34c51ede34fbc28259bc20cda20}\label{class_user_a97a4e34c51ede34fbc28259bc20cda20} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Query\+Interface} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_user_a1eac93326e3459872f1e36fa766d429f}{Command}} (const wchar\+\_\+t \texorpdfstring{$\ast$}{*}sz\+Cmd)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_user_a5d3cec74857c7ce5cde35cd391edfc1b}{Get\+Return\+String}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Str)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_user_aec9a32d7ac94ba59f1450f451013c179}{Properties}} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Prp)
+\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_user_a8d3b1c5cead1a39c93a338fb0f1511cb}{Unit\+Test}} ()
+\item 
+\Hypertarget{class_user_a22d615cf419814e0ede613e2977599b6}\label{class_user_a22d615cf419814e0ede613e2977599b6} 
+void {\bfseries Login} ()
+\item 
+\Hypertarget{class_user_a071f598776aecb263fff819682241f0e}\label{class_user_a071f598776aecb263fff819682241f0e} 
+void {\bfseries Save\+User\+List} (Database \&db)
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{class_user_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_user_a1eac93326e3459872f1e36fa766d429f}\index{User@{User}!Command@{Command}}
+\index{Command@{Command}!User@{User}}
+\doxysubsubsection{\texorpdfstring{Command()}{Command()}}
+{\footnotesize\ttfamily \label{class_user_a1eac93326e3459872f1e36fa766d429f} 
+HRESULT \+\_\+\+\_\+stdcall User::\+\+Command (\begin{DoxyParamCaption}\item[{const wchar\+\_\+t \texorpdfstring{$\ast$}{*}}]{sz\+Cmd}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}.
+
+\Hypertarget{class_user_a5d3cec74857c7ce5cde35cd391edfc1b}\index{User@{User}!GetReturnString@{GetReturnString}}
+\index{GetReturnString@{GetReturnString}!User@{User}}
+\doxysubsubsection{\texorpdfstring{GetReturnString()}{GetReturnString()}}
+{\footnotesize\ttfamily \label{class_user_a5d3cec74857c7ce5cde35cd391edfc1b} 
+HRESULT \+\_\+\+\_\+stdcall User::\+\+Get\+Return\+String (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Str}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}.
+
+\Hypertarget{class_user_aec9a32d7ac94ba59f1450f451013c179}\index{User@{User}!Properties@{Properties}}
+\index{Properties@{Properties}!User@{User}}
+\doxysubsubsection{\texorpdfstring{Properties()}{Properties()}}
+{\footnotesize\ttfamily \label{class_user_aec9a32d7ac94ba59f1450f451013c179} 
+HRESULT \+\_\+\+\_\+stdcall User::\+\+Properties (\begin{DoxyParamCaption}\item[{IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{i\+Prp}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}.
+
+\Hypertarget{class_user_a8d3b1c5cead1a39c93a338fb0f1511cb}\index{User@{User}!UnitTest@{UnitTest}}
+\index{UnitTest@{UnitTest}!User@{User}}
+\doxysubsubsection{\texorpdfstring{UnitTest()}{UnitTest()}}
+{\footnotesize\ttfamily \label{class_user_a8d3b1c5cead1a39c93a338fb0f1511cb} 
+HRESULT \+\_\+\+\_\+stdcall User::\+\+Unit\+Test (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \doxymbox{\hyperlink{struct_i_u_s_e_r}{IUSER}}.
+
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+User.\+h\item 
+User.\+cpp\end{DoxyCompactItemize}

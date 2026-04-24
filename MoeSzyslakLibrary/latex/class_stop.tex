@@ -1,0 +1,112 @@
+\doxysection{Stop Class Reference}
+\hypertarget{class_stop}{}\label{class_stop}\index{Stop@{Stop}}
+
+
+Represents a single stop in a trip, including start location, distance, and fuel usage.  
+
+
+
+
+{\ttfamily \+\#include $<$Trip\+Planner.\+h$>$}
+
+Inheritance diagram for Stop:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_stop}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_stop_ab8870f949c69cda03c4055524ed13c31}\label{class_stop_ab8870f949c69cda03c4055524ed13c31} 
+{\bfseries Stop} ()
+\begin{DoxyCompactList}\small\item\em Constructs a new \doxylink{class_stop}{Stop} object with default values. \end{DoxyCompactList}\item 
+\Hypertarget{class_stop_a24e85edfa98a7a0212136679b6fad6d2}\label{class_stop_a24e85edfa98a7a0212136679b6fad6d2} 
+{\bfseries \texorpdfstring{$\sim$}{\string~}\+Stop} ()
+\begin{DoxyCompactList}\small\item\em Destructor for \doxylink{class_stop}{Stop}. \end{DoxyCompactList}\item 
+HRESULT \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_stop_ac3d4e38ceb936826fe2fa4ac7e896fd6}{Query\+Interface}} (REFIID riid, LPVOID \texorpdfstring{$\ast$}{*}ppv\+Obj)
+\begin{DoxyCompactList}\small\item\em Standard COM Query\+Interface implementation. \end{DoxyCompactList}\item 
+ULONG \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_stop_a59b429a080d70c73a173f01b7d3745b7}{Add\+Ref}} ()
+\begin{DoxyCompactList}\small\item\em Increments the COM reference count. \end{DoxyCompactList}\item 
+ULONG \+\_\+\+\_\+stdcall \doxymbox{\hyperlink{class_stop_ae7b7c3fa08bb50f1f9a4e9e34fa3e67b}{Release}} ()
+\begin{DoxyCompactList}\small\item\em Decrements the COM reference count and deletes the object when it reaches zero. \end{DoxyCompactList}\item 
+\Hypertarget{class_stop_af7d499672988ce4e8a5482842f588dab}\label{class_stop_af7d499672988ce4e8a5482842f588dab} 
+HRESULT \+\_\+\+\_\+stdcall {\bfseries Properties} (IUnknown \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}i\+Prop)
+\item 
+\Hypertarget{class_stop_acf00dc773882e0f89072a02c7b79c9d7}\label{class_stop_acf00dc773882e0f89072a02c7b79c9d7} 
+void {\bfseries Print} ()
+\item 
+\Hypertarget{class_stop_a75366196c5bcf2d89463ef2143a612e1}\label{class_stop_a75366196c5bcf2d89463ef2143a612e1} 
+void {\bfseries Distance} (UINT n\+Distance)
+\item 
+\Hypertarget{class_stop_af5db5ea856ff5f6de8eb9f3cdfc6defa}\label{class_stop_af5db5ea856ff5f6de8eb9f3cdfc6defa} 
+UINT {\bfseries Distance} ()
+\item 
+\Hypertarget{class_stop_ac2b05f5799cb647e20078d53af061f07}\label{class_stop_ac2b05f5799cb647e20078d53af061f07} 
+void {\bfseries Fuel\+Used} (double f\+Fuel\+Used)
+\item 
+\Hypertarget{class_stop_a254f9b6cd17416a0900282cb814aef8a}\label{class_stop_a254f9b6cd17416a0900282cb814aef8a} 
+void {\bfseries Travel\+Time} (UINT n\+Travel\+Time)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a single stop in a trip, including start location, distance, and fuel usage. 
+
+This class implements a COM-\/style reference-\/counted object used by \doxylink{class_trip_planner}{Trip\+Planner}. Each \doxylink{class_stop}{Stop} stores basic trip metrics and provides simple setters and a formatted print method. 
+
+\label{doc-func-members}
+\Hypertarget{class_stop_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_stop_a59b429a080d70c73a173f01b7d3745b7}\index{Stop@{Stop}!AddRef@{AddRef}}
+\index{AddRef@{AddRef}!Stop@{Stop}}
+\doxysubsubsection{\texorpdfstring{AddRef()}{AddRef()}}
+{\footnotesize\ttfamily \label{class_stop_a59b429a080d70c73a173f01b7d3745b7} 
+ULONG Stop::\+\+Add\+Ref (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Increments the COM reference count. 
+
+\begin{DoxyReturn}{Returns}
+The new reference count. 
+\end{DoxyReturn}
+\Hypertarget{class_stop_ac3d4e38ceb936826fe2fa4ac7e896fd6}\index{Stop@{Stop}!QueryInterface@{QueryInterface}}
+\index{QueryInterface@{QueryInterface}!Stop@{Stop}}
+\doxysubsubsection{\texorpdfstring{QueryInterface()}{QueryInterface()}}
+{\footnotesize\ttfamily \label{class_stop_ac3d4e38ceb936826fe2fa4ac7e896fd6} 
+HRESULT \+\_\+\+\_\+stdcall Stop::\+\+Query\+Interface (\begin{DoxyParamCaption}\item[{REFIID}]{riid}{, }\item[{LPVOID \texorpdfstring{$\ast$}{*}}]{ppv\+Obj}{}\end{DoxyParamCaption})}
+
+
+
+Standard COM Query\+Interface implementation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em riid} & The requested interface ID. \\
+\hline
+{\em ppv\+Obj} & Receives the interface pointer if supported. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+S\+\_\+\+OK if the interface is supported, otherwise E\+\_\+\+NOINTERFACE. 
+\end{DoxyReturn}
+\Hypertarget{class_stop_ae7b7c3fa08bb50f1f9a4e9e34fa3e67b}\index{Stop@{Stop}!Release@{Release}}
+\index{Release@{Release}!Stop@{Stop}}
+\doxysubsubsection{\texorpdfstring{Release()}{Release()}}
+{\footnotesize\ttfamily \label{class_stop_ae7b7c3fa08bb50f1f9a4e9e34fa3e67b} 
+ULONG \+\_\+\+\_\+stdcall Stop::\+\+Release (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Decrements the COM reference count and deletes the object when it reaches zero. 
+
+\begin{DoxyReturn}{Returns}
+The new reference count. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files:\+\begin{DoxyCompactItemize}
+\item 
+Trip\+Planner.\+h\item 
+Trip\+Planner.\+cpp\end{DoxyCompactItemize}

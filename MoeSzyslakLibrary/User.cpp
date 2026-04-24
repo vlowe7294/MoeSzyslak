@@ -1,15 +1,18 @@
 #include "pch.h"
 #include "User.h"
+#include "Testing.h"
 
 
 InterfaceCollection User::m_masterUserList;
 BOOL g_bInit = FALSE;
+
 
 User::User()
 {
     m_cRef = 1;
     User* iNewUsr;
     VariableInfCollection ivars;
+    g_memoryChecker.IncrementInstance(UserInf::ClassID);
     
     if (g_bInit == FALSE)
     {
@@ -37,7 +40,7 @@ User::User()
     m_pName->CanBeEmpty(false);   
 
     m_pPassword = m_pProperties->NewVariable(L"Password");
-    m_pName->SetString(L"xxxxx");
+    m_pPassword->SetString(L"xxxxx");
     m_pPassword->CanBeEmpty(false);
 
     m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
@@ -46,14 +49,16 @@ User::User()
 
     m_pIsLoggedIn = m_pProperties->NewVariable(L"Is Logged In");
     m_pIsLoggedIn->SetAsBool(FALSE);
-    m_pIsLoggedIn->SetLocked(TRUE);
+    m_pIsLoggedIn->SetLocked(TRUE); 
 
-    m_iReturnStr.Init();   
+    m_pEmail = m_pProperties->NewVariable(L"Email");
+    m_iLastActive.Init();
 }
 
 User::~User()
 {
 	m_pProperties->Release();
+    g_memoryChecker.DecrementInstance(UserInf::ClassID);
 }
 
 ULONG User::AddRef()
@@ -95,41 +100,76 @@ HRESULT __stdcall User::QueryInterface(REFIID riid, LPVOID* ppvObj)
 
 HRESULT __stdcall User::Command(const wchar_t* szCmd)
 {
-    VLStringCollection wrds;
-    HRESULT hr = S_OK;
-    wstring prmpt;
-
-    wrds.Split(szCmd, L' ');
-    wrds.ToLower(0);
-
-    m_iReturnStr->Append(L"Unknown user command - ");
-    m_iReturnStr->Append(wrds.Get(0).c_str());
-    m_iReturnStr->Append(L"\n");
+    HRESULT hr = E_FAIL;
+    VLStringCollection cmds;
+    MoeInf<IDATETIME, CLASSID::DATETIME> dtNow;
     
+    if (!szCmd || wcslen(szCmd) == 0)
+        return E_INVALIDARG;
+
+    dtNow.Init();
+    int nSec = 0;
+	dtNow->GetDifference(m_iLastActive, &nSec);  
+
+    if (nSec > 900)// users that have been idle for more than 15 minutes will be logged out
+    {
+        m_pIsLoggedIn->SetLocked(FALSE);
+        m_pIsLoggedIn->SetAsBool(FALSE);
+        m_pIsLoggedIn->SetLocked(TRUE);
+    }
+
+    m_iLastActive->SetToNow();
+    cmds.Split(szCmd, L' ');
+    cmds.ToLower(0);
+
+    switch (szCmd[0])
+    {
+    case L'l':
+    case L'L':
+        if (cmds.Compare(0, L"login"))
+            hr = Login();
+        break;
+
+    default:
+        hr = m_pProperties->Command(szCmd);
+    }
+
     return hr;
 }
 
 HRESULT __stdcall User::GetReturnString(IUnknown** iStr)
 {
-    *iStr = (IUnknown*)m_iReturnStr;
-    return S_OK;
+    return m_pProperties->GetReturnString(iStr);
 }
 
 HRESULT __stdcall User::UnitTest()
 {
     Database* pDB = new Database();
+    //User* pUser = NULL;
+    //VariableInfCollection iprp;
+
+    SaveUserList(pDB);
+
+    pDB->ReadFromSQL();
+    // LoadUserList(*pDB);
 
     
+    pDB->WriteToSQL();
 
-    Login();
+    m_pEmail->SetString(L"vlowe7294@gmail.com");
+    User* pUser = NULL;
+    m_masterUserList.GetByTag(m_pName->GetString().c_str(), (IUnknown**)&pUser);
 
-   
+    if (pUser != NULL)
+    {
+		pUser->Copy(*this);
+    }
 
-    SaveUserList(*pDB);
-    pDB->Save(L"MoeDatabase.db");
 
-    pDB->Release();
-    
+    VLDateTime* pTime = (VLDateTime*)((IUnknown*)m_iLastActive);
+	pTime->AddMinutes(-45);  // checking to see if user will be logged out after 15 minutes of inactivity
+
+    pDB->Release();    
     return S_OK;
 }
 
@@ -140,7 +180,7 @@ HRESULT __stdcall User::Properties(IUnknown** iPrp)
     return S_OK;
 }
 
-void User::Login()
+HRESULT __stdcall User::Login()
 {
     User* iUsr = NULL;
     BOOL b = FALSE;
@@ -148,16 +188,81 @@ void User::Login()
     m_masterUserList.GetByTag(m_pName->GetString().c_str(), (IUnknown**)&iUsr);
 
     if (iUsr == NULL)
-        return;
+        return S_OK;
 
     if (Compare(*iUsr))
     {
         m_pIsLoggedIn->SetLocked(FALSE);
         m_pIsLoggedIn->SetAsBool(TRUE);
         m_pIsLoggedIn->SetLocked(TRUE);
-        m_iLastLogin.Init();
+        
     }
+
+    return S_OK;
 }
+
+HRESULT __stdcall User::SaveUserList(IUnknown* iunk)
+{
+    Table* iTbl = NULL;
+    UserInf iUsr;
+    VariableInfCollection iprp;
+    MoeInf<IDATABASE, CLASSID::DATABASE> iDB;
+
+    int nCnt = 0;
+	iDB.Attach(iunk);
+
+    iDB->GetTable(L"users", (IUnknown**)&iTbl); 
+	iTbl->Clear();
+
+    while (m_masterUserList.ForEach(iUsr) == S_OK)
+    {
+        if (nCnt > 0)
+            iTbl->NewRow();
+
+        iUsr->Properties(iprp);
+        iTbl->Set(L"Login Name", iprp.Get(L"Login Name").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+        iTbl->Set(L"Password", iprp.Get(L"Password").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+
+        iTbl->Set(L"Is Administrator", iprp.Get(L"Is Administrator").c_str(), VLVariable::VAR_TYPE::TYPE_BOOL);
+        iTbl->Set(L"Email", iprp.Get(L"Email").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+        nCnt++;
+    }
+
+	return S_OK;
+}
+
+HRESULT __stdcall User::AddToMasterList(const wchar_t* szTag, const wchar_t* szPassword)
+{
+	UserInf iUsr;
+    VariableInfCollection iprp;
+	BOOL bIsAdmin = FALSE;
+	IUnknown* iunk = NULL;
+
+	m_pIsLoggedIn->GetAsBool(&bIsAdmin);
+
+	if (bIsAdmin == FALSE)  // have to be logged in to add users to the master list
+        return E_FAIL;
+
+    m_pIsAdmin->GetAsBool(&bIsAdmin);
+
+    if (bIsAdmin == FALSE)  // only administrators can add users to the master list
+        return E_FAIL;
+    
+    m_masterUserList.GetByTag(szTag, &iunk);
+
+    if (iunk == NULL)
+    {
+        iUsr.Init();
+        iUsr->Properties(iprp);
+        iprp.Set(L"Login Name", szTag);
+
+        iprp.Set(L"Password", L"password");
+        m_masterUserList.Add(iUsr, szTag, UserInf::ClassID);
+    }
+	else  // user already exists
+        return E_FAIL;
+}
+
 
 bool User::Compare(User& usr)
 {
@@ -182,30 +287,46 @@ bool User::Compare(User& usr)
     return true;
 }
 
-void User::SaveUserList(Database& db)
+void User::LoadUserList(Database& db)
 {
-    MoeInf<ITABLE, CLASSID::TABLE> iTbl;
+    Table* iTbl = NULL;
     User* pUsr;
-    
+
     IUnknown* iUnk = NULL;
-    int nCnt = 0;
+    int nCnt = 0, i = 0;
 
-    db.GetTable(L"users", iTbl);
+    db.GetTable(L"users", (IUnknown**)&iTbl);
+	iTbl->GoToTopRow();
+    nCnt = iTbl->RowCount();  
 
-    while (m_masterUserList.ForEach(&iUnk) == S_OK)
+    if (nCnt == 0)
+        return;
+
+	m_masterUserList.Clear();
+
+    while (nCnt > 0)
     {
-        if (nCnt > 0)
-            iTbl->NewRow();
+        pUsr = new User();
+        pUsr->m_pName->SetString(iTbl->Get(L"Login Name").c_str());
+        pUsr->m_pPassword->SetString(iTbl->Get(L"Password").c_str());
 
-        pUsr = (User*)iUnk;
-        iUnk = NULL;
-        pUsr->Properties(&iUnk);
+		pUsr->m_pIsAdmin->SetLocked(FALSE);
+        pUsr->m_pIsAdmin->SetString(iTbl->Get(L"Is Administrator").c_str());
+		pUsr->m_pIsAdmin->SetLocked(TRUE);
 
-        VariableInfCollection iprp(iUnk);
+        pUsr->m_pEmail->SetString(iTbl->Get(L"Email").c_str());
+		m_masterUserList.Add(pUsr, pUsr->m_pName->GetString().c_str(), UserInf::ClassID);
+        nCnt--;
+        iTbl->NextRow();
+    }
+}
 
-        iTbl->Set(L"Login Name", iprp.Get(L"Login Name").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
-        iTbl->Set(L"Password", iprp.Get(L"Password").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
-        iTbl->Set(L"Is Administrator", iprp.Get(L"Is Administrator").c_str(), VLVariable::VAR_TYPE::TYPE_BOOL);
-        nCnt++;
-    }    
+void User::Copy(User& usr)
+{
+	BOOL b = FALSE;
+
+    m_pPassword->SetString(usr.m_pPassword->GetString().c_str());
+    usr.m_pIsAdmin->GetAsBool(&b);
+    m_pIsAdmin->SetAsBool(b);
+    m_pEmail->SetString(usr.m_pEmail->GetString().c_str());
 }

@@ -1,0 +1,73 @@
++--------------------------------------------------+
+|                     Room                         |
++--------------------------------------------------+
+| Class Attributes:                                 |
+|   ID : int                                        |
+|   OPPOSITE : dict (north<->south, east<->west...) |
+|                                                   |
+| Instance Attributes:                              |
+|   _id : int                                       |
+|   _exits : dict(direction -> Room)                |
+|                                                   |
+| Methods:                                          |
+|   __init__()                                      |
+|   add_exit(exitRoom, direction)                   |
+|   Print()                                         |
++--------------------------------------------------+
+
+
++--------------------------------------------------+
+|                     Module                       |
++--------------------------------------------------+
+| Instance Attributes:                              |
+|   _hObj : engine handle                           |
+|   _name : str                                     |
+|   _startRoom : Room                               |
+|                                                   |
+| Methods:                                          |
+|   __init__(hNWNObj)                               |
+|   Update()                                        |
+|   Commit()                                        |
+|   Name(name=None)                                 |
+|   list_rooms()                                    |
++--------------------------------------------------+
+
+
++--------------------------------------------------+
+|                    Nocturne                      |
++--------------------------------------------------+
+| Class Attributes:                                 |
+|   _classID : int                                  |
+|   _moduledata : dict                              |
+|   _gameFile : str                                 |
+|   _module : Module                                |
+|                                                   |
+| Methods:                                          |
+|   init()                                          |
+|   show_intro()                                    |
+|   main_menu()                                     |
+|   main()                                          |
+|   rename_world(new_name)                          |
+|   edit_world()                                    |
+|   save_game()                                     |
+|   load_game()                                     |
+|   list_rooms()                                    |
++--------------------------------------------------+
+
+
++--------------------------------------------------+
+|               MoeSzyslakLibrary                  |
++--------------------------------------------------+
+| External dependency used by Module and Nocturne   |
+| (InvokeHandle, GetReturnString, VerifyLibrary...) |
++--------------------------------------------------+
+
+
+RELATIONSHIPS
+----------------------------------------------------
+Nocturne --> Module          (Nocturne manages a Module)
+Module   --> Room            (Module owns a start Room)
+Room     --> Room            (Rooms link to other Rooms via exits)
+Module   --> MoeSzyslakLib   (Module uses engine API)
+Nocturne --> MoeSzyslakLib   (Nocturne uses engine API)
+----------------------------------------------------

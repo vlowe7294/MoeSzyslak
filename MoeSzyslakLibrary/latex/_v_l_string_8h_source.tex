@@ -1,0 +1,72 @@
+\doxysection{VLString.\+h}
+\hypertarget{_v_l_string_8h_source}{}\label{_v_l_string_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Interfaces.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}InterfaceCollection.h"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }VLString\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_string_inf_1_1_i_s_t_r_i_n_g}{StringInf::ISTRING}}}
+\DoxyCodeLine{00010\ \{}
+\DoxyCodeLine{00011\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \ \ \ \ VLString();}
+\DoxyCodeLine{00014\ \ \ \ \ \string~VLString();}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00017\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00018\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00019\ \ \ \ \ HRESULT\ \_\_stdcall\ Set(LPCWSTR\ szFmtStr);}
+\DoxyCodeLine{00020\ \ \ \ \ HRESULT\ \_\_stdcall\ Get(\textcolor{keywordtype}{wchar\_t}*\ szStr,\ UINT\ ndx,\ UINT\ nMaxLen);}
+\DoxyCodeLine{00021\ \ \ \ \ HRESULT\ \_\_stdcall\ Append(LPCWSTR\ szStr);}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{void}\ SetBufferLen(UINT\ nLen);}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{int}\ Find(LPCWSTR\ szStr,\ \textcolor{keywordtype}{int}\ ndx\ =\ 0);}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{void}\ MakeLowerCase();}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ Replace(LPCWSTR\ szFrom,\ LPCWSTR\ szTo);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{operator}\ \textcolor{keywordtype}{wchar\_t}*\ ();}
+\DoxyCodeLine{00029\ \ \ \ \ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{inline}\ wstring\ Get()\ \{\ \textcolor{keywordflow}{return}\ m\_str;\ \};}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ GetLength()\ \{\ \textcolor{keywordflow}{return}\ m\_str.length();\ \};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;}
+\DoxyCodeLine{00035\ \ \ \ \ wstring\ m\_str;}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{wchar\_t}*\ m\_buf;}
+\DoxyCodeLine{00037\ \ \ \ \ UINT\ m\_bufLen;}
+\DoxyCodeLine{00038\ \};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{keyword}{class\ }VLStringCollection}
+\DoxyCodeLine{00044\ \{}
+\DoxyCodeLine{00045\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00046\ \ \ \ \ VLStringCollection();}
+\DoxyCodeLine{00047\ \ \ \ \ \string~VLStringCollection();}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{void}\ Split(LPCWSTR\ strIn,\ \textcolor{keywordtype}{wchar\_t}\ del);}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{bool}\ ForEach(wstring\&\ str);}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{bool}\ Compare(UINT\ ndx,\ LPCWSTR\ strToCmp);}
+\DoxyCodeLine{00051\ \ \ \ \ wstring\ Get(UINT\ ndx);}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{bool}\ Find(wstring\ strToFind);}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keywordtype}{void}\ Add(LPCWSTR\ szTag);}
+\DoxyCodeLine{00054\ \ \ \ \ wstring\ SubString(UINT\ ndx,\ \textcolor{keywordtype}{wchar\_t}\ del);}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ Clear();}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{void}\ ToLower(\textcolor{keywordtype}{int}\ ndx);}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{int}\ GetCount()\ }
+\DoxyCodeLine{00059\ \ \ \ \ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ nCnt\ =\ 0;}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ m\_strings.Count(\&nCnt);}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ nCnt;}
+\DoxyCodeLine{00063\ \ \ \ \ \};}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00066\ \ \ \ \ \doxymbox{\hyperlink{class_interface_collection}{InterfaceCollection}}\ m\_strings;}
+\DoxyCodeLine{00067\ \};}
+
+\end{DoxyCode}

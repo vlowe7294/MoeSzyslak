@@ -1,0 +1,120 @@
+\doxysection{Testing.\+h}
+\hypertarget{_testing_8h_source}{}\label{_testing_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <chrono>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Interfaces.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}VLString.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Utilities/Database.h"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_log_entry_a1e7030e4a4825702c4c8db04f6f7c1d0}{LogEntry}}\ :\ \textcolor{keyword}{public}\ \doxymbox{\hyperlink{struct_i_l_o_g_e_n_t_r_y}{ILOGENTRY}}}
+\DoxyCodeLine{00018\ \{}
+\DoxyCodeLine{00019\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00026\ \ \ \ \ \doxymbox{\hyperlink{class_log_entry_a1e7030e4a4825702c4c8db04f6f7c1d0}{LogEntry}}(wstring\ txt,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ tme,\ \textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long}\ mem);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00029\ \ \ \ \ \doxymbox{\hyperlink{class_log_entry_ae0da106e665ca859be1a30ea316cd7d2}{\string~LogEntry}}();}
+\DoxyCodeLine{00030\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00033\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00040\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_log_entry_ac97f44625d0d09d4b27096e865fc931c}{Properties}}(IUnknown**\ iProp);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00051\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_log_entry_ab5cc7d858603aee0a140641a40924807}{Command}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00058\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_log_entry_a71089452543b26f7aab69420dfb08196}{GetReturnString}}(IUnknown**\ iStr);}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest();}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{class_log_entry_a79a9e5be8a36dae0f0589b1ded6af42a}{Write}}(IUnknown*\ iTbl);}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{class_log_entry_aaa99d1918e5b780286f430cbd74328ff}{Read}}(IUnknown*\ iTbl);}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ wstring\ GetHTML();}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00078\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}*\ m\_pProperties;\ \ }
+\DoxyCodeLine{00079\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pTxt;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00080\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pTime;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00081\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pMemUsed;\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00082\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pReturnVar;\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00083\ \};}
+\DoxyCodeLine{00084\ \ }
+\DoxyCodeLine{00098\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_testing_a5ecbeb5bdff85ae42aa8b1614220b8ae}{Testing}}\ :\ \textcolor{keyword}{public}\ TestingInf::ITESTING}
+\DoxyCodeLine{00099\ \{}
+\DoxyCodeLine{00100\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00102\ \ \ \ \ \doxymbox{\hyperlink{class_testing_a5ecbeb5bdff85ae42aa8b1614220b8ae}{Testing}}();}
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \doxymbox{\hyperlink{class_testing_a5ecbeb5bdff85ae42aa8b1614220b8ae}{\string~Testing}}();}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ HRESULT\ \_\_stdcall\ QueryInterface(REFIID\ riid,\ LPVOID*\ ppvObj);}
+\DoxyCodeLine{00107\ \ \ \ \ ULONG\ \_\_stdcall\ AddRef();}
+\DoxyCodeLine{00108\ \ \ \ \ ULONG\ \_\_stdcall\ Release();}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00115\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a3ee83c3d876d9c4e6c2cbd5d2b2f849a}{Properties}}(IUnknown**\ iPrp);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00134\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a8b7176c9219610fce7b6784e4d6b6c35}{Command}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ szCmd);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00141\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_af344855c0c47c81bdd74326e1cc39635}{GetReturnString}}(IUnknown**\ iStr);}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00148\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a2617640a965eab91b91b0b772fc35726}{RunTest}}(UINT\ nClassID);}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00156\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a89096d83c539ad2cc981dde2c28ba833}{VerifyVariable}}(LPCWSTR\ varName,\ LPCWSTR\ val);}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00164\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a258b724159568fd6f823fe409eaebb68}{VerifyHResult}}(HRESULT\ hr,\ LPCWSTR\ szMsg);}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00171\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a1f445c6b12bfce877bfac5932a8cef81}{Message}}(LPCWSTR\ szMsg);}
+\DoxyCodeLine{00172\ }
+\DoxyCodeLine{00178\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a8b7f1cd2222a858437dd8b759bbbc385}{Load}}(LPCWSTR\ szFilePath);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00186\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a6431de8d5f275f897fe816e064346c8b}{GetTestData}}(LPCWSTR\ szName,\ IUnknown*\ iStr);}
+\DoxyCodeLine{00187\ }
+\DoxyCodeLine{00194\ \ \ \ \ HRESULT\ \_\_stdcall\ \doxymbox{\hyperlink{class_testing_a62b7eacd716c9eb175059090b7151ffd}{SetTestData}}(LPCWSTR\ szName,\ LPCWSTR\ szVal);}
+\DoxyCodeLine{00195\ \ \ \ \ }
+\DoxyCodeLine{00196\ }
+\DoxyCodeLine{00197\ \ \ \ \ HRESULT\ \_\_stdcall\ UnitTest();}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00199\ \ \ \ \ wstring\ HTMLPage(wstring\ strVar);}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keywordtype}{int}\ m\_cRef;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pPass;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00205\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pMemCheck;\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00206\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pReportVar;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00207\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_variable}{VLVariable}}*\ m\_pLogEntriesVar;\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00208\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}*\ m\_pProperties;\ \ \ }
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \ \ \ \ std::chrono::steady\_clock::time\_point\ m\_timeStamp;\ }
+\DoxyCodeLine{00211\ \ \ \ \ MEMORYSTATUSEX\ m\_memInfo;\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00212\ \ \ \ \ \doxymbox{\hyperlink{class_interface_collection_inf}{InterfaceCollectionInf}}\ m\_iEntries;\ \ \ }
+\DoxyCodeLine{00213\ \ \ \ \ \doxymbox{\hyperlink{class_v_l_date_time}{VLDateTime}}*\ m\_pTestTime;\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00214\ \ \ \ \ \doxymbox{\hyperlink{class_string_inf}{StringInf}}\ m\_iRetStr;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00215\ \ \ \ \ \doxymbox{\hyperlink{class_variable_collection}{VariableCollection}}*\ m\_pTestValues;\ \ \ }
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}*\ HTML\_TEMPLATE;}
+\DoxyCodeLine{00217\ \ \ \ \ }
+\DoxyCodeLine{00218\ }
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keywordtype}{void}\ VariableTest();}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordtype}{void}\ TripPlannerTest();}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{keywordtype}{void}\ NeverwinterTest();}
+\DoxyCodeLine{00227\ }
+\DoxyCodeLine{00229\ \ \ \ \ \textcolor{keywordtype}{void}\ IOSTest();}
+\DoxyCodeLine{00230\ }
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{keywordtype}{void}\ UserTest();}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordtype}{void}\ FinanceTest();}
+\DoxyCodeLine{00236\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{void}\ SelfTest();}
+\DoxyCodeLine{00239\ }
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordtype}{void}\ Verify(\textcolor{keywordtype}{bool}\ bVal,\ LPCWSTR\ szMsg);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00252\ \ \ \ \ wstring\ \doxymbox{\hyperlink{class_testing_a6431de8d5f275f897fe816e064346c8b}{GetTestData}}(LPCWSTR\ szVarName);}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{keywordtype}{void}\ Report();}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00257\ \};}
+
+\end{DoxyCode}
