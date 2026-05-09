@@ -94,20 +94,50 @@ void Row::Load(VLFile& fle, VLStringCollection& colNames)
 void Row::WriteToSQL(wstring tbl, VLStringCollection& columns, sqlite3* db)
 {
 	wstring sql = L"INSERT INTO " + tbl + L" (", col;
-	int i = 0;
+	int nCol = 0;
 
 	if (columns.GetCount() == 0) // no columns, nothing to do
 		return;
 
 	while (columns.ForEach(col))
 	{
-		if (i > 0)
+		if (nCol > 0)
 			sql += L",";
 		sql += L"`" + col + L"`";
-		i++;
+		nCol++;
 	}
 
 	sql += L") VALUES (";
+
+	for (int i = 0; i < nCol; i++)
+	{
+		VLVariable* v = m_pValues->Get(i);
+
+		if (i > 0)
+			sql += L",";
+
+		if (v == NULL)
+			sql += L"NULL";
+		else
+			sql += L"'" + v->GetString() + L"'";
+
+	}
+
+	sql += L")";
+
+	sqlite3_stmt* stmt;
+	
+	int rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
+
+	if (rc != SQLITE_OK)
+	{
+		wstring errMsg = (const wchar_t*)sqlite3_errmsg16(db);
+
+		return;
+	}
+
+	rc = sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
 }
 
 
@@ -201,6 +231,14 @@ HRESULT __stdcall Table::GoToTopRow()
 	m_rows.Get(0, (IUnknown**)&m_pCurrentRow);
 	m_pCurrentRow->AddRef();
 	m_nRowNdx = 0;
+	return S_OK;
+}
+
+HRESULT __stdcall Table::RowCount(UINT* nRows)
+{
+	int n = 0;	
+	m_rows.Count(&n);
+	*nRows = n;
 	return S_OK;
 }
 
@@ -462,7 +500,11 @@ void Table::ReadFromSQL(sqlite3* db)
 	// Construct the pragma query
 	wstring sql = L"PRAGMA table_info(" + m_name + L");";
 	sqlite3_stmt* stmt;
-	const unsigned char* colName;
+	string asci;
+	wstring colName;
+	int i = 0, nCols = 0, nRows = 0;
+
+	m_columns.Clear();
 
 	int rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
 
@@ -470,10 +512,51 @@ void Table::ReadFromSQL(sqlite3* db)
 	{
 		while (sqlite3_step(stmt) == SQLITE_ROW) 
 		{
-			colName = sqlite3_column_text(stmt, 1);
+			asci = (const char*)sqlite3_column_text(stmt, 1);
+			colName = wstring(asci.begin(), asci.end());
+			m_columns.Add(colName.c_str());			
 		}
 	}
 
+	sqlite3_finalize(stmt);
+
+	sql = L"SELECT `";
+
+	while (m_columns.ForEach(colName))
+	{
+		if (nCols > 0)
+			sql += L", `";
+		sql += colName + L"`";
+		nCols++;
+	}
+
+	sql += L" FROM " + m_name + L";"; // Complete the query
+
+	rc = sqlite3_prepare16_v2(db, sql.c_str(), -1, &stmt, nullptr);
+
+	if (rc == SQLITE_OK) 
+	{
+		int columnCount = sqlite3_column_count(stmt);
+
+		while (sqlite3_step(stmt) == SQLITE_ROW) 
+		{
+			if (nRows > 0)
+				NewRow();
+
+			// Loop through each column in the current row
+			for (int col = 0; col < columnCount; col++) 
+			{
+				// Read as UTF-16 text
+				const void* text = sqlite3_column_text16(stmt, col);
+				if (text) 
+				{
+					Set(m_columns.Get(col).c_str(), (const wchar_t*)text, VLVariable::VAR_TYPE::TYPE_STRING);
+				}
+			}
+
+			nRows++;
+		}
+	}
 	sqlite3_finalize(stmt);
 }
 
@@ -602,6 +685,37 @@ HRESULT __stdcall Database::Save(const wchar_t* szFileNme)
 
 }
 
+HRESULT __stdcall Database::ReadFromSQL()
+{
+	sqlite3* db;
+	string errMsg;
+	int rc;
+	
+	if (sqlite3_open("mydb.sqlite", &db) != SQLITE_OK)
+		return E_FAIL;
+	
+
+	std::vector<std::string> tables;
+	const char* sql = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
+
+	sqlite3_stmt* stmt;
+	sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		Table* pTbl = new Table();
+		string tbl = (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+		pTbl->Name(std::wstring(tbl.begin(), tbl.end()).c_str());
+
+		pTbl->ReadFromSQL(db);
+		pTbl->Release();
+	}
+
+	return S_OK;
+
+
+}
+
 wstring Database::Export()
 {
 	Table* pTbl = NULL;
@@ -677,37 +791,5 @@ void Database::WriteToSQL()
 	sqlite3_close(db);
 }
 
-void Database::ReadFromSQL()
-{
-	sqlite3* db;
-	string errMsg;
-	int rc;
-	// Open database
-	rc = sqlite3_open("test.db", &db);
-	if (rc != SQLITE_OK)
 
-	if (sqlite3_open("mydb.sqlite", &db) != SQLITE_OK) 
-	{
-		errMsg = sqlite3_errmsg(db);
-		return;
-	}
-
-	std::vector<std::string> tables;
-	const char* sql = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
-
-	sqlite3_stmt* stmt;
-	sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-
-	while (sqlite3_step(stmt) == SQLITE_ROW) 
-	{
-		Table* pTbl = new Table();
-		string tbl = (reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-		pTbl->Name(std::wstring(tbl.begin(), tbl.end()).c_str());
-
-		pTbl->ReadFromSQL(db);
-		pTbl->Release();
-	}
-
-	
-}
 

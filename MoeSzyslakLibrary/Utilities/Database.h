@@ -39,6 +39,9 @@ public:
 	HRESULT __stdcall Set(const wchar_t* colName, const wchar_t* strVal, UINT nType);
 	HRESULT __stdcall Get(const wchar_t* colName, IUnknown* iStrVal);
 	HRESULT __stdcall GoToTopRow();
+	HRESULT __stdcall RowCount(UINT* nRows);
+
+	
 	
 	void Save(VLFile& fle);
 	void Load(VLFile& fle);
@@ -55,12 +58,7 @@ public:
 	inline wstring Name() { return m_name; }
 	inline void Name(const wchar_t* szName) { m_name = szName; }
 
-	inline int RowCount()
-	{
-		int nRows = 0;
-		m_rows.Count(&nRows);
-		return nRows;
-	}
+	
 
 private:
 	int m_cRef;
@@ -84,11 +82,12 @@ public:
 	HRESULT __stdcall GetTable(const wchar_t* szNme, IUnknown** iTbl);
 	HRESULT __stdcall Load(const wchar_t* szFileNme);
 	HRESULT __stdcall Save(const wchar_t* szFileNme);
+	HRESULT __stdcall ReadFromSQL();
 	
 	wstring Export();
 	void Import(wstring xml);
 	void WriteToSQL();
-	void ReadFromSQL();
+	
 	
 	
 

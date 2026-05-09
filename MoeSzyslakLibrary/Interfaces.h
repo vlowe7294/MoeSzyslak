@@ -134,8 +134,6 @@ struct ILOGENTRY : public IUnknown
 	 * @return S_OK on success.
 	 */
 	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
-
-	virtual HRESULT __stdcall UnitTest() = 0;
 };
 
 struct ITABLE : public IUnknown
@@ -144,6 +142,7 @@ struct ITABLE : public IUnknown
 	virtual HRESULT __stdcall Set(const wchar_t* colName, const wchar_t* strVal, UINT nType) = 0;
 	virtual HRESULT __stdcall Get(const wchar_t* colName, IUnknown* iStrVal) = 0;
 	virtual HRESULT __stdcall GoToTopRow() = 0;
+	virtual HRESULT __stdcall RowCount(UINT* nRows) = 0;
 };
 
 struct IDATABASE : public IUnknown
@@ -151,16 +150,90 @@ struct IDATABASE : public IUnknown
 	virtual HRESULT __stdcall GetTable(const wchar_t* szNme, IUnknown** iTbl) = 0;
 	virtual HRESULT __stdcall Load(const wchar_t* szFileNme) = 0;
 	virtual HRESULT __stdcall Save(const wchar_t* szFileNme) = 0;
+	virtual HRESULT __stdcall ReadFromSQL() = 0;
 };
 
+/**
+ * @interface IUSER
+ * @brief Represents a system user with authentication, session state,
+ *        and property management.
+ *
+ * The IUSER interface provides:
+ *  - Login and authentication
+ *  - Idle timeout tracking
+ *  - Property bag access (name, password, admin flag, email, etc.)
+ *  - Serialization to/from SQL tables
+ *  - Participation in a global master user list
+  */
 struct IUSER : public IUnknown
 {
+	/**
+	 * @brief Executes a command string against the user object.
+	 *
+	 * Supported commands include:
+	 *  - "login" : attempts to authenticate the user
+	 *  - Other commands are forwarded to the property collection
+	 *
+	 * Also enforces idle timeout and updates last-active timestamp.
+	 *
+	 * @param szCmd The command string.
+	 */
 	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
+
+	/**
+	 * @brief Retrieves the return string from the internal property collection.
+	 *
+	 * @param iStr Receives an IUnknown pointer to the return string object.
+	 */
 	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+
+	/**
+	 * @brief Returns the user's property collection as an IUnknown.
+	 *
+	 * @param iPrp Receives the property collection interface.
+	 */
 	virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
+
+	/**
+	 * @brief Attempts to authenticate the user against the master list.
+	 *
+	 * If the login name and password match an existing user, the login
+	 * state is updated and admin privileges are synchronized.
+	 *
+	 * @return S_OK on success (even if login fails), or error codes.
+	 */
 	virtual HRESULT __stdcall Login() = 0;
+
+	/**
+	 * @brief Saves all users in the master list to the provided database.
+	 *
+	 * Writes each user's properties into the "users" table.
+	 *
+	 * @param iDB Pointer to an IDATABASE interface.
+	 */
 	virtual HRESULT __stdcall SaveUserList(IUnknown* iDB) = 0;
+
+	/**
+	 * @brief Adds a new user to the master list.
+	 *
+	 * Only permitted when:
+	 *  - The current user is logged in
+	 *  - The current user is an administrator
+	 *
+	 * @param szTag Login name of the new user.
+	 * @param szPassword Password for the new user.
+	 * @return S_OK on success, E_FAIL if unauthorized or user exists.
+	 */
 	virtual HRESULT __stdcall AddToMasterList(const wchar_t* szTag, const wchar_t* szPassword) = 0;
+
+	/**
+	 * @brief Copies selected properties from another User.
+	 *
+	 * Copies password, admin flag, and email. Does not copy login name.
+	 *
+	 * @param iCopyFrom The source user.
+	 */
+	virtual HRESULT __stdcall Copy(IUnknown* iCopyFrom) = 0;
 	virtual HRESULT __stdcall UnitTest() = 0;
 };
 

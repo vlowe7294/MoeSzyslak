@@ -16,9 +16,15 @@ namespace MoeSyzslakFormsApp2
         {
             m_user = new User();
             InitializeComponent();
+            NameTextBox.Text = "Vaughn";
+            PasswordTextBox .Text = "ZFyZH8DuKemv";
         }
 
-        User m_user;
+        public User TheUser
+        {
+            get { return m_user; }
+        }
+        private User m_user;
 
         private void OnLogin(object sender, EventArgs e)
         {
@@ -27,7 +33,15 @@ namespace MoeSyzslakFormsApp2
             m_user.Login();
 
             if (m_user.IsLoggedIn)
+            {
                 this.Visible = false;
+
+                var parent = this.Parent as MainForm;
+                if (parent != null)
+                {
+                    parent.EditUser();
+                }
+            }
         }
     }
 
@@ -57,6 +71,7 @@ namespace MoeSyzslakFormsApp2
         {
             MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set \"Login Name\" \"{0}\"", m_userName));
             MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Password \"{0}\"", m_password));
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Email \"{0}\"", m_email));
 
         }
 
@@ -69,6 +84,9 @@ namespace MoeSyzslakFormsApp2
             m_password = MoeSzyslakLibrary.GetReturnString(m_hObj);
             MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Is Logged In\"");
             m_bIsLoggedIn = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
+
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Email");
+            m_email = MoeSzyslakLibrary.GetReturnString(m_hObj);
         }
 
         public void Login()
@@ -100,6 +118,14 @@ namespace MoeSyzslakFormsApp2
             get { return m_bIsLoggedIn; }
         }
         private bool m_bIsLoggedIn = false;
+
+        public string Email
+        {
+            set { m_email = value; }
+            get { return m_email; }
+        }
+
+        private string m_email = "";
 
     }
 

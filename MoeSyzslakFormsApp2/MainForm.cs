@@ -6,5 +6,12 @@ namespace MoeSyzslakFormsApp2
         {
             InitializeComponent();
         }
+
+        public void EditUser()
+        {
+            
+
+
+        }
     }
 }

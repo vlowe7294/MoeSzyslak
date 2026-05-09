@@ -79,8 +79,6 @@ public:
 	 */
 	HRESULT __stdcall GetReturnString(IUnknown** iStr);
 
-	HRESULT __stdcall UnitTest();
-
 	/**
 	 * @brief Writes this log entry to a database table.
 	 * @param iTbl The table interface to write into.
@@ -102,6 +100,13 @@ private:
 	VLVariable* m_pTime;                ///< Timestamp value.
 	VLVariable* m_pMemUsed;             ///< Memory usage value.
 	VLVariable* m_pReturnVar;           ///< Return string for command results.
+};
+
+struct TESTVALUE
+{
+	int nTestID;
+	wchar_t name[50];
+	wchar_t value[50];
 };
 
 /**
@@ -216,8 +221,10 @@ public:
 	HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal);
 	
 
-	HRESULT __stdcall HTMLPage(LPCWSTR szVar, IUnknown* iStr);
 	HRESULT __stdcall UnitTest();
+
+	wstring GetClassName(UINT nClassID);
+	UINT GetClassID(wstring strClassName);
 
 private:
 	int m_cRef;                          ///< COM reference count.
@@ -234,7 +241,9 @@ private:
 	VLDateTime* m_pTestTime;             ///< Timestamp for test execution.
 	StringInf m_iRetStr;                 ///< Return string buffer.
 	VariableCollection* m_pTestValues;   ///< Loaded test data values.
-	static const wchar_t* HTML_TEMPLATE;
+	static const int m_nTestValues;
+	static const TESTVALUE m_testValues[2];
+	int m_nTestNdx;
 	
 
 	/** @brief Runs variable subsystem tests. */

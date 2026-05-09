@@ -190,6 +190,7 @@ namespace MoeConsole
         {
             MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set \"Login Name\" \"{0}\"", m_userName));
             MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Password \"{0}\"", m_password));
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Email \"{0}\"", m_email));
 
         }
 
@@ -202,21 +203,17 @@ namespace MoeConsole
             m_password = MoeSzyslakLibrary.GetReturnString(m_hObj);
             MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Is Logged In\"");
             m_bIsLoggedIn = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
+
+            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Email");
+            m_email = MoeSzyslakLibrary.GetReturnString(m_hObj);
         }
 
         public static void UnitTest()
         {
-            User usr = new User();
             Testing tst = new Testing();
 
-            usr.Name = "Vaughn";
-            usr.Password = "ZFyZH8DuKemv";
-            usr.Login();
-            //usr.Print();
-            
             tst.RunTest(m_classID);    
             tst.Dispose();
-            usr.Dispose();
         }
 
         public void Print()
@@ -224,6 +221,7 @@ namespace MoeConsole
             Console.WriteLine("User Name:\t{0}", m_userName);
             Console.WriteLine("Password:\t{0}", m_password);
             Console.WriteLine("Is Logged In:\t{0}", m_bIsLoggedIn);
+            Console.WriteLine("Email:\t{0}", m_email);
         }
 
         public void Save()
@@ -265,6 +263,14 @@ namespace MoeConsole
             get { return m_bIsLoggedIn; }
         }
         private bool m_bIsLoggedIn = false;
+
+        public string Email
+        {
+            set { m_email = value; }
+            get { return m_email; }
+        }
+        
+        private string m_email = "";
 
     }
 

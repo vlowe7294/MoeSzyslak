@@ -171,11 +171,6 @@ HRESULT __stdcall LogEntry::GetReturnString(IUnknown** iStr)
 	return m_pReturnVar->GetString(iStr);
 }
 
-HRESULT __stdcall LogEntry::UnitTest()
-{
-	return S_OK;
-}
-
 void LogEntry::Write(IUnknown* iTbl)
 {
 	m_pProperties->Save(iTbl);
@@ -194,34 +189,12 @@ wstring LogEntry::GetHTML()
 	return htm;
 }
 
-
-const wchar_t* Testing::HTML_TEMPLATE = LR"(
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {
-            background-color: #1b1b2f;
-            color: #eaeaea;
-            font-family: "Trebuchet MS", serif;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            padding: 20px;
-            height: 800px;
-        }        
-    </style>
-    <title>Unit Testing</title>
-</head> 
-<body>
-    <header>Unit Testing</header>
-    <div>
-        <form method="POST"></form>
-    </div>
-</body>
-</html>
-)";
+const int Testing::m_nTestValues = 2;
+const TESTVALUE Testing::m_testValues[m_nTestValues] = 
+{
+	{ 0, L"message", L"Test Message Value 1" },
+	{ 1, L"message", L"" }
+};
 
 Testing::Testing()
 {
@@ -246,6 +219,8 @@ Testing::Testing()
 	VLVariable* v = m_pProperties->NewVariable(L"Test Values");
 	m_pTestValues = new VariableCollection();
 	v->SetInterface(m_pTestValues, CLASSID::INTERFACELIST);
+
+	m_nTestNdx = 0;
 }
 
 
@@ -558,6 +533,7 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 	Table* pTbl = NULL;
 	LogEntry* iEnt = NULL;
 	int i = 0;
+	UINT nCnt = 0;
 
 	iDB.Init();
 	iDB->Load(szFilePath);	
@@ -568,8 +544,9 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 
 	m_iEntries->Clear();
 	pTbl->GoToTopRow();
+	pTbl->RowCount(&nCnt);
 
-	while (i < pTbl->RowCount())
+	while (i < nCnt)
 	{
 		iEnt = new LogEntry(L"", 0, 0);
 		iEnt->Read(iTbl);
@@ -585,44 +562,6 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 	return S_OK;
 }
 
-HRESULT __stdcall Testing::HTMLPage(LPCWSTR szVar, IUnknown* iunk)
-{
-	wstring htm = HTML_TEMPLATE, str;
-	int nCnt = 0;
-	LogEntry* iLog = NULL;
-	StringInf iStr;
-
-	iStr.Attach(iunk);
-
-	int i = htm.find(L"</form");
-
-	if (i > 0)
-	{
-		m_iEntries->Count(&nCnt);
-
-		if (nCnt >= 0)
-		{
-			str = htm.substr(0, i);
-			str += L"\n   <table>\n      <tr>\n         <th>Time</th>\n         <th>Result</th>\n         <th>Memory Used</th>\n      </tr>";
-			while (m_iEntries.ForEach((IUnknown**)&iLog))
-			{
-				str += iLog->GetHTML();
-			}
-
-
-			str += L"\n</table>\n";
-
-
-		}
-		str += htm.substr(i);
-		htm = str;
-	}
-
-	iStr.Set(htm.c_str());
-	return S_OK;
-}
-
-
 UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd);
 void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
 
@@ -631,19 +570,34 @@ HRESULT __stdcall Testing::UnitTest()
 	StringInf iStr;
 
 	iStr.Init();
-	HTMLPage(L"", iStr);
 
-	iStr.BufferSize(2000);
-	wstring htm = (const wchar_t*)iStr;
+	UINT nID = GetClassID(L"trip planner");
+	wstring nme = GetClassName(nID);
 
-	for (auto& kv : CLASS_NAMES)
-		wprintf(L"%s\t%u\n", kv.first.c_str(), kv.second);
+	Database* pDB = new Database();
+	pDB->ReadFromSQL();
+	pDB->Release();
 
-	auto it = CLASS_NAMES.find(L"Testing");
-	UINT nclassID = 0;
+	pDB = new Database();
+	VLVariable* pVar = NULL;
+	MoeInf<ITABLE, CLASSID::TABLE> iTbl;
+	
 
-	if (it != CLASS_NAMES.end())
-		nclassID = it->second;
+	pDB->GetTable(L"test_values", iTbl);
+
+	for (int i = 0; i < m_nTestValues; i++)
+	{
+		if (i > 0)
+			iTbl->NewRow();
+
+		iTbl->Set(L"test_id", std::to_wstring(i).c_str(), VLVariable::TYPE_INT);
+		iTbl->Set(L"class_id", std::to_wstring(TestingInf::ClassID).c_str(), VLVariable::TYPE_INT);
+		iTbl->Set(L"variable_name", m_testValues[i].name, VLVariable::TYPE_STRING);
+		iTbl->Set(L"variable_value", m_testValues[i].value, VLVariable::TYPE_STRING);
+	}
+
+	//pDB->WriteToSQL();
+	pDB->Release();
 
 	return S_OK;
 }
@@ -907,19 +861,26 @@ void Testing::UserTest()
 	StringInf iStr;
 	wstring msg;
 	VariableInfCollection iPrp;
+	MoeInf<IDATABASE, CLASSID::DATABASE> iDB, iInDB;
 
+	iInDB.Init();
+	
 	m_pTestValues->Set(L"Login Name", L"Vaughn", VLVariable::VAR_TYPE::TYPE_STRING);
 	m_pTestValues->Set(L"Password", L"ZFyZH8DuKemv", VLVariable::VAR_TYPE::TYPE_STRING);
 	
 	Message(L"User Unit Test");
+	VerifyHResult(iInDB->ReadFromSQL(), L"Failed to read from database.");
 	VerifyHResult(iUser->Command(L"set \"Login Name\" Vaughn"), L"set login name failed");
 	VerifyHResult(iUser->Command(L"set Password ZFyZH8DuKemv"), L"set password failed");
 	
 	iUser->Properties(iPrp);
-	VerifyHResult(iUser->Command(L"Login"), L"Login failed");	
-	VerifyHResult(iUser->UnitTest(), L"Unit test returned failure code");
+	VerifyHResult(iUser->Command(L"Login"), L"Login failed");
+	VerifyHResult(iUser->Command(L"set Email vlowe7294@gmail.com"), L"set Email");
 
 	VerifyHResult(iUser->AddToMasterList(L"Nevin", L"password"), L"AddToMasterList failed");
+
+	VerifyHResult(iUser->UnitTest(), L"Unit test returned failure code");
+
 	
 	iUser->Command(L"get \"Login Name\"");
 	iUser->GetReturnString(iStr);
@@ -929,9 +890,15 @@ void Testing::UserTest()
 	iUser->Command(L"get Password");
 	wprintf(L"Password:  %s\n", (const wchar_t*)iStr);
 	VerifyVariable(L"Password", (const wchar_t*)iStr);
-
+	
 	iUser->Command(L"get \"Is Logged In\"");  // this should be false as the unit test should artifically time out the login
 	Verify(wstring((const wchar_t*)iStr) == L"FALSE", L"Is Logged In == TRUE");
+
+	iUser->Command(L"get Email");
+	Verify(wstring((const wchar_t*)iStr) == L"vlowe7294@gmail.com", L"Email != vlowe7294@gmail.com");
+
+	iUser->SaveUserList(iDB);
+
 }
 
 void Testing::FinanceTest()
@@ -989,9 +956,6 @@ void Testing::SelfTest()
 
 		m_iEntries->Get(4, iLog);
 		Verify((IUnknown*)iLog != NULL, L"iLog is NULL");
-
-		if ((IUnknown*)iLog != NULL)
-			VerifyHResult(iLog->UnitTest(), L"LogEntry unit test failed");
 	}
 	catch (...)
 	{
@@ -1001,3 +965,22 @@ void Testing::SelfTest()
 
 }
 
+wstring Testing::GetClassName(UINT nClassID)
+{
+	for (auto& kv : CLASS_NAMES)
+	{
+		if (kv.second == nClassID)
+			return kv.first;
+	}
+	return L"";
+}
+
+
+UINT Testing::GetClassID(wstring strClassName)
+{
+	auto it = CLASS_NAMES.find(strClassName);
+	if (it != CLASS_NAMES.end())
+		return it->second;
+	else
+		return 0;
+}

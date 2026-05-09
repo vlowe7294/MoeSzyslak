@@ -4,21 +4,18 @@
 
 
 InterfaceCollection User::m_masterUserList;
-BOOL g_bInit = FALSE;
+BOOL User::m_bInit = FALSE;
 
-
-User::User()
+void User::InitMasterList()
 {
-    m_cRef = 1;
     User* iNewUsr;
     VariableInfCollection ivars;
-    g_memoryChecker.IncrementInstance(UserInf::ClassID);
-    
-    if (g_bInit == FALSE)
-    {
-        g_bInit = TRUE;
 
-        iNewUsr = new User();
+    if (m_bInit == FALSE)
+    {
+        m_bInit = TRUE;
+
+        iNewUsr = new User(true);
         iNewUsr->Properties(ivars);
 
         ivars.Set(L"Login Name", L"Vaughn");
@@ -29,9 +26,53 @@ User::User()
         iNewUsr->m_pIsAdmin->SetLocked(FALSE);
         m_masterUserList.Add(iNewUsr, L"Vaughn", UserInf::ClassID);
         iNewUsr->Release();
-
     }
+}
 
+static int instanceCounter = 0;
+
+User::User(bool bAdmin)
+{
+    instanceCounter++;
+    m_instance = instanceCounter;
+    m_cRef = 1;
+    g_memoryChecker.IncrementInstance(UserInf::ClassID);
+    m_pProperties = new VariableCollection();
+
+    m_pName = m_pProperties->NewVariable(L"Login Name");
+    m_pName->SetString(L"New User");
+    m_pName->CanBeEmpty(false);
+
+    m_pPassword = m_pProperties->NewVariable(L"Password");
+    m_pPassword->SetString(L"xxxxx");
+    m_pPassword->CanBeEmpty(false);
+
+    m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
+
+	if (bAdmin)  // can't imagine a scenario where we would want to create a non-admin user with this constructor, but just in case...
+        m_pIsAdmin->SetAsBool(TRUE);
+	else
+        m_pIsAdmin->SetAsBool(FALSE);
+
+    m_pIsAdmin->SetLocked(TRUE);
+
+    m_pIsLoggedIn = m_pProperties->NewVariable(L"Is Logged In");
+    m_pIsLoggedIn->SetAsBool(FALSE);
+    m_pIsLoggedIn->SetLocked(TRUE);
+
+    m_pEmail = m_pProperties->NewVariable(L"Email");
+    m_iLastActive.Init();
+}
+
+
+User::User()
+{
+    instanceCounter++;
+    m_instance = instanceCounter;
+
+    m_cRef = 1;
+    g_memoryChecker.IncrementInstance(UserInf::ClassID);
+    InitMasterList();
 
 	m_pProperties = new VariableCollection();
 
@@ -144,32 +185,24 @@ HRESULT __stdcall User::GetReturnString(IUnknown** iStr)
 
 HRESULT __stdcall User::UnitTest()
 {
-    Database* pDB = new Database();
-    //User* pUser = NULL;
-    //VariableInfCollection iprp;
+    /*TODO: 
+    add so that if password is default, forces user to change.
+    add a "guest" user
+    */
 
-    SaveUserList(pDB);
+    User* pUser = new User();
+    VariableInfCollection iPrp;
+    pUser->Properties(iPrp);
 
-    pDB->ReadFromSQL();
-    // LoadUserList(*pDB);
-
+    iPrp.Set(L"Login Name", L"Nevin");
+    iPrp.Set(L"Password", L"ZFyZH8DuKemv");
     
-    pDB->WriteToSQL();
-
-    m_pEmail->SetString(L"vlowe7294@gmail.com");
-    User* pUser = NULL;
-    m_masterUserList.GetByTag(m_pName->GetString().c_str(), (IUnknown**)&pUser);
-
-    if (pUser != NULL)
-    {
-		pUser->Copy(*this);
-    }
-
+    EditMasterList(*pUser);
+    pUser->Release();
+    
 
     VLDateTime* pTime = (VLDateTime*)((IUnknown*)m_iLastActive);
-	pTime->AddMinutes(-45);  // checking to see if user will be logged out after 15 minutes of inactivity
-
-    pDB->Release();    
+	pTime->AddMinutes(-45);  // checking to see if user will be logged out after 15 minutes of inactivity       
     return S_OK;
 }
 
@@ -192,10 +225,14 @@ HRESULT __stdcall User::Login()
 
     if (Compare(*iUsr))
     {
+		iUsr->m_pIsAdmin->GetAsBool(&b);
+        m_pIsAdmin->SetLocked(FALSE);
+        m_pIsAdmin->SetAsBool(b);
+        m_pIsAdmin->SetLocked(TRUE);
+        
         m_pIsLoggedIn->SetLocked(FALSE);
         m_pIsLoggedIn->SetAsBool(TRUE);
-        m_pIsLoggedIn->SetLocked(TRUE);
-        
+        m_pIsLoggedIn->SetLocked(TRUE);        
     }
 
     return S_OK;
@@ -258,10 +295,86 @@ HRESULT __stdcall User::AddToMasterList(const wchar_t* szTag, const wchar_t* szP
 
         iprp.Set(L"Password", L"password");
         m_masterUserList.Add(iUsr, szTag, UserInf::ClassID);
+		return S_OK;
     }
 	else  // user already exists
         return E_FAIL;
 }
+
+HRESULT __stdcall User::LoadUserList(IUnknown* iunk)
+{
+    // Table* iTbl = NULL;
+    User* pUsr;
+
+    UINT nCnt = 0;
+    int i = 0;
+	StringInf iStr;
+
+    MoeInf<IDATABASE, CLASSID::DATABASE> iDB;
+    MoeInf<ITABLE, CLASSID::TABLE> iTbl;
+    iDB.Attach(iunk);
+    iDB->GetTable(L"users", (IUnknown**)iTbl);
+	iStr.Init();
+
+    iTbl->GoToTopRow();
+    iTbl->RowCount(&nCnt);
+
+    if (nCnt == 0)
+        return S_OK;
+
+    m_masterUserList.Clear();
+
+    while (nCnt > 0)
+    {
+        pUsr = new User();
+        iTbl->Get(L"Login Name", iStr);
+        pUsr->m_pName->SetString(iStr);
+
+        iTbl->Get(L"Password", iStr);
+        pUsr->m_pPassword->SetString(iStr);
+
+        iTbl->Get(L"Is Administrator", iStr);
+        pUsr->m_pIsAdmin->SetLocked(FALSE);
+        pUsr->m_pIsAdmin->SetString(iStr);
+        pUsr->m_pIsAdmin->SetLocked(TRUE);
+
+        iTbl->Get(L"Email", iStr);
+        pUsr->m_pEmail->SetString(iStr);
+        m_masterUserList.Add(pUsr, pUsr->m_pName->GetString().c_str(), UserInf::ClassID);
+        nCnt--;
+
+		Table* pTbl = (Table*)((IUnknown*)iTbl);
+        pTbl->NextRow();
+        pUsr->Release();
+    }
+
+    return S_OK;
+}
+
+HRESULT __stdcall User::Copy(IUnknown* iunk)
+{
+    BOOL b = FALSE;
+    UserInf iCopyFrom;
+    VariableInfCollection iVar;
+
+    iCopyFrom.Attach(iunk);
+    iCopyFrom->Properties(iVar);
+
+    m_pPassword->SetString(iVar.Get(L"Password").c_str());
+
+    m_pIsAdmin->SetLocked(FALSE);
+
+    if (iVar.GetBool(L"Is Administrator"))
+        m_pIsAdmin->SetAsBool(TRUE);
+    else
+        m_pIsAdmin->SetAsBool(FALSE);
+
+    m_pIsAdmin->SetLocked(TRUE);
+
+    m_pEmail->SetString(iVar.Get(L"Email").c_str());
+    return S_OK;
+}
+
 
 
 bool User::Compare(User& usr)
@@ -275,58 +388,32 @@ bool User::Compare(User& usr)
         return false;
 
     if (m_pPassword->GetString() != iprp.Get(L"Password"))
-        return false;
-
-    if (iprp.GetBool(L"Is Administrator"))
-    {
-        m_pIsAdmin->SetLocked(FALSE);
-        m_pIsAdmin->SetAsBool(TRUE);
-        m_pIsAdmin->SetLocked(TRUE);
-    }
+        return false;    
 
     return true;
 }
 
-void User::LoadUserList(Database& db)
+
+
+
+void User::EditMasterList(User& usr)
 {
-    Table* iTbl = NULL;
-    User* pUsr;
+    BOOL bIsLoggedIn = FALSE, bIsAdmin = FALSE;
+    UserInf iuser;
 
-    IUnknown* iUnk = NULL;
-    int nCnt = 0, i = 0;
+    m_pIsLoggedIn->GetAsBool(&bIsLoggedIn);
+    m_pIsAdmin->GetAsBool(&bIsAdmin);
 
-    db.GetTable(L"users", (IUnknown**)&iTbl);
-	iTbl->GoToTopRow();
-    nCnt = iTbl->RowCount();  
-
-    if (nCnt == 0)
+    if (bIsAdmin == FALSE || bIsLoggedIn == FALSE)
+        // you have to be logged in and an admin before you can make any changes to the master list
         return;
 
-	m_masterUserList.Clear();
+    m_masterUserList.GetByTag(usr.m_pName->GetString().c_str(), iuser);
 
-    while (nCnt > 0)
+    if ((IUnknown*)iuser != NULL)
     {
-        pUsr = new User();
-        pUsr->m_pName->SetString(iTbl->Get(L"Login Name").c_str());
-        pUsr->m_pPassword->SetString(iTbl->Get(L"Password").c_str());
+        iuser->Copy(&usr);
 
-		pUsr->m_pIsAdmin->SetLocked(FALSE);
-        pUsr->m_pIsAdmin->SetString(iTbl->Get(L"Is Administrator").c_str());
-		pUsr->m_pIsAdmin->SetLocked(TRUE);
-
-        pUsr->m_pEmail->SetString(iTbl->Get(L"Email").c_str());
-		m_masterUserList.Add(pUsr, pUsr->m_pName->GetString().c_str(), UserInf::ClassID);
-        nCnt--;
-        iTbl->NextRow();
     }
-}
 
-void User::Copy(User& usr)
-{
-	BOOL b = FALSE;
-
-    m_pPassword->SetString(usr.m_pPassword->GetString().c_str());
-    usr.m_pIsAdmin->GetAsBool(&b);
-    m_pIsAdmin->SetAsBool(b);
-    m_pEmail->SetString(usr.m_pEmail->GetString().c_str());
 }

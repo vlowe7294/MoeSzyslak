@@ -87,7 +87,7 @@ namespace MoeConsole
         }
 
         public const string LibraryPath = @"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll";
-        static private uint m_nMinVersion = 1573;
+        static private uint m_nMinVersion = 1587;
         static private StringBuilder m_sb = new StringBuilder(255);
     }
 

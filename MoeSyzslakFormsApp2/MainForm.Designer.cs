@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            moeUserControl1 = new MoeUserControl();
+            testControl1 = new TestControl();
             SuspendLayout();
             // 
-            // moeUserControl1
+            // testControl1
             // 
-            moeUserControl1.Location = new Point(12, 26);
-            moeUserControl1.Name = "moeUserControl1";
-            moeUserControl1.Size = new Size(361, 180);
-            moeUserControl1.TabIndex = 0;
+            testControl1.Location = new Point(24, 12);
+            testControl1.Name = "testControl1";
+            testControl1.Size = new Size(745, 475);
+            testControl1.TabIndex = 0;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(moeUserControl1);
+            ClientSize = new Size(800, 535);
+            Controls.Add(testControl1);
             Name = "MainForm";
             Text = "Form1";
             ResumeLayout(false);
@@ -51,6 +51,6 @@
 
         #endregion
 
-        private MoeUserControl moeUserControl1;
+        private TestControl testControl1;
     }
 }

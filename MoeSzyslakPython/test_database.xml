@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<database version="1573">
+    <table name="test_values">
+        <row>
+            <test_id>1</test_id>
+            <class_id>398981</class_id>
+            <variable_name>message</variable_name>
+            <variable_value>test message 1</variable_value>
+        </row>
+    </table>
+</database>

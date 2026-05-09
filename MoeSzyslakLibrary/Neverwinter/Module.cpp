@@ -142,7 +142,7 @@ void Module::Load(Database& db)
 {
 	Table* pTbl = NULL;
 	Area* pArea = NULL;
-	int nRows = 0;
+	UINT nRows = 0;
 
 	db.GetTable(L"modules", (IUnknown**)&pTbl);
 	m_pProperties->Load(pTbl);
@@ -150,7 +150,7 @@ void Module::Load(Database& db)
 
 	db.GetTable(L"areas", (IUnknown**)&pTbl);
 
-	nRows = pTbl->RowCount();
+	pTbl->RowCount(&nRows);
 	pTbl->GoToTopRow();
 
 	for (int i = 0; i < nRows; i++)
