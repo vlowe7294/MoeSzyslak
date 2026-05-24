@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,7 +22,7 @@ namespace MoeSyzslakFormsApp2
         public TestControl()
         {
             InitializeComponent();
-            ClassListBox.SelectedIndex = 0;
+            ClassListBox.SelectedIndex = 1;
         }
 
         public void Message(string strMsg)
@@ -33,64 +34,78 @@ namespace MoeSyzslakFormsApp2
 
         public void Verify(bool bVal, string szMsg)
         {
+            if (!bVal)
+                Message(szMsg);
 
         }
 
         private void OnRunTest(object sender, EventArgs e)
         {
-            TestValue("message", "test message 1");
-            m_watch = Stopwatch.StartNew();
-            RunTest(this.GetType());
+            try
+            {
+                m_logEntries.Clear();
+                m_testTime = DateTime.Now;
+                Message(string.Format("Tested on {0}", m_testTime));
+                m_watch = Stopwatch.StartNew();
+                ResultLabel.ForeColor = Color.DarkGreen;
+                m_bPassed = true;
 
-            m_watch.Stop();
 
+                if (ClassListBox.SelectedItem.ToString() == "User")
+                {
+                    User.UnitTest(this);
+                    m_watch.Stop();
+
+                    if (m_bPassed)
+                    {
+                        ResultLabel.Text = "Result:  PASS";
+                    }
+                    else
+                    {
+                        ResultLabel.ForeColor = Color.Red;
+                        ResultLabel.Text = "Result:  FAILED";
+                    }
+                    return;
+                }
+
+                int nTests = 2;
+
+                Message("Testing Object Self Unit Test");
+                Message(string.Format("Log Entry Version 1.3.6.{0}", LogEntry.Version - 1530));
+                Message(string.Format("Tested on {0}", m_testTime));
+
+
+                for (int i = 0; i < nTests; i++)
+                {
+                    m_watch = Stopwatch.StartNew();
+                    Message(string.Format("Running test {0} of {1}", i + 1, nTests));
+                    RunTest(this.GetType());
+                    m_watch.Stop();
+                }                
+            }
+            catch (Exception ex)
+            {
+                Verify(false, "Unhandled Exception: " + ex.Message);
+            }
+
+            Report();
         }
 
         private void RunTest(Type objToTest)
         {
-            m_logEntries.Clear();
-            ResultLabel.ForeColor = Color.DarkGreen;
+            
 
-            try
-            {
-                if (objToTest == typeof(TestControl))
-                    SelfTest();
-                else
-                    throw new Exception("No test defined for type " + objToTest.ToString());
-            }
-            catch (Exception ex)
-            {
-                Message(ex.Message);
-                m_bPassed = false;
-            }
-
-            Report();
-
-            if (m_bPassed)
-            {
-                ResultLabel.Text = "Result:  PASS";
-            }
-            else
-            {
-                ResultLabel.ForeColor = Color.Red;
-                ResultLabel.Text = "Result:  FAILED";
-            }
+            SelfTest();
+            
         }
 
         private void SelfTest()
         {
-            Message("Testing Object Self Unit Test");
-            Message(string.Format("Log Entry Version 1.3.6.{0}", LogEntry.Version - 1530));
             m_bPassed = true;
-
-            m_testTime = DateTime.Now;
-            Message(string.Format("Tested on {0}", m_testTime));
-
-            Message(TestValue("message").ToString());
             Verify(m_logEntries.Count > 2, "Log entry count < 2");
         }
 
-        private void Report()
+        public void Report()
         {
             foreach (LogEntry entry in m_logEntries)
             {
@@ -111,12 +126,37 @@ namespace MoeSyzslakFormsApp2
             m_testValues[nme] = val;
         }
 
+        public void VerifyVariable(string varName, object var)
+        {
+            object localVar = null;
+            string s1 = "", s2 = var.ToString();
+
+            if (m_testValues.ContainsKey(varName))
+            {
+                localVar = m_testValues[varName];
+
+            }
+
+            if (localVar != null)
+            {
+                s1 = localVar.ToString();
+            }
+
+            if (s1 != s2)
+            {
+                string l = varName + " does not match " + s2;
+                Verify(false, l);
+            }
+
+        }
+
         private Dictionary<string, object> m_testValues = new Dictionary<string, object>();
         private bool m_bMemoryCheck = false;
         private bool m_bPassed = false;
         private List<LogEntry> m_logEntries = new List<LogEntry>();
         private DateTime m_testTime = DateTime.Now;
         private Stopwatch m_watch = new Stopwatch();
+        public static uint Version = 1587;
     }
 
     public class LogEntry

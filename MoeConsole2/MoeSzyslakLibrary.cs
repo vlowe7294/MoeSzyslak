@@ -24,6 +24,13 @@ namespace MoeConsole
         [DllImport(LibraryPath, CharSet = CharSet.Unicode)]
         private static extern void MoeSzyslakHTML(uint nClassID, [MarshalAs(UnmanagedType.LPWStr)] string strGet, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder szRet, uint len);
 
+        [DllImport(LibraryPath, CharSet = CharSet.Unicode)]
+        public static extern void CreateMoeSzyslakInterface(uint nClassID, ref IntPtr iunk);
+
+        [DllImport(LibraryPath, CharSet = CharSet.Unicode)]
+        public static extern void FreeMoeSzyslakInterface(IntPtr iunk);
+
+
         public enum CLASSID
         {
             INVALIDCLASS = 0,            
@@ -87,7 +94,7 @@ namespace MoeConsole
         }
 
         public const string LibraryPath = @"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll";
-        static private uint m_nMinVersion = 1587;
+        static private uint m_nMinVersion = 1601;
         static private StringBuilder m_sb = new StringBuilder(255);
     }
 

@@ -15,11 +15,8 @@ void User::InitMasterList()
     {
         m_bInit = TRUE;
 
-        iNewUsr = new User(true);
+        iNewUsr = new User(true, L"Vaughn", L"ZFyZH8DuKemv");
         iNewUsr->Properties(ivars);
-
-        ivars.Set(L"Login Name", L"Vaughn");
-        ivars.Set(L"Password", L"ZFyZH8DuKemv");
 
         iNewUsr->m_pIsAdmin->SetLocked(FALSE);
         iNewUsr->m_pIsAdmin->SetAsBool(TRUE);
@@ -31,22 +28,17 @@ void User::InitMasterList()
 
 static int instanceCounter = 0;
 
-User::User(bool bAdmin)
+User::User(bool bAdmin, const wchar_t* szName, const wchar_t* szPwd)
 {
     instanceCounter++;
     m_instance = instanceCounter;
     m_cRef = 1;
     g_memoryChecker.IncrementInstance(UserInf::ClassID);
+
+    m_name = szName;
     m_pProperties = new VariableCollection();
 
-    m_pName = m_pProperties->NewVariable(L"Login Name");
-    m_pName->SetString(L"New User");
-    m_pName->CanBeEmpty(false);
-
-    m_pPassword = m_pProperties->NewVariable(L"Password");
-    m_pPassword->SetString(L"xxxxx");
-    m_pPassword->CanBeEmpty(false);
-
+    m_password = szPwd;
     m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
 
 	if (bAdmin)  // can't imagine a scenario where we would want to create a non-admin user with this constructor, but just in case...
@@ -55,17 +47,14 @@ User::User(bool bAdmin)
         m_pIsAdmin->SetAsBool(FALSE);
 
     m_pIsAdmin->SetLocked(TRUE);
-
-    m_pIsLoggedIn = m_pProperties->NewVariable(L"Is Logged In");
-    m_pIsLoggedIn->SetAsBool(FALSE);
-    m_pIsLoggedIn->SetLocked(TRUE);
+    m_bIsLoggedIn = FALSE;
 
     m_pEmail = m_pProperties->NewVariable(L"Email");
     m_iLastActive.Init();
 }
 
 
-User::User()
+User::User(const wchar_t* szName, const wchar_t* szPwd)
 {
     instanceCounter++;
     m_instance = instanceCounter;
@@ -76,22 +65,14 @@ User::User()
 
 	m_pProperties = new VariableCollection();
 
-    m_pName = m_pProperties->NewVariable(L"Login Name");
-    m_pName->SetString(L"New User");
-    m_pName->CanBeEmpty(false);   
-
-    m_pPassword = m_pProperties->NewVariable(L"Password");
-    m_pPassword->SetString(L"xxxxx");
-    m_pPassword->CanBeEmpty(false);
+    m_name = szName;
+    m_password = szPwd;
 
     m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
     m_pIsAdmin->SetAsBool(FALSE);
     m_pIsAdmin->SetLocked(TRUE);
 
-    m_pIsLoggedIn = m_pProperties->NewVariable(L"Is Logged In");
-    m_pIsLoggedIn->SetAsBool(FALSE);
-    m_pIsLoggedIn->SetLocked(TRUE); 
-
+    m_bIsLoggedIn = FALSE;
     m_pEmail = m_pProperties->NewVariable(L"Email");
     m_iLastActive.Init();
 }
@@ -154,9 +135,7 @@ HRESULT __stdcall User::Command(const wchar_t* szCmd)
 
     if (nSec > 900)// users that have been idle for more than 15 minutes will be logged out
     {
-        m_pIsLoggedIn->SetLocked(FALSE);
-        m_pIsLoggedIn->SetAsBool(FALSE);
-        m_pIsLoggedIn->SetLocked(TRUE);
+        m_bIsLoggedIn = FALSE;
     }
 
     m_iLastActive->SetToNow();
@@ -165,12 +144,6 @@ HRESULT __stdcall User::Command(const wchar_t* szCmd)
 
     switch (szCmd[0])
     {
-    case L'l':
-    case L'L':
-        if (cmds.Compare(0, L"login"))
-            hr = Login();
-        break;
-
     default:
         hr = m_pProperties->Command(szCmd);
     }
@@ -185,25 +158,17 @@ HRESULT __stdcall User::GetReturnString(IUnknown** iStr)
 
 HRESULT __stdcall User::UnitTest()
 {
-    /*TODO: 
-    add so that if password is default, forces user to change.
-    add a "guest" user
-    */
+	IUnknown* iunk = NULL;
+	IUSERSERVICE* iUserSvc = NULL;
 
-    User* pUser = new User();
-    VariableInfCollection iPrp;
-    pUser->Properties(iPrp);
+    CreateMoeSzyslakInterface(CLASSID::USERSERVICE, &iunk);
+    iunk->QueryInterface(USERSERVICE_IID, (void**)&iUserSvc);
+    HRESULT hr = iUserSvc->UnitTest();
 
-    iPrp.Set(L"Login Name", L"Nevin");
-    iPrp.Set(L"Password", L"ZFyZH8DuKemv");
-    
-    EditMasterList(*pUser);
-    pUser->Release();
-    
+	iUserSvc->Release();
+    iunk->Release();
 
-    VLDateTime* pTime = (VLDateTime*)((IUnknown*)m_iLastActive);
-	pTime->AddMinutes(-45);  // checking to see if user will be logged out after 15 minutes of inactivity       
-    return S_OK;
+    return hr;
 }
 
 HRESULT __stdcall User::Properties(IUnknown** iPrp)
@@ -213,26 +178,12 @@ HRESULT __stdcall User::Properties(IUnknown** iPrp)
     return S_OK;
 }
 
-HRESULT __stdcall User::Login()
+HRESULT __stdcall User::Login(const wchar_t* szName, const wchar_t* szPwd)
 {
-    User* iUsr = NULL;
-    BOOL b = FALSE;
-
-    m_masterUserList.GetByTag(m_pName->GetString().c_str(), (IUnknown**)&iUsr);
-
-    if (iUsr == NULL)
-        return S_OK;
-
-    if (Compare(*iUsr))
+    if (m_name == szName && m_password == szPwd)
     {
-		iUsr->m_pIsAdmin->GetAsBool(&b);
-        m_pIsAdmin->SetLocked(FALSE);
-        m_pIsAdmin->SetAsBool(b);
-        m_pIsAdmin->SetLocked(TRUE);
-        
-        m_pIsLoggedIn->SetLocked(FALSE);
-        m_pIsLoggedIn->SetAsBool(TRUE);
-        m_pIsLoggedIn->SetLocked(TRUE);        
+        m_iLastActive->SetToNow();
+        m_bIsLoggedIn = TRUE;
     }
 
     return S_OK;
@@ -275,9 +226,7 @@ HRESULT __stdcall User::AddToMasterList(const wchar_t* szTag, const wchar_t* szP
 	BOOL bIsAdmin = FALSE;
 	IUnknown* iunk = NULL;
 
-	m_pIsLoggedIn->GetAsBool(&bIsAdmin);
-
-	if (bIsAdmin == FALSE)  // have to be logged in to add users to the master list
+	if (m_bIsLoggedIn == FALSE)  // have to be logged in to add users to the master list
         return E_FAIL;
 
     m_pIsAdmin->GetAsBool(&bIsAdmin);
@@ -309,6 +258,7 @@ HRESULT __stdcall User::LoadUserList(IUnknown* iunk)
     UINT nCnt = 0;
     int i = 0;
 	StringInf iStr;
+    wstring nme;
 
     MoeInf<IDATABASE, CLASSID::DATABASE> iDB;
     MoeInf<ITABLE, CLASSID::TABLE> iTbl;
@@ -326,21 +276,20 @@ HRESULT __stdcall User::LoadUserList(IUnknown* iunk)
 
     while (nCnt > 0)
     {
-        pUsr = new User();
         iTbl->Get(L"Login Name", iStr);
-        pUsr->m_pName->SetString(iStr);
-
+		nme = (const wchar_t*)iStr;
         iTbl->Get(L"Password", iStr);
-        pUsr->m_pPassword->SetString(iStr);
 
+        pUsr = new User(nme.c_str(), iStr);
         iTbl->Get(L"Is Administrator", iStr);
+
         pUsr->m_pIsAdmin->SetLocked(FALSE);
         pUsr->m_pIsAdmin->SetString(iStr);
         pUsr->m_pIsAdmin->SetLocked(TRUE);
 
         iTbl->Get(L"Email", iStr);
         pUsr->m_pEmail->SetString(iStr);
-        m_masterUserList.Add(pUsr, pUsr->m_pName->GetString().c_str(), UserInf::ClassID);
+        m_masterUserList.Add(pUsr, pUsr->m_name.c_str(), UserInf::ClassID);
         nCnt--;
 
 		Table* pTbl = (Table*)((IUnknown*)iTbl);
@@ -360,7 +309,7 @@ HRESULT __stdcall User::Copy(IUnknown* iunk)
     iCopyFrom.Attach(iunk);
     iCopyFrom->Properties(iVar);
 
-    m_pPassword->SetString(iVar.Get(L"Password").c_str());
+    m_password = iVar.Get(L"Password");
 
     m_pIsAdmin->SetLocked(FALSE);
 
@@ -379,15 +328,10 @@ HRESULT __stdcall User::Copy(IUnknown* iunk)
 
 bool User::Compare(User& usr)
 {
-    UserInf iUser;
-    VariableInfCollection iprp;
-
-    usr.Properties(iprp);
-
-    if (m_pName->GetString() != iprp.Get(L"Login Name"))
+    if (m_name != usr.m_name)
         return false;
 
-    if (m_pPassword->GetString() != iprp.Get(L"Password"))
+    if (m_password != usr.m_name)
         return false;    
 
     return true;
@@ -398,22 +342,160 @@ bool User::Compare(User& usr)
 
 void User::EditMasterList(User& usr)
 {
-    BOOL bIsLoggedIn = FALSE, bIsAdmin = FALSE;
+    BOOL bIsAdmin = FALSE;
     UserInf iuser;
 
-    m_pIsLoggedIn->GetAsBool(&bIsLoggedIn);
     m_pIsAdmin->GetAsBool(&bIsAdmin);
 
-    if (bIsAdmin == FALSE || bIsLoggedIn == FALSE)
+    if (bIsAdmin == FALSE || m_bIsLoggedIn == FALSE)
         // you have to be logged in and an admin before you can make any changes to the master list
         return;
 
-    m_masterUserList.GetByTag(usr.m_pName->GetString().c_str(), iuser);
+    m_masterUserList.GetByTag(usr.m_name.c_str(), iuser);
 
     if ((IUnknown*)iuser != NULL)
     {
         iuser->Copy(&usr);
 
     }
+}
+
+BOOL User::IsLoggedIn()
+{
+    MoeInf<IDATETIME, CLASSID::DATETIME> dtNow;
+    dtNow.Init();
+
+    int nSec = 0;
+    dtNow->GetDifference(m_iLastActive, &nSec);
+
+    if (nSec > 900)// users that have been idle for more than 15 minutes will be logged out
+    {
+        m_bIsLoggedIn = FALSE;
+    }
+    else
+        m_iLastActive->SetToNow();
+
+    return m_bIsLoggedIn;
 
 }
+
+
+
+
+UserService::UserService()
+{
+    m_cRef = 1;
+}
+
+UserService::~UserService()
+{
+    printf("ComObjectBase destructor called\n");
+
+}
+
+ULONG UserService::AddRef()
+{
+    m_cRef++;
+
+	ULONG newCount = m_cRef;
+    printf("AddRef -> %lu\n", newCount);
+    
+    return m_cRef;
+}
+
+ULONG __stdcall UserService::Release()
+{
+    m_cRef--;
+
+    ULONG newCount = m_cRef;
+
+    printf("Release -> %lu\n", newCount);
+
+    if (newCount == 0)
+    {
+        printf("Refcount reached zero, deleting object\n");
+        delete this;
+    }
+
+    if (0 == m_cRef)
+    {
+        delete this;
+        return 0;
+    }
+
+    return m_cRef;
+}
+
+HRESULT __stdcall UserService::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+    if (riid == IID_IUnknown)
+    {
+        *ppvObj = static_cast<IUnknown*>(this);
+        AddRef();
+        return NOERROR;
+    }
+    else if (riid == USERSERVICE_IID)
+    {
+        *ppvObj = static_cast<IUSERSERVICE*>(this);
+        AddRef();
+        return NOERROR;
+    }
+    else
+        return E_NOINTERFACE;
+}
+
+HRESULT __stdcall UserService::GetUser(const wchar_t* szName, IUnknown** iUsr)
+{
+    int nUser = 0;
+	IUnknown* iunk = NULL;
+    m_users.Count(&nUser);
+
+    if (nUser == 0)
+        LoadUsers();
+
+    m_users.GetByTag(szName, &iunk);
+
+    if (iunk != NULL)
+		iunk->AddRef();
+
+    *iUsr = iunk;
+    return S_OK;
+}
+
+HRESULT UserService::UnitTest()
+{
+    User* iUsr = NULL;
+
+	GetUser(L"Vaughn", (IUnknown**)&iUsr);
+
+    iUsr->Login(L"Vaughn", L"ZFyZH8DuKemv");
+    iUsr->IsLoggedIn();	
+	iUsr->Release();
+
+    m_users.GetByTag(L"Nevin", (IUnknown**)&iUsr);
+
+    if (iUsr == NULL)
+    {
+        iUsr = new User(L"Nevin", L"guest123");
+        m_users.Add(iUsr, L"Nevin", UserInf::ClassID);
+        iUsr->Release();
+    }
+    
+
+    return S_OK;
+}
+
+void UserService::LoadUsers()
+{
+	m_users.Clear();
+
+    User* iUsr = new User(L"Vaughn", L"ZFyZH8DuKemv");
+    m_users.Add(iUsr, L"Vaughn", UserInf::ClassID);
+    iUsr->Release();
+
+    iUsr = new User(L"guest", L"guest123");
+    m_users.Add(iUsr, L"guest", UserInf::ClassID);
+    iUsr->Release();
+    iUsr = NULL;
+}
+

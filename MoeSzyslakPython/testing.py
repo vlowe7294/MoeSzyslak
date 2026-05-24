@@ -10,6 +10,10 @@ from typing import Type, List, Callable, Any
 import datetime
 import xml.etree.ElementTree as ET
 import math
+import UserClass
+
+from UserClass import *
+
 
 __version__ = 1573
 
@@ -18,6 +22,10 @@ class VLVariable:
         self._displayName = ''
         self._bLocked = False
         self._str = ''
+        self._bCanBeEmpty = True
+
+    def __str__(self):
+        return self._str        
 
     def SetString(self, strVal):
         if not isinstance(strVal, str):
@@ -26,7 +34,13 @@ class VLVariable:
         if self._bLocked is True:
             raise ValueError("Variable is locked and cannot be modified")
 
+        if self._bCanBeEmpty is False and len(strVal) == 0:
+            raise ValueError("Variable cannot be empty")
+
         self._str = strVal
+
+    def Print(self):
+        print(f"{self._displayName}:\t{self._str}")
 
     @property
     def DisplayName(self):
@@ -72,6 +86,9 @@ class VariableCollection:
 
         if (len(tag) > 0):
             self._objectMap[tag] = obj
+
+    def Get(self, nme):
+        return self._objectMap.get(nme)
 
 
 
@@ -137,6 +154,8 @@ class TestRunner:
     """
     _timestart = time.perf_counter() * 1000
     ClassID = 398981
+
+    _testVersion = 1587
     
     def __init__(self):
         self.Clear()        
@@ -204,8 +223,13 @@ class TestRunner:
         if val is not None:
             self._testValues[name] = val
             return val
+
+        ret = self._testValues.get(name)
+
+        if ret is None:
+            ret = ''
         
-        return self._testValues[name]
+        return ret
 
     def LogEntry(self, ndx):
         if 0 <= ndx < len(self._logEntries):
@@ -239,8 +263,7 @@ class TestRunner:
         self._bMemoryCheck = False
         self._bPassed = True
         self._logEntries = []
-        self._testTime = datetime.datetime.now(); 
-
+        self._testTime = datetime.datetime.now()
 
     @property
     def Passed(self):
@@ -354,13 +377,21 @@ class Database:
             tst.Verify(False, f"Exception during Database unit test: {e}")
 
         tst.Report()
-
-
         
 
-if __name__ == "__main__":    
-    test_self_test();
-    Database.UnitTest()
+if __name__ == "__main__":  
+    sel = ""
+    tst = TestRunner()
+
+    while sel != "2":
+        print("Class tester")
+        print()
+        print("1)  User")
+        print("2)  Exit")
+        sel = input("select:  ")
+
+        if sel == "1":
+            User.UnitTest(tst)
     
     
     

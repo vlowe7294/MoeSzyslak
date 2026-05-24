@@ -31,4 +31,4 @@ private:
 	void Attach();
 };
 
-void CreateMoeSzyslakInterface(UINT id, IUnknown** iunk);
+__declspec(dllexport) void CreateMoeSzyslakInterface(UINT id, IUnknown** iunk);

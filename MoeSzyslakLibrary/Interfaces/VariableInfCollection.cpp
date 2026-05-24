@@ -2,7 +2,7 @@
 #include "../Interfaces.h"
 #include "../VLVariable.h"
 
-void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk);
+__declspec(dllexport) void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk);
 
 GUID VariableInf::m_iid =
 { 0xd383c87b, 0x63dd, 0x4875, { 0xbc, 0x77, 0x74, 0xb0, 0x1f, 0x11, 0x22, 0x6b } };

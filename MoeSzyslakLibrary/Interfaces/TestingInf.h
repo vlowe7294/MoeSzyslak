@@ -19,6 +19,8 @@ public:
 		virtual HRESULT __stdcall Message(LPCWSTR szMsg) = 0;
 		virtual HRESULT __stdcall GetTestData(LPCWSTR szName, IUnknown* iStr) = 0;
 		virtual HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal) = 0;
+		virtual HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName) = 0;
+		virtual HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID) = 0;
 		virtual HRESULT __stdcall UnitTest() = 0;
 	};
 

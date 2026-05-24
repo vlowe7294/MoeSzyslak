@@ -219,12 +219,11 @@ public:
 	 * @return S_OK on success.
 	 */
 	HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal);
-	
 
-	HRESULT __stdcall UnitTest();
+	HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName);
+	HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID);
 
-	wstring GetClassName(UINT nClassID);
-	UINT GetClassID(wstring strClassName);
+	HRESULT __stdcall UnitTest();	
 
 private:
 	int m_cRef;                          ///< COM reference count.

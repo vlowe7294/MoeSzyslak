@@ -7,3 +7,5 @@ EXPORTS
 	DestroyMoeSzyslakHandle
 	MoeSzyslakGetReturnString
 	MoeSzyslakHTML
+	CreateMoeSzyslakInterface
+	FreeMoeSzyslakInterface

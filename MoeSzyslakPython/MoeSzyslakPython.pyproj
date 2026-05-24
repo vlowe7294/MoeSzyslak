@@ -36,6 +36,7 @@
     <Compile Include="tripplanner.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="user.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Class Diagrams\" />

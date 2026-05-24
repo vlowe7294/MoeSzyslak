@@ -19,7 +19,7 @@
 class User : public IUSER
 {
 public:
-	User();
+	User(const wchar_t* szName, const wchar_t* szPwd);
 	~User();
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
@@ -56,14 +56,14 @@ public:
 	HRESULT __stdcall Properties(IUnknown** iPrp);
 
 	/**
-	 * @brief Attempts to authenticate the user against the master list.
+	 * @brief Attempts to authenticate the user 
 	 *
-	 * If the login name and password match an existing user, the login
-	 * state is updated and admin privileges are synchronized.
+	 * If the login name and password match the internal name and password
+	 * state is updated 
 	 *
 	 * @return S_OK on success (even if login fails), or error codes.
 	 */
-	HRESULT __stdcall Login();
+	HRESULT __stdcall Login(const wchar_t* szName, const wchar_t* szPwd);
 
 	/**
 	 * @brief Saves all users in the master list to the provided database.
@@ -117,6 +117,13 @@ public:
 	HRESULT __stdcall Copy(IUnknown* iCopyFrom);
 
 	void EditMasterList(User& usr);
+
+	/**
+	 * @brief Gets the user logged in state
+	 *
+	 * Will set login state to FALSE, if more than 15 minutes have passed since last check	 
+	 */
+	BOOL IsLoggedIn();
 	
 
 private:
@@ -126,15 +133,15 @@ private:
 	 *
 	 * @param bAdmin Whether the created user should be an administrator.
 	 */
-	User(bool bAdmin);
+	User(bool bAdmin, const wchar_t* szName, const wchar_t* szPwd);
 
 	int m_instance;                      ///< Instance ID for debugging.
 	
 	int m_cRef;                         ///< COM reference count.
 	VariableCollection* m_pProperties;  ///< Property bag for all user fields.
-	VLVariable* m_pName;                ///< Login name.
-	VLVariable* m_pPassword;            ///< Password (plaintext).
-	VLVariable* m_pIsLoggedIn;          ///< Login state flag.
+	wstring m_name;		                ///< Login name.
+	wstring m_password;			        ///< Password (plaintext).
+	BOOL m_bIsLoggedIn;			        ///< Login state flag.
 	VLVariable* m_pIsAdmin;             ///< Administrator privilege flag.
 	VLVariable* m_pEmail;               ///< Email address.
 	MoeInf<IDATETIME, CLASSID::DATETIME> m_iLastActive; ///< Last activity timestamp.
@@ -159,4 +166,23 @@ private:
 	 * Called automatically on first User construction.
 	 */
 	static void InitMasterList();
+};
+
+class UserService : public IUSERSERVICE
+{
+public:
+	UserService();
+	~UserService();
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	HRESULT __stdcall GetUser(const wchar_t* szName, IUnknown** iUsr);
+	HRESULT __stdcall UnitTest();
+	
+
+private:
+	int m_cRef;
+	InterfaceCollection m_users;
+
+	void LoadUsers();
 };

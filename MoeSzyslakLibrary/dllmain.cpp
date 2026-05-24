@@ -52,7 +52,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1587
+#define VERSION 1601
 
 VLString g_dllPath;
 
@@ -95,7 +95,7 @@ void VersionAsString(IUnknown* iunk)
     iStr->Set(s.c_str());
 }
 
-void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
+UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
 {
     *iunk = NULL;
 
@@ -114,8 +114,12 @@ void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
         *iunk = (IUnknown*)new CommGeneralPage();
         break;
 
+    case CLASSID::USERSERVICE:
+        *iunk = (IUnknown*)new UserService();
+        break;
+
     case UserInf::ClassID:
-        *iunk = (IUnknown*)new User();
+        *iunk = (IUnknown*)new User(L"New User", L"guest123");
         break;
 
     case StringInf::ClassID:
@@ -152,10 +156,17 @@ void CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
 
     case IOSInf::ClassID:
         *iunk = (IUnknown*)new IOS();
-        break;
+        break;   
    
     }
 }
+
+UI_EXPORT void _cdecl FreeMoeSzyslakInterface(IUnknown* iunk)
+{
+    if (iunk != NULL)
+		iunk->Release();
+}
+
 
 InterfaceCollectionInf g_iObjects;
 

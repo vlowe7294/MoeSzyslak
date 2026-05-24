@@ -39,7 +39,7 @@
             // ClassListBox
             // 
             ClassListBox.FormattingEnabled = true;
-            ClassListBox.Items.AddRange(new object[] { "Test Self" });
+            ClassListBox.Items.AddRange(new object[] { "Test Self", "User" });
             ClassListBox.Location = new Point(18, 13);
             ClassListBox.Name = "ClassListBox";
             ClassListBox.Size = new Size(271, 34);

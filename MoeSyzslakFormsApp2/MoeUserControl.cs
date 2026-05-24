@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -65,6 +67,43 @@ namespace MoeSyzslakFormsApp2
                 MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
                 m_hObj = 0;
             }
+        }
+
+        public static void UnitTest(TestControl tstCntl)
+        {
+            int nTests = 2;
+            User usr;
+
+
+            tstCntl.Message("Testing User Object");
+
+            tstCntl.TestValue("Login Name", "Vaughn");
+            tstCntl.TestValue("Password", "ZFyZH8DuKemv");
+            tstCntl.TestValue("Is Logged In", true);
+
+
+            for (int i = 0; i < nTests; i++)
+            {
+                usr = new User();
+                tstCntl.Message(string.Format("Running test {0} of {1}", i + 1, nTests));
+                usr.Name = tstCntl.TestValue("Login Name").ToString();
+                usr.Password = tstCntl.TestValue("Password").ToString();
+
+                usr.Login();
+                tstCntl.VerifyVariable("Is Logged In", usr.IsLoggedIn);
+                // tstCntl.Verify(usr.IsLoggedIn, "Failed to login");
+
+                tstCntl.VerifyVariable("Login Name", usr.Name);
+                tstCntl.VerifyVariable("Password", usr.Password);
+
+                tstCntl.TestValue("Login Name", "Nevin");
+                tstCntl.TestValue("Password", "nevin5");
+                tstCntl.TestValue("Is Logged In", false);
+                usr.Dispose();
+            }
+
+            tstCntl.Report();
+
         }
 
         public void Commit()

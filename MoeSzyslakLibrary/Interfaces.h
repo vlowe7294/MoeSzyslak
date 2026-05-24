@@ -16,6 +16,7 @@ enum CLASSID
 {
 	INVALIDCLASS	= 0,
 	INTERFACELIST	= 184004,
+	USERSERVICE		= 241805,
 	AREA			= 262241,
 	TABLE			= 416737,
 	TRIPPLANNER		= 507734,
@@ -23,7 +24,7 @@ enum CLASSID
 	MODULE			= 628950,
 	HOST			= 647491,
 	DATABASE		= 781903,	
-	CREATURE		= 924610,	
+	CREATURE		= 924610
 };
 
 extern const std::unordered_map<std::wstring, UINT> CLASS_NAMES;
@@ -76,6 +77,9 @@ static const GUID COMMGENERAL_IID =
 static const GUID USER_IID =
 { 0x3b1537e5, 0x9e5d, 0x4053, { 0x85, 0x10, 0x1c, 0xeb, 0x51, 0x54, 0x3f, 0x32 } };
 
+// {39663C08-D7C0-4CB2-B4F0-0E1F2445A5B0}
+static const GUID USERSERVICE_IID =
+{ 0x39663c08, 0xd7c0, 0x4cb2, { 0xb4, 0xf0, 0xe, 0x1f, 0x24, 0x45, 0xa5, 0xb0 } };
 
 
 struct IHOST : public IUnknown
@@ -195,14 +199,14 @@ struct IUSER : public IUnknown
 	virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
 
 	/**
-	 * @brief Attempts to authenticate the user against the master list.
+	 * @brief Attempts to authenticate the user
 	 *
-	 * If the login name and password match an existing user, the login
-	 * state is updated and admin privileges are synchronized.
+	 * If the login name and password match the internal name and password
+	 * state is updated
 	 *
 	 * @return S_OK on success (even if login fails), or error codes.
 	 */
-	virtual HRESULT __stdcall Login() = 0;
+	virtual HRESULT __stdcall Login(const wchar_t* szCmd, const wchar_t* szPwd) = 0;
 
 	/**
 	 * @brief Saves all users in the master list to the provided database.
@@ -235,6 +239,12 @@ struct IUSER : public IUnknown
 	 */
 	virtual HRESULT __stdcall Copy(IUnknown* iCopyFrom) = 0;
 	virtual HRESULT __stdcall UnitTest() = 0;
+};
+
+struct IUSERSERVICE : public IUnknown
+{
+	virtual HRESULT __stdcall GetUser(const wchar_t* szName, IUnknown** iUsr) = 0;
+	virtual HRESULT __stdcall UnitTest() = 0;	
 };
 
 struct ICOMMGENERALPAGE : public IUnknown

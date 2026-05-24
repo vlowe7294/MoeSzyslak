@@ -483,6 +483,18 @@ HRESULT __stdcall Testing::GetTestData(LPCWSTR szVarName, IUnknown* iunk)
 	return S_OK;
 }
 
+HRESULT __stdcall Testing::GetClassID(LPCWSTR szClassName, UINT* nClassID)
+{
+	auto it = CLASS_NAMES.find(szClassName);
+	*nClassID = 0;
+
+	if (it != CLASS_NAMES.end())
+		*nClassID = it->second;
+	
+	return S_OK;
+}
+
+
 HRESULT __stdcall Testing::SetTestData(LPCWSTR szVarName, LPCWSTR szVal)
 {
 	VLVariable* pVar = NULL;
@@ -562,17 +574,33 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 	return S_OK;
 }
 
+HRESULT __stdcall Testing::GetClassName(UINT nClassID, IUnknown* iunk)
+{
+	StringInf iStr;
+	iStr.Attach(iunk);
+
+	iStr.Set(L"");
+
+	for (auto& kv : CLASS_NAMES)
+	{
+		if (kv.second == nClassID)
+			iStr.Set(kv.first.c_str());
+	}
+
+	return S_OK;
+}
+
 UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd);
 void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
 
 HRESULT __stdcall Testing::UnitTest()
 {
-	StringInf iStr;
+	//StringInf iStr;
+	UINT nID = 0;
 
-	iStr.Init();
+	//iStr.Init();
 
-	UINT nID = GetClassID(L"trip planner");
-	wstring nme = GetClassName(nID);
+	
 
 	Database* pDB = new Database();
 	pDB->ReadFromSQL();
@@ -857,48 +885,14 @@ void Testing::IOSTest()
 void Testing::UserTest()
 {
 	UserInf iUser;
-	IUnknown* iunk = NULL;
-	StringInf iStr;
-	wstring msg;
-	VariableInfCollection iPrp;
-	MoeInf<IDATABASE, CLASSID::DATABASE> iDB, iInDB;
+	MoeInf<IUSERSERVICE, CLASSID::USERSERVICE> iUserService;
 
-	iInDB.Init();
+	iUserService.Init();
 	
-	m_pTestValues->Set(L"Login Name", L"Vaughn", VLVariable::VAR_TYPE::TYPE_STRING);
-	m_pTestValues->Set(L"Password", L"ZFyZH8DuKemv", VLVariable::VAR_TYPE::TYPE_STRING);
-	
+
 	Message(L"User Unit Test");
-	VerifyHResult(iInDB->ReadFromSQL(), L"Failed to read from database.");
-	VerifyHResult(iUser->Command(L"set \"Login Name\" Vaughn"), L"set login name failed");
-	VerifyHResult(iUser->Command(L"set Password ZFyZH8DuKemv"), L"set password failed");
 	
-	iUser->Properties(iPrp);
-	VerifyHResult(iUser->Command(L"Login"), L"Login failed");
-	VerifyHResult(iUser->Command(L"set Email vlowe7294@gmail.com"), L"set Email");
-
-	VerifyHResult(iUser->AddToMasterList(L"Nevin", L"password"), L"AddToMasterList failed");
-
 	VerifyHResult(iUser->UnitTest(), L"Unit test returned failure code");
-
-	
-	iUser->Command(L"get \"Login Name\"");
-	iUser->GetReturnString(iStr);
-	wprintf(L"Login name:  %s\n", (const wchar_t*)iStr);
-	VerifyVariable(L"Login Name", (const wchar_t*)iStr);
-
-	iUser->Command(L"get Password");
-	wprintf(L"Password:  %s\n", (const wchar_t*)iStr);
-	VerifyVariable(L"Password", (const wchar_t*)iStr);
-	
-	iUser->Command(L"get \"Is Logged In\"");  // this should be false as the unit test should artifically time out the login
-	Verify(wstring((const wchar_t*)iStr) == L"FALSE", L"Is Logged In == TRUE");
-
-	iUser->Command(L"get Email");
-	Verify(wstring((const wchar_t*)iStr) == L"vlowe7294@gmail.com", L"Email != vlowe7294@gmail.com");
-
-	iUser->SaveUserList(iDB);
-
 }
 
 void Testing::FinanceTest()
@@ -947,10 +941,19 @@ void Testing::SelfTest()
 {
 	TestingInf iTst;
 	LogEntryInf iLog;
+	UINT nID = 0;
+	StringInf iStr;
 	
 	try
 	{
 		iTst.Attach(this);
+		iStr.Init();
+
+		VerifyHResult(iTst->GetClassID(L"trip planner", &nID), L"Get Class ID failed");
+		Verify(nID == TripPlannerInf::ClassID, L"Class ID should be 507734");
+		VerifyHResult(GetClassName(nID, iStr), L"Get Class Name failed");
+
+		Verify(wstring(iStr) == L"trip planner", L"Class name should be 'trip planner'");
 
 		VerifyHResult(iTst->UnitTest(), L"Testing unit test failed");
 
@@ -965,22 +968,6 @@ void Testing::SelfTest()
 
 }
 
-wstring Testing::GetClassName(UINT nClassID)
-{
-	for (auto& kv : CLASS_NAMES)
-	{
-		if (kv.second == nClassID)
-			return kv.first;
-	}
-	return L"";
-}
 
 
-UINT Testing::GetClassID(wstring strClassName)
-{
-	auto it = CLASS_NAMES.find(strClassName);
-	if (it != CLASS_NAMES.end())
-		return it->second;
-	else
-		return 0;
-}
+

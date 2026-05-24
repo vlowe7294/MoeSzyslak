@@ -3,7 +3,9 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text;
 using System.Xml.Linq;
 using static MoeConsole.TripPlanner;
 using static System.Collections.Specialized.BitVector32;
@@ -164,27 +166,43 @@ namespace MoeConsole
     }
 
 
-    public class User
+    public class User : IDisposable
     {
-        public User()
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("3B1537E5-9E5D-4053-8510-1CEB51543F32")]
+        private interface IUSER 
         {
-            m_hObj = MoeSzyslakLibrary.CreateMoeSzyslakHandle(m_classID);
+            
         }
 
-        ~User()
+        public User(IntPtr iUnk)
         {
-            Dispose();
+            m_iunk = iUnk;
+            m_iUser = (IUSER)Marshal.GetObjectForIUnknown(m_iunk);
         }
+
+        ~User() => Dispose(false);
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            if (m_hObj > 0)
+        void Dispose(bool disposing)
+        {
+            if (m_iUser != null)
             {
-                MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
-                m_hObj = 0;
+                Marshal.ReleaseComObject(m_iUser);
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iUser = null;
+                m_iunk = IntPtr.Zero;
             }
         }
+
+        private IntPtr m_iunk = IntPtr.Zero;
+        private IUSER m_iUser;
+
+
 
         public void Commit()
         {
@@ -274,6 +292,71 @@ namespace MoeConsole
 
     }
 
+    public class UserService : IDisposable
+    {
+        static public uint classID = 241805;
+
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("39663C08-D7C0-4CB2-B4F0-0E1F2445A5B0")]
+        private interface IUSERSERVICE
+        {
+            void GetUser([MarshalAs(UnmanagedType.LPWStr)] string strName, ref IntPtr iUsr);
+            void UnitTest();            
+        }
+
+        public UserService()
+        {
+            MoeSzyslakLibrary.CreateMoeSzyslakInterface(classID, ref m_iunk);
+            m_iUserService = (IUSERSERVICE)Marshal.GetObjectForIUnknown(m_iunk);
+        }
+
+        ~UserService() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            if (m_iUserService != null)
+            {
+                Marshal.ReleaseComObject(m_iUserService);
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iUserService = null;
+                m_iunk = IntPtr.Zero;
+            }                
+        }
+
+        public User GetUser()
+        {
+            IntPtr iUser = IntPtr.Zero;
+            m_iUserService.GetUser("Vaughn", ref iUser);
+
+            if (iUser == IntPtr.Zero)
+                return null;
+
+            return new User(iUser);
+        }
+
+        public static void UnitTest()
+        {
+            using (UserService us = new UserService())
+            {
+                using (User u = us.GetUser())
+                {
+
+                }
+
+                us.m_iUserService.UnitTest();
+            }
+        }
+
+        private IntPtr m_iunk = IntPtr.Zero;
+        private IUSERSERVICE m_iUserService;
+
+    }
+
 
     class Program
     {
@@ -283,7 +366,7 @@ namespace MoeConsole
             {
                 MoeSzyslakLibrary.VerifyLibrary();
                 Console.WriteLine(MoeSzyslakLibrary.Version);
-                User.UnitTest();
+                UserService.UnitTest();
             }
             catch (Exception e)
             {
