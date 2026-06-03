@@ -3,7 +3,7 @@
 
 Module::Module()
 {
-	Area* pArea = new Area();
+	Area* pArea = new Area(L"", 0);
 
 	m_cRef = 1;
 	m_pProperties = new VariableCollection();
@@ -155,7 +155,7 @@ void Module::Load(Database& db)
 
 	for (int i = 0; i < nRows; i++)
 	{
-		Area* pArea = new Area();
+		Area* pArea = new Area(L"", 0);
 		pArea->Load(*pTbl);
 		m_pAreas->Add(pArea, L"", 0);
 

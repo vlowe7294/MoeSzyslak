@@ -11,6 +11,8 @@
 #include "IOS\IOS.h"
 #include "User.h"
 #include "Finance.h"
+#include "AstralWorkshop\AstralWorkshop.h"
+#include "CampSight.h"
 
 
 
@@ -106,6 +108,10 @@ UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
         *iunk = (IUnknown*)new VLVariable();
         break;
 
+    case CLASSID::ASTRALWORKSHOP:
+        *iunk = new AstralWorkshop();
+        break;
+
     case CLASSID::INTERFACELIST:
         *iunk = (IUnknown*)new InterfaceCollection();
         break;   
@@ -119,7 +125,7 @@ UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
         break;
 
     case UserInf::ClassID:
-        *iunk = (IUnknown*)new User(L"New User", L"guest123");
+        *iunk = (IUnknown*)new User(L"New User", L"guest123", FALSE);
         break;
 
     case StringInf::ClassID:
@@ -156,8 +162,11 @@ UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
 
     case IOSInf::ClassID:
         *iunk = (IUnknown*)new IOS();
-        break;   
-   
+        break; 
+
+    case CLASSID::CAMPSIGHT:
+        *iunk = (IUnknown*)new CampSight();
+        break;
     }
 }
 

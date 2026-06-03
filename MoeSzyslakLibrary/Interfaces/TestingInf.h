@@ -21,6 +21,8 @@ public:
 		virtual HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal) = 0;
 		virtual HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName) = 0;
 		virtual HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID) = 0;
+		virtual HRESULT __stdcall Report(wchar_t* szRpt, UINT nlen) = 0;
+		virtual HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg) = 0;
 		virtual HRESULT __stdcall UnitTest() = 0;
 	};
 
@@ -28,6 +30,7 @@ public:
 	~TestingInf();
 	bool Attach(IUnknown* iunk);
 	ITESTING* operator->();
+	operator IUnknown* ();
 
 private:
 	IUnknown* m_iUnk;

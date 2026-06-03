@@ -11,10 +11,10 @@
 #include "Interfaces\NeverwinterInf.h"
 #include "Interfaces\TestingInf.h"
 
-
 enum CLASSID
 {
 	INVALIDCLASS	= 0,
+	ASTRALWORKSHOP	= 133671,
 	INTERFACELIST	= 184004,
 	USERSERVICE		= 241805,
 	AREA			= 262241,
@@ -24,7 +24,8 @@ enum CLASSID
 	MODULE			= 628950,
 	HOST			= 647491,
 	DATABASE		= 781903,	
-	CREATURE		= 924610
+	CREATURE		= 924610,
+	CAMPSIGHT		= 929959
 };
 
 extern const std::unordered_map<std::wstring, UINT> CLASS_NAMES;
@@ -80,6 +81,14 @@ static const GUID USER_IID =
 // {39663C08-D7C0-4CB2-B4F0-0E1F2445A5B0}
 static const GUID USERSERVICE_IID =
 { 0x39663c08, 0xd7c0, 0x4cb2, { 0xb4, 0xf0, 0xe, 0x1f, 0x24, 0x45, 0xa5, 0xb0 } };
+
+// {F43BA252-2FCA-41A2-9CFA-22A5D87C584C}
+static const GUID ASTRALWORKSHOP_IID =
+{ 0xf43ba252, 0x2fca, 0x41a2, { 0x9c, 0xfa, 0x22, 0xa5, 0xd8, 0x7c, 0x58, 0x4c } };
+
+// {583AFD09-699D-42C2-98FE-753E75422F16}
+static const GUID CAMPSIGHT_IID =
+{ 0x583afd09, 0x699d, 0x42c2, { 0x98, 0xfe, 0x75, 0x3e, 0x75, 0x42, 0x2f, 0x16 } };
 
 
 struct IHOST : public IUnknown
@@ -172,6 +181,16 @@ struct IDATABASE : public IUnknown
 struct IUSER : public IUnknown
 {
 	/**
+	 * @brief Attempts to authenticate the user
+	 *
+	 * If the login name and password match the internal name and password
+	 * state is updated
+	 *
+	 * @return S_OK on success (even if login fails), or error codes.
+	 */
+	virtual HRESULT __stdcall Login(const wchar_t* szCmd, const wchar_t* szPwd) = 0;
+
+	/**
 	 * @brief Executes a command string against the user object.
 	 *
 	 * Supported commands include:
@@ -197,16 +216,6 @@ struct IUSER : public IUnknown
 	 * @param iPrp Receives the property collection interface.
 	 */
 	virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
-
-	/**
-	 * @brief Attempts to authenticate the user
-	 *
-	 * If the login name and password match the internal name and password
-	 * state is updated
-	 *
-	 * @return S_OK on success (even if login fails), or error codes.
-	 */
-	virtual HRESULT __stdcall Login(const wchar_t* szCmd, const wchar_t* szPwd) = 0;
 
 	/**
 	 * @brief Saves all users in the master list to the provided database.
@@ -253,6 +262,44 @@ struct ICOMMGENERALPAGE : public IUnknown
 	virtual HRESULT __stdcall UnitTest() = 0;
 	virtual HRESULT __stdcall Commit() = 0;
 };
+
+/**
+ * @interface IASTRALWORKSHOP
+ * @brief COM-based game engine façade for the Astral Workshop simulation.
+ *
+ * This interface acts as the primary
+ * command dispatcher for the game engine. It manages engine state, character
+ * creation, world initialization, and provides a single entry point for
+ * external callers (such as Python/Flask) to interact with the simulation.
+ */
+struct IASTRALWORKSHOP : public IUnknown
+{
+	/**
+	 * @brief Processes a command string and returns a response.
+	 *
+	 * This is the primary entry point for external callers. Commands may
+	 * initiate character creation, exit the engine, or be routed to the
+	 * character creation state machine if a character is currently being built.
+	 *
+	 * @param szCmd The input command string (wide-character).
+	 * @param szRet Output buffer receiving the engine's response text.
+	 * @param nLen  Length of the output buffer in wide characters.
+	 *
+	 * @return S_OK on success, or an HRESULT error code on failure.
+	 */
+	virtual HRESULT __stdcall Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen) = 0;
+
+	virtual HRESULT UnitTest() = 0;
+};
+
+struct ICAMPSIGHT : public IUnknown
+{
+	virtual HRESULT __stdcall GetTester(IUnknown** iTester) = 0;
+	virtual HRESULT __stdcall AddSite(const wchar_t* szArea, const wchar_t* szSite, double lat, double lon) = 0;
+	virtual HRESULT __stdcall UnitTest() = 0;
+};
+
+
 
 void CreateMoeSzyslakInterface(UINT id, IUnknown** iunk);
 
@@ -513,13 +560,6 @@ private:
 
 
 
-
-struct LOCATION
-{
-	double x;
-	double y;
-	double z;
-};
 
 void VersionAsString(IUnknown* iunk);
 

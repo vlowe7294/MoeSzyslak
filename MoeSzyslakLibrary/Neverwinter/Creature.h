@@ -1,6 +1,14 @@
 #pragma once
 
 #include "../VLString.h"
+#include "..\Interfaces.h"
+
+struct NEEDS
+{
+	int amt;
+	int rate;
+	int count;
+};
 
 class Creature : public ICREATURE
 {
@@ -11,7 +19,20 @@ public:
 		FACTION_EXPLORER,
 		FACTION_GUARD
 	};
-	Creature();
+
+	enum CLASS
+	{
+		CLASS_NONE,
+		CLASS_WARRIOR,
+		CLASS_MAGE,
+		CLASS_ROGUE,
+		CLASS_MAX
+	};
+
+	
+	
+
+	Creature(const wchar_t* szName);
 	~Creature();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
@@ -19,29 +40,26 @@ public:
 	HRESULT __stdcall Tick(int nSec);
 
 	void AddConnectedObject(void* pObject, int nTravelSec);
-
+	void SetArea(IUnknown* iArea);
+	
 	inline wstring GetName() { return m_name; };
 	inline void SetName(LPCWSTR szName) { m_name = szName; }
-	inline void GetLocation(LOCATION& loc)
-	{
-		memcpy(&loc, &m_location, sizeof(LOCATION));
-	}
+	
 
-	inline void SetLocation(LOCATION& loc)
-	{
-		memcpy(&m_location, &loc, sizeof(LOCATION));
-	}
-
-private:
-	int m_cRef;
+protected:
+	ULONG m_cRef;
 	wstring m_name;
-	int m_thirst;
-	int m_thirstRate;
-	int m_nCount;
-	LOCATION m_location;
+	CLASS m_class;
+
+	NEEDS m_thirst;
+	NEEDS m_hunger;
+	int m_courage;
+
+	IUnknown* m_pArea;
+
 	void* m_pConnectedObjects[10];
 	int m_nTravelTimes[10];
 	FACTION m_faction;
 	void* m_pMoveTowards;
-	int m_nMoveTime;
+	int m_nMoveTime;	
 };

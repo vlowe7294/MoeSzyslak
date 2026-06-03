@@ -111,7 +111,7 @@ namespace MoeConsole
 
         static public void UnitTest()
         {
-            Testing tst = new Testing();
+            Testing tst = new Testing(IntPtr.Zero);
             tst.RunTest(m_classID);            
             tst.Dispose();
 
@@ -238,7 +238,7 @@ namespace MoeConsole
 
         static public void UnitTest()
         {
-            Testing tst = new Testing();
+            Testing tst = new Testing(IntPtr.Zero);
             tst.RunTest(m_classID);
             tst.Dispose();
 

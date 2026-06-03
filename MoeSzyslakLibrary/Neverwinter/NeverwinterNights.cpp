@@ -199,13 +199,7 @@ HRESULT __stdcall NeverwinterNights::UnitTest()
 	VariableInfCollection iPrp;
 	InterfaceCollectionInf iAreas, iContents;
 	Creature* pCreature = NULL;
-	LOCATION loc =
-	{
-		0.0,
-		1000.0,
-		0.0
-	};
-
+	
 	m_iModule->Properties(iPrp);
 
 	iPrp.GetVariableInterface(L"Areas", iAreas);
@@ -215,10 +209,8 @@ HRESULT __stdcall NeverwinterNights::UnitTest()
 
 	ar.Properties(iPrp);
 	iPrp.GetVariableInterface(L"contents", iContents);
-	pCreature = new Creature();
+	pCreature = new Creature(L"Gert Addams");
 
-	pCreature->SetName(L"Gert Addams");
-	pCreature->SetLocation(loc);
 	iContents->Add(pCreature, L"", CLASSID::CREATURE);
 
 	pCreature->Release();

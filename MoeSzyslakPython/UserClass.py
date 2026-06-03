@@ -3,9 +3,23 @@ import ctypes
 from MoeSzyslakPython import MoeSzyslakLibrary
 from ctypes import c_uint, c_void_p, byref, HRESULT, c_wchar_p
 from comtypes import IUnknown, GUID, COMMETHOD, POINTER as CPOINTER
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, request
 
 __version__ = 1601
+
+# Replace with your real IID
+USER_IID = GUID("{3B1537E5-9E5D-4053-8510-1CEB51543F32}")
+
+class IUSER(IUnknown):
+    _iid_ = USER_IID
+    _methods_ = [
+        # HRESULT GetUser([in] const wchar_t* szName, [out] IUnknown** iUsr)
+        COMMETHOD(
+            [], HRESULT, "Login",
+            (["in"], c_wchar_p, "szName"),
+            (["in"], c_wchar_p, "szPwd"),
+        ),
+    ]
 
 class User:    
     _classID = 325850 
@@ -14,18 +28,9 @@ class User:
     _bInit = False
     LogoutMinutes = 15
 
-    def __init__(self):
-        User.InitMasterList()
-        self._name = 'New User'
-        self._password = 'xxxxx'
-        self._bIsLoggedIn = False
-        self._isAdmin = False
-        self._lastActive = None  
-
-        self._properties = VariableCollection()
-
-        self._varName = self._properties.NewVariable("Login Name")
-        self._varName.SetString(self._name)
+    def __init__(self, iUser):
+        self._iUser = iUser;
+        print(f"interface created = {self._iUser}")
 
     def Print(self):
         self._varName.Print()
@@ -166,6 +171,7 @@ class IUSERSERVICE(IUnknown):
 class UserService:
     class_id = 241805
 
+
     def __init__(self):
         MoeSzyslakLibrary.VerifyLibrary()
         unk_ptr = c_void_p()
@@ -177,16 +183,19 @@ class UserService:
     def UnitTest(self):
         #hr = self.iUserService.UnitTest()
         #MoeSzyslakLibrary.check_hresult(hr, "UnitTest failed")
-        self.GetUser("Vaughn")
+        usr = self.GetUser("Vaughn")
 
     def GetUser(self, name):
-        iUser = CPOINTER(IUnknown)()
-        self.iUserService.GetUser(name, byref(iUser))
+        unk_ptr = CPOINTER(IUnknown)()
+        hr = self.iUserService.GetUser(name, byref(unk_ptr))        
+        MoeSzyslakLibrary.check_hresult(hr, "GetUser failed") 
 
-        if not iUser:
-            print(f"GetUser did not find user {name} result is {iUser}")
+        if unk_ptr.value is None:
+            return None
         else:
-            print(f"GetUser succeeded for {name} result is {iUser}")
+            return User(unk_ptr.QueryInterface(IUSER))
+
+        
 
         
 
@@ -199,25 +208,39 @@ def test_user_test():
 # ----------------------------------------------------------------------
 
 app = Flask(__name__)
+app.UserSvc = None
 
-@app.route("/userservice/unit_test")
-def unit_test():
+@app.route("/login", methods=["GET", "POST"])
+def login():
     rslt = ''
 
-    try:
-        us = UserService() 
-        us.UnitTest()        
-        rslt = "Unit test succeeded"
-    except Exception as e:
-        rslt = str(e)
-        print(e)
+    htm = ''
+    nme = ''
 
-    return jsonify({"Result:  ": rslt})
+    try:
+        if app.UserSvc is None:
+            app.UserSvc = UserService()
+
+        if  request.method == "POST":
+            nme = request.form.get("Login Name")
+            usr = app.UserSvc.GetUser(nme)
+
+            if usr is None:
+                print(f"Login failed for user: {nme}")
+            else:
+                print(f"Login succeeded for user: {nme}")
+
+        return render_template("login.html", LoginName=nme)
+
+    except Exception as e:
+        htm = "<h1>" + str(e) + "</h1>"
+
+    return htm
     
     
     
 if __name__ == "__main__":    
-    #app.run(port=5000)
-    test_user_test()
+    app.run(port=5000)
+    #test_user_test()
     
 

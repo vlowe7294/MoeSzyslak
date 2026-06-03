@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Astral Workshop</title>
+</head>
+<body>
+
+    <div id="console"></div>
+
+    <input id="inputBox" type="text" placeholder="Enter command..." autofocus>
+
+    <script>
+const consoleDiv = document.getElementById("console");
+const inputBox = document.getElementById("inputBox");
+
+function printToConsole(text) {
+    const line = document.createElement("div");
+    line.textContent = text;
+    consoleDiv.appendChild(line);
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
+inputBox.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+        const text = inputBox.value;
+        inputBox.value = "";
+
+        printToConsole("> " + text);
+
+        const response = await fetch("/command", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input: text })
+        });
+
+        const data = await response.json();
+        printToConsole(data.response);
+    }
+});
+    </script>
+
+</body>
+</html>

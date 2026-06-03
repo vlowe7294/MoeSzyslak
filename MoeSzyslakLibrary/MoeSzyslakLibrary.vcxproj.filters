@@ -28,6 +28,9 @@
     <Filter Include="Docs">
       <UniqueIdentifier>{ff14ab4b-3b62-4f79-945b-55a219e5fe50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AstralWorkshop">
+      <UniqueIdentifier>{fda00557-5bd8-4bcb-aed8-84d48ad08cc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -124,6 +127,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqlite3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AstralWorkshop\AstralWorkshop.h">
+      <Filter>AstralWorkshop</Filter>
+    </ClInclude>
+    <ClInclude Include="CampSight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -225,6 +234,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AstralWorkshop\AstralWorkshop.cpp">
+      <Filter>AstralWorkshop</Filter>
+    </ClCompile>
+    <ClCompile Include="CampSight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

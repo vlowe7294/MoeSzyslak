@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "User.h"
 #include "Testing.h"
+#include "AstralWorkshop/AstralWorkshop.h"
 
 
 InterfaceCollection User::m_masterUserList;
@@ -9,18 +10,11 @@ BOOL User::m_bInit = FALSE;
 void User::InitMasterList()
 {
     User* iNewUsr;
-    VariableInfCollection ivars;
 
     if (m_bInit == FALSE)
     {
         m_bInit = TRUE;
-
         iNewUsr = new User(true, L"Vaughn", L"ZFyZH8DuKemv");
-        iNewUsr->Properties(ivars);
-
-        iNewUsr->m_pIsAdmin->SetLocked(FALSE);
-        iNewUsr->m_pIsAdmin->SetAsBool(TRUE);
-        iNewUsr->m_pIsAdmin->SetLocked(FALSE);
         m_masterUserList.Add(iNewUsr, L"Vaughn", UserInf::ClassID);
         iNewUsr->Release();
     }
@@ -39,14 +33,12 @@ User::User(bool bAdmin, const wchar_t* szName, const wchar_t* szPwd)
     m_pProperties = new VariableCollection();
 
     m_password = szPwd;
-    m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
 
 	if (bAdmin)  // can't imagine a scenario where we would want to create a non-admin user with this constructor, but just in case...
-        m_pIsAdmin->SetAsBool(TRUE);
+        m_bIsAdmin = TRUE;
 	else
-        m_pIsAdmin->SetAsBool(FALSE);
+        m_bIsAdmin = FALSE;
 
-    m_pIsAdmin->SetLocked(TRUE);
     m_bIsLoggedIn = FALSE;
 
     m_pEmail = m_pProperties->NewVariable(L"Email");
@@ -54,7 +46,7 @@ User::User(bool bAdmin, const wchar_t* szName, const wchar_t* szPwd)
 }
 
 
-User::User(const wchar_t* szName, const wchar_t* szPwd)
+User::User(const wchar_t* szName, const wchar_t* szPwd, BOOL bIsAdmin)
 {
     instanceCounter++;
     m_instance = instanceCounter;
@@ -64,13 +56,9 @@ User::User(const wchar_t* szName, const wchar_t* szPwd)
     InitMasterList();
 
 	m_pProperties = new VariableCollection();
-
     m_name = szName;
     m_password = szPwd;
-
-    m_pIsAdmin = m_pProperties->NewVariable(L"Is Administrator");
-    m_pIsAdmin->SetAsBool(FALSE);
-    m_pIsAdmin->SetLocked(TRUE);
+    m_bIsAdmin = bIsAdmin;
 
     m_bIsLoggedIn = FALSE;
     m_pEmail = m_pProperties->NewVariable(L"Email");
@@ -223,15 +211,12 @@ HRESULT __stdcall User::AddToMasterList(const wchar_t* szTag, const wchar_t* szP
 {
 	UserInf iUsr;
     VariableInfCollection iprp;
-	BOOL bIsAdmin = FALSE;
 	IUnknown* iunk = NULL;
 
 	if (m_bIsLoggedIn == FALSE)  // have to be logged in to add users to the master list
         return E_FAIL;
 
-    m_pIsAdmin->GetAsBool(&bIsAdmin);
-
-    if (bIsAdmin == FALSE)  // only administrators can add users to the master list
+    if (m_bIsAdmin == FALSE)  // only administrators can add users to the master list
         return E_FAIL;
     
     m_masterUserList.GetByTag(szTag, &iunk);
@@ -258,7 +243,7 @@ HRESULT __stdcall User::LoadUserList(IUnknown* iunk)
     UINT nCnt = 0;
     int i = 0;
 	StringInf iStr;
-    wstring nme;
+    wstring nme, pwd;
 
     MoeInf<IDATABASE, CLASSID::DATABASE> iDB;
     MoeInf<ITABLE, CLASSID::TABLE> iTbl;
@@ -280,13 +265,10 @@ HRESULT __stdcall User::LoadUserList(IUnknown* iunk)
 		nme = (const wchar_t*)iStr;
         iTbl->Get(L"Password", iStr);
 
-        pUsr = new User(nme.c_str(), iStr);
+        pwd = (const wchar_t*)iStr;
         iTbl->Get(L"Is Administrator", iStr);
 
-        pUsr->m_pIsAdmin->SetLocked(FALSE);
-        pUsr->m_pIsAdmin->SetString(iStr);
-        pUsr->m_pIsAdmin->SetLocked(TRUE);
-
+        pUsr = new User(nme.c_str(), pwd.c_str(), iStr == L"true");        
         iTbl->Get(L"Email", iStr);
         pUsr->m_pEmail->SetString(iStr);
         m_masterUserList.Add(pUsr, pUsr->m_name.c_str(), UserInf::ClassID);
@@ -311,14 +293,10 @@ HRESULT __stdcall User::Copy(IUnknown* iunk)
 
     m_password = iVar.Get(L"Password");
 
-    m_pIsAdmin->SetLocked(FALSE);
-
     if (iVar.GetBool(L"Is Administrator"))
-        m_pIsAdmin->SetAsBool(TRUE);
+        m_bIsAdmin = TRUE;
     else
-        m_pIsAdmin->SetAsBool(FALSE);
-
-    m_pIsAdmin->SetLocked(TRUE);
+        m_bIsAdmin = FALSE;
 
     m_pEmail->SetString(iVar.Get(L"Email").c_str());
     return S_OK;
@@ -342,12 +320,9 @@ bool User::Compare(User& usr)
 
 void User::EditMasterList(User& usr)
 {
-    BOOL bIsAdmin = FALSE;
     UserInf iuser;
 
-    m_pIsAdmin->GetAsBool(&bIsAdmin);
-
-    if (bIsAdmin == FALSE || m_bIsLoggedIn == FALSE)
+    if (m_bIsAdmin == FALSE || m_bIsLoggedIn == FALSE)
         // you have to be logged in and an admin before you can make any changes to the master list
         return;
 
@@ -377,6 +352,19 @@ BOOL User::IsLoggedIn()
 
     return m_bIsLoggedIn;
 
+}
+
+void User::Save(Table& tbl)
+{
+	tbl.Set(L"login_name", m_name.c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+    tbl.Set(L"password", m_password.c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+
+	if (m_bIsAdmin == TRUE)
+        tbl.Set(L"is_administrator", L"true", VLVariable::VAR_TYPE::TYPE_BOOL);
+	else
+        tbl.Set(L"is_administrator", L"false", VLVariable::VAR_TYPE::TYPE_BOOL);
+
+    tbl.Set(L"email", m_pEmail->GetString().c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
 }
 
 
@@ -414,7 +402,6 @@ ULONG __stdcall UserService::Release()
     if (newCount == 0)
     {
         printf("Refcount reached zero, deleting object\n");
-        delete this;
     }
 
     if (0 == m_cRef)
@@ -468,7 +455,6 @@ HRESULT UserService::UnitTest()
 
 	GetUser(L"Vaughn", (IUnknown**)&iUsr);
 
-    iUsr->Login(L"Vaughn", L"ZFyZH8DuKemv");
     iUsr->IsLoggedIn();	
 	iUsr->Release();
 
@@ -476,24 +462,45 @@ HRESULT UserService::UnitTest()
 
     if (iUsr == NULL)
     {
-        iUsr = new User(L"Nevin", L"guest123");
+        iUsr = new User(L"Nevin", L"guest123", FALSE);
         m_users.Add(iUsr, L"Nevin", UserInf::ClassID);
         iUsr->Release();
     }
-    
 
-    return S_OK;
+	Database* pDB = new Database();
+    Table* pTbl = NULL;
+	int nRows = 0;
+    iUsr = NULL;
+	pDB->GetTable(L"users", (IUnknown**)&pTbl);
+
+	while (m_users.ForEach((IUnknown**)&iUsr) == S_OK)
+    {
+        if (nRows > 0)
+			pTbl->NewRow();
+
+		iUsr->Save(*pTbl);
+		nRows++;
+    }
+
+	pDB->Save(L"users.dat");
+    pDB->Release();
+
+	AstralWorkshop* pWorkshop = new AstralWorkshop();
+	HRESULT hr = pWorkshop->UnitTest();
+
+    delete pWorkshop;
+    return hr;
 }
 
 void UserService::LoadUsers()
 {
 	m_users.Clear();
 
-    User* iUsr = new User(L"Vaughn", L"ZFyZH8DuKemv");
+    User* iUsr = new User(L"Vaughn", L"ZFyZH8DuKemv", TRUE);
     m_users.Add(iUsr, L"Vaughn", UserInf::ClassID);
     iUsr->Release();
 
-    iUsr = new User(L"guest", L"guest123");
+    iUsr = new User(L"guest", L"guest123", FALSE);
     m_users.Add(iUsr, L"guest", UserInf::ClassID);
     iUsr->Release();
     iUsr = NULL;

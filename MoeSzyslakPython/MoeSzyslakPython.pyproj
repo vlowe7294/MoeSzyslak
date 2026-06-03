@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>5cf4d6de-e13f-46df-8af7-82d5ec6e091c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>finance.py</StartupFile>
+    <StartupFile>astralworkshop.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="astralworkshop.py" />
     <Compile Include="finance.py" />
     <Compile Include="MoeSzyslakPython.py" />
     <Compile Include="Nocturne.py">

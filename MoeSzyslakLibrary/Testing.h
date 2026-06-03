@@ -95,6 +95,7 @@ public:
 	
 private:
 	int m_cRef;                         ///< COM reference count.
+	int m_nID;                         
 	VariableCollection* m_pProperties;  ///< Property collection for this entry.
 	VLVariable* m_pTxt;                 ///< Log message text.
 	VLVariable* m_pTime;                ///< Timestamp value.
@@ -125,6 +126,15 @@ struct TESTVALUE
 class Testing : public TestingInf::ITESTING
 {
 public:
+	enum DEBUG_LEVEL
+	{
+		DEBUG_FULL,
+		DEBUG_VERBOSE,
+		DEBUG_INFO,
+		DEBUG_WARN,
+		DEBUG_CRITICAL
+	};
+
 	/** @brief Constructs a new Testing object. */
 	Testing();
 
@@ -222,15 +232,28 @@ public:
 
 	HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName);
 	HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID);
+	
+	/** @brief Generates the final report. */
+	HRESULT __stdcall Report(wchar_t* szRpt, UINT nlen);
+
+	/**
+	 * @brief Internal verification helper.
+	 * @param bVal  Boolean result of the test.
+	 * @param szMsg Description of the test.
+	 */
+	HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg);
 
 	HRESULT __stdcall UnitTest();	
 
+	inline void SetDebugLevel(DEBUG_LEVEL level) { m_debugLevel = level; }
+
 private:
 	int m_cRef;                          ///< COM reference count.
+	wstring m_report;					 ///< Report output variable.
 
 	VLVariable* m_pPass;                 ///< Pass/fail indicator.
 	VLVariable* m_pMemCheck;             ///< Memory usage check flag.
-	VLVariable* m_pReportVar;            ///< Report output variable.
+	
 	VLVariable* m_pLogEntriesVar;        ///< Log entries list variable.
 	VariableCollection* m_pProperties;   ///< Property collection.
 
@@ -243,6 +266,7 @@ private:
 	static const int m_nTestValues;
 	static const TESTVALUE m_testValues[2];
 	int m_nTestNdx;
+	DEBUG_LEVEL m_debugLevel;
 	
 
 	/** @brief Runs variable subsystem tests. */
@@ -266,12 +290,7 @@ private:
 	/** @brief Runs a self-test of the Testing framework. */
 	void SelfTest();
 
-	/**
-	 * @brief Internal verification helper.
-	 * @param bVal  Boolean result of the test.
-	 * @param szMsg Description of the test.
-	 */
-	void Verify(bool bVal, LPCWSTR szMsg);
+	
 
 	/**
 	 * @brief Retrieves a test data value by name.
@@ -280,8 +299,7 @@ private:
 	 */
 	wstring GetTestData(LPCWSTR szVarName);
 
-	/** @brief Generates the final report. */
-	void Report();
+	
 
 };
 

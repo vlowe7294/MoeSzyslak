@@ -68,6 +68,10 @@ const wchar_t* GetLibraryPath();
 
 LogEntry::LogEntry(wstring txt, long long tme, long long mem)
 {
+	static int id = 0;
+	id++;
+	m_nID = id;
+
 	m_cRef = 1;
 	g_memoryChecker.IncrementInstance(LogEntryInf::ClassID);
 	m_pProperties = new VariableCollection();
@@ -206,7 +210,6 @@ Testing::Testing()
 
 	m_pMemCheck = m_pProperties->NewVariable(L"Memory Check");
 	m_pMemCheck->SetAsBool(FALSE);
-	m_pReportVar = m_pProperties->NewVariable(L"Report");
 
 	m_iEntries.Attach();
 	m_pLogEntriesVar = m_pProperties->NewVariable(L"Log Entries");
@@ -221,6 +224,7 @@ Testing::Testing()
 	v->SetInterface(m_pTestValues, CLASSID::INTERFACELIST);
 
 	m_nTestNdx = 0;
+	m_debugLevel = DEBUG_LEVEL::DEBUG_FULL;
 }
 
 
@@ -298,8 +302,7 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 			if (cmds.Compare(0, L"get"))
 			{
 				m_pProperties->Command(szCmd);
-				m_pProperties->GetReturnString(m_iRetStr);
-				m_pReportVar->SetString(m_iRetStr);
+				m_pProperties->GetReturnString(m_iRetStr);				
 				hr = S_OK;
 			}
 			break;
@@ -329,8 +332,7 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 		case L'R':
 			if (cmds.Compare(0, L"runtest"))
 			{
-				hr = RunTest(_wtoi(cmds.Get(1).c_str()));
-				m_pReportVar->GetString(m_iRetStr);
+				hr = RunTest(_wtoi(cmds.Get(1).c_str()));				
 			}
 			break;
 
@@ -353,7 +355,6 @@ HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
 			{
 				hr = m_pTestValues->Command(cmds.SubString(1, L' ').c_str());
 				m_pTestValues->GetReturnString(m_iRetStr);
-				m_pReportVar->SetString(m_iRetStr);
 			}
 			break;
 
@@ -444,7 +445,6 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 		break;
 	}
 
-	Report();
 	return S_OK;
 
 }
@@ -630,13 +630,15 @@ HRESULT __stdcall Testing::UnitTest()
 	return S_OK;
 }
 
-void Testing::Verify(bool bVal, LPCWSTR szMsg)
+HRESULT __stdcall Testing::Verify(BOOL bVal, LPCWSTR szMsg)
 {
-	if (!bVal)
+	if (bVal == FALSE)
 	{
 		Message(szMsg);
 		m_pPass->SetAsBool(FALSE);
 	}
+
+	return S_OK;
 }
 
 void Testing::TripPlannerTest()
@@ -684,10 +686,9 @@ wstring Testing::GetTestData(LPCWSTR szVarName)
 		return L"";
 }
 
-void Testing::Report()
+HRESULT __stdcall Testing::Report(wchar_t* szRpt, UINT nlen)
 {
 	BOOL bVal = FALSE;
-	wstring rep;
 	LogEntryInf iEnt;
 	VariableInfCollection iPrp = NULL;	
 	static int nCounter = 0;
@@ -695,29 +696,31 @@ void Testing::Report()
 	m_pMemCheck->GetAsBool(&bVal);
 	bool bMemCheck = bVal == TRUE;
 
-	rep = L"Time\tMessage";
+	m_report = L"Time\tMessage";
 
 	if (bMemCheck)
-		rep += L"\tMemory Available";
+		m_report += L"\tMemory Available";
 
-	rep += L"\n";
+	m_report += L"\n";
 
 	while (m_iEntries->ForEach(iEnt) == S_OK)
 	{
 		nCounter++;
 		iEnt->Properties(iPrp);
-		rep += iPrp.Get(L"time");
-		rep += L":  \t";
+		m_report += iPrp.Get(L"time");
+		m_report += L":  \t";
 
-		rep += iPrp.Get(L"text");
+		m_report += iPrp.Get(L"text");
 
 		if (bMemCheck == TRUE)
-			rep += L"\t" + iPrp.Get(L"memory used");
+			m_report += L"\t" + iPrp.Get(L"memory used");
 
-		rep += L"\n";
+		m_report += L"\n";
 	}
 
-	m_pReportVar->SetString(rep.c_str());
+	wcsncpy_s(szRpt, nlen, m_report.c_str(), nlen - 5);
+	m_iEntries->Clear();
+	return S_OK;
 }
 
 UINT _cdecl CreateMoeSzyslakHandle(UINT nClassID);

@@ -1,4 +1,7 @@
-﻿namespace MoeConsole
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+
+namespace MoeConsole
 {
     public class LogEntry
     {
@@ -34,9 +37,24 @@
 
     public class Testing
     {
-        public Testing()
+        static public uint classID = 398981;
+
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("7C6DA0F8-84AE-4E97-86F0-13BB1E67C713")]
+        private interface ITESTING
         {
-            m_hObj = MoeSzyslakLibrary.CreateHandle(MoeSzyslakLibrary.CLASSID.TESTING);
+            void Properties(ref IntPtr iPrp);
+		    void Command([MarshalAs(UnmanagedType.LPWStr)] string szCmd);
+            void GetReturnString(ref IntPtr iStr);
+		    void RunTest(uint nClassID);
+		    void VerifyVariable([MarshalAs(UnmanagedType.LPWStr)] string varName, [MarshalAs(UnmanagedType.LPWStr)] string val);
+		    void VerifyHResult(uint hr, [MarshalAs(UnmanagedType.LPWStr)] string szMsg);
+		    void Message([MarshalAs(UnmanagedType.LPWStr)] string szMsg);            
+        }
+
+        public Testing(IntPtr iunk)
+        {
+            m_iunk = iunk;
+            m_iTesting = (ITESTING)Marshal.GetObjectForIUnknown(m_iunk);
 
         }
 
@@ -47,13 +65,23 @@
 
         public void Dispose()
         {
-
-            if (m_hObj > 0)
+            if (m_iTesting != null)
             {
-                MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
-                m_hObj = 0;
+                Marshal.ReleaseComObject(m_iTesting);
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iTesting = null;
+                m_iunk = IntPtr.Zero;
             }
         }
+
+        public void Message(string strMsg)
+        {
+            m_iTesting.Message(strMsg);
+        }
+
+
+        private IntPtr m_iunk;
+        private ITESTING m_iTesting;
 
         public void RunTest(uint nClassID)
         {
@@ -93,10 +121,7 @@
             }
         }
 
-        public void Message(string strMsg)
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("Message \"{0}\"", strMsg));
-        }
+        
 
         public void SetTestValue(string name, string val)
         {
@@ -124,7 +149,7 @@
             try
             {
                 Database db = new Database();
-                Testing tst = new Testing();
+                Testing tst = new Testing(IntPtr.Zero);
 
                 tst.SetTestValue("message", message);
                 //tst.Load(@"C:\Users\loweva\Visual Studio 2019\MoeSzyslak\MoeConsole\bin\Debug\net5.0\testing.db");

@@ -163,6 +163,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AstralWorkshop\AstralWorkshop.h" />
+    <ClInclude Include="CampSight.h" />
     <ClInclude Include="Finance.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Host.h" />
@@ -197,6 +199,11 @@
     <ClInclude Include="VLVariable.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AstralWorkshop\AstralWorkshop.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="CampSight.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Finance.cpp" />
     <ClCompile Include="Host.cpp" />

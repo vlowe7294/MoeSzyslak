@@ -13,303 +13,48 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace MoeConsole
 {
-    public class Transaction
+
+    public class AstralWorkshop : IDisposable
     {
+        static public uint classID = 133671;
 
-    }
-
-
-    public class Account
-    {
-        public Account(uint hFinanceObj)
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("F43BA252-2FCA-41A2-9CFA-22A5D87C584C")]
+        private interface IASTRALWORKSHOP
         {
-            m_hObj = hFinanceObj;
-
+            void Command([MarshalAs(UnmanagedType.LPWStr)] string strCmd, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder strRet, uint nLen);
+            void UnitTest();
         }
 
-        public string GetVarString()
-        {
-            return string.Format("accountID={0}&accountName={1}&openingBalance={2}", m_accountID, m_accountName, m_openingBalance);
-        }
-
-        public void Print()
-        {
-            Console.WriteLine("Account Name:\t{0}", m_accountName);
-
-        }
-
-        public void Commit()
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("account set name \"{0}\"", m_accountName));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("account set balance {0}", m_openingBalance));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "account transaction count");
-
-            int nTran = int.Parse(MoeSzyslakLibrary.GetReturnString(m_hObj));
-
-            while (nTran < m_transactions.Count)
-            {
-                MoeSzyslakLibrary.InvokeHandle(m_hObj, "account AddTransaction");
-                nTran++;
-            }
-        }
-
-        public void Update()
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "account get name");
-            m_accountName = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "account get balance");
-            m_openingBalance = decimal.Parse(MoeSzyslakLibrary.GetReturnString(m_hObj));
-        }
-
-        public void NewTransaction()
-        {
-            m_transactions.Add(new Transaction());
-        }
-
-
-        public string AccountID
-        {
-            set { m_accountID = value; }
-        }
-        private string m_accountID = "";
-
-        public string AccountName
-        {
-            set { m_accountName = value; }
-        }
-        private string m_accountName = "New Account";
-
-        public decimal OpeningBalance
-        {
-            set { m_openingBalance = value; }
-        }
-        private decimal m_openingBalance = 0.0M;
-
-        private uint m_hObj;
-        private List<Transaction> m_transactions = new List<Transaction>();
-    }
-
-    public class Finance
-    {
-        public Finance()
-        {
-            m_hObj = MoeSzyslakLibrary.CreateMoeSzyslakHandle(m_classID);
-            m_account = new Account(m_hObj);
-        }
-
-        ~Finance()
-        {
-            Dispose();
-        }
-
-        public void Dispose()
-        {
-
-            if (m_hObj > 0)
-            {
-                MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
-                m_hObj = 0;
-            }
-        }
-
-        public void Print()
-        {
-            Update();
-            m_account.Print();
-        }
-
-        public void Commit()
-        {
-            m_account.Commit();
-        }
-
-        public void Update()
-        {
-            m_account.Update();
-        }
-
-
-        public static void UnitTest()
-        {
-            Finance fnc = new Finance();
-            Testing tst = new Testing();
-
-            tst.SetTestValue("count", "1");
-            tst.SetTestValue("object type", "87153");
-            tst.SetTestValue("command", "get count");
-            tst.SetTestValue("account name", "Wells Fargo");
-            tst.SetTestValue("balance", "1200.00");
-
-            fnc.theAccount.AccountID = "3997870419";
-            fnc.theAccount.AccountName = "Wells Fargo";
-            fnc.theAccount.OpeningBalance = 1200.00M;
-
-            fnc.theAccount.NewTransaction();
-            fnc.Commit();
-
-            fnc.Print();
-            fnc.Dispose();
-
-            // tst.RunTest(m_classID);            
-
-            tst.Dispose();
-        }
-
-        public Account theAccount
-        {
-            get { return m_account; }
-        }
-        private Account m_account;
-
-        private const uint m_classID = 346141;
-        private uint m_hObj;
-    }
-
-
-    public class User : IDisposable
-    {
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("3B1537E5-9E5D-4053-8510-1CEB51543F32")]
-        private interface IUSER 
-        {
-            
-        }
-
-        public User(IntPtr iUnk)
-        {
-            m_iunk = iUnk;
-            m_iUser = (IUSER)Marshal.GetObjectForIUnknown(m_iunk);
-        }
-
-        ~User() => Dispose(false);
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing)
-        {
-            if (m_iUser != null)
-            {
-                Marshal.ReleaseComObject(m_iUser);
-                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
-                m_iUser = null;
-                m_iunk = IntPtr.Zero;
-            }
-        }
-
-        private IntPtr m_iunk = IntPtr.Zero;
-        private IUSER m_iUser;
-
-
-
-        public void Commit()
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set \"Login Name\" \"{0}\"", m_userName));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Password \"{0}\"", m_password));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Email \"{0}\"", m_email));
-
-        }
-
-        public void Update()
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Login Name\"");
-            m_userName = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Password");
-
-            m_password = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Is Logged In\"");
-            m_bIsLoggedIn = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Email");
-            m_email = MoeSzyslakLibrary.GetReturnString(m_hObj);
-        }
-
-        public static void UnitTest()
-        {
-            Testing tst = new Testing();
-
-            tst.RunTest(m_classID);    
-            tst.Dispose();
-        }
-
-        public void Print()
-        {
-            Console.WriteLine("User Name:\t{0}", m_userName);
-            Console.WriteLine("Password:\t{0}", m_password);
-            Console.WriteLine("Is Logged In:\t{0}", m_bIsLoggedIn);
-            Console.WriteLine("Email:\t{0}", m_email);
-        }
-
-        public void Save()
-        {
-            Database db = new Database();
-
-            Table tbl = db.GetTable("users");
-
-            db.Write("users.db");
-
-        }
-
-        public void Login()
-        {
-            Commit();
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "Login");
-            Update();
-        }
-
-        private const uint m_classID = 325850;
-        private uint m_hObj;   
-
-        public string Name
-        {
-            set { m_userName = value; }
-            get { return m_userName; }
-        }
-        private string m_userName = "";
-
-        public string Password
-        {
-            set { m_password = value; }
-            get { return m_password; }
-        }
-        private string m_password = "";
-
-        public bool IsLoggedIn
-        {
-            get { return m_bIsLoggedIn; }
-        }
-        private bool m_bIsLoggedIn = false;
-
-        public string Email
-        {
-            set { m_email = value; }
-            get { return m_email; }
-        }
-        
-        private string m_email = "";
-
-    }
-
-    public class UserService : IDisposable
-    {
-        static public uint classID = 241805;
-
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("39663C08-D7C0-4CB2-B4F0-0E1F2445A5B0")]
-        private interface IUSERSERVICE
-        {
-            void GetUser([MarshalAs(UnmanagedType.LPWStr)] string strName, ref IntPtr iUsr);
-            void UnitTest();            
-        }
-
-        public UserService()
+        public AstralWorkshop()
         {
             MoeSzyslakLibrary.CreateMoeSzyslakInterface(classID, ref m_iunk);
-            m_iUserService = (IUSERSERVICE)Marshal.GetObjectForIUnknown(m_iunk);
+            m_iAstralWorkshop = (IASTRALWORKSHOP)Marshal.GetObjectForIUnknown(m_iunk);
         }
 
-        ~UserService() => Dispose(false);
+        ~AstralWorkshop() => Dispose(false);
+
+        public static void UnitTest()
+        {
+            using (AstralWorkshop aw = new AstralWorkshop())
+            {
+                Console.WriteLine("Create");
+                Console.WriteLine(aw.Command("Create"));
+
+                Console.WriteLine("Rowan");
+                Console.WriteLine(aw.Command("Rowan"));
+
+                Console.WriteLine("1");
+                Console.WriteLine(aw.Command("1"));
+
+                Console.WriteLine("2");
+                Console.WriteLine(aw.Command("2"));
+
+                Console.WriteLine("exit");
+                Console.WriteLine(aw.Command("exit"));
+
+                //aw.m_iAstralWorkshop.UnitTest();
+            }
+        }
 
         public void Dispose()
         {
@@ -319,41 +64,82 @@ namespace MoeConsole
 
         void Dispose(bool disposing)
         {
-            if (m_iUserService != null)
-            {
-                Marshal.ReleaseComObject(m_iUserService);
-                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
-                m_iUserService = null;
-                m_iunk = IntPtr.Zero;
-            }                
+            Marshal.ReleaseComObject(m_iAstralWorkshop);
+            MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+            m_iAstralWorkshop = null;
+            m_iunk = IntPtr.Zero;
         }
 
-        public User GetUser()
+        string Command(string cmd)
         {
-            IntPtr iUser = IntPtr.Zero;
-            m_iUserService.GetUser("Vaughn", ref iUser);
+            m_iAstralWorkshop.Command(cmd, m_sb, (uint)m_sb.Capacity);
+            return m_sb.ToString();
+        }   
 
-            if (iUser == IntPtr.Zero)
-                return null;
+        private IntPtr m_iunk = IntPtr.Zero;
+        private IASTRALWORKSHOP m_iAstralWorkshop;
+        private StringBuilder m_sb = new StringBuilder(1024);
+    }
 
-            return new User(iUser);
+
+
+
+    class CampSight : IDisposable
+    {
+        static public uint classID = 929959;
+
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("583AFD09-699D-42C2-98FE-753E75422F16")]
+        private interface ICAMPSIGHT
+        {
+            void GetTester(ref IntPtr iTester);
+            void AddSite([MarshalAs(UnmanagedType.LPWStr)] string szArea, [MarshalAs(UnmanagedType.LPWStr)] string szSite, double lat, double lon);
+            void UnitTest();
+        }
+
+        public CampSight()
+        {
+            IntPtr iTester = IntPtr.Zero;
+            MoeSzyslakLibrary.CreateMoeSzyslakInterface(classID, ref m_iunk);
+            m_iCampSight = (ICAMPSIGHT)Marshal.GetObjectForIUnknown(m_iunk); 
+            
+            m_iCampSight.GetTester(ref iTester);
+            m_tester = new Testing(iTester);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        void Dispose(bool disposing)
+        {
+            m_tester.Dispose();
+            Marshal.ReleaseComObject(m_iCampSight);
+            MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+            m_iCampSight = null;
+            m_iunk = IntPtr.Zero;
+        }
+
+        public void AddSite(string strArea, string strSite, double lat, double lon)
+        {
+            m_iCampSight.AddSite(strArea, strSite, lat, lon);
         }
 
         public static void UnitTest()
         {
-            using (UserService us = new UserService())
+            using (CampSight cs = new CampSight())
             {
-                using (User u = us.GetUser())
-                {
+                cs.m_tester.Message("Camp Sight Unit Test");
+                cs.AddSite("Dinosaur Valley State Park", "Laham Mill #14", 32.251301564676666, -97.8112404606453);
+                cs.m_iCampSight.UnitTest();
 
-                }
-
-                us.m_iUserService.UnitTest();
             }
         }
 
         private IntPtr m_iunk = IntPtr.Zero;
-        private IUSERSERVICE m_iUserService;
+        private ICAMPSIGHT m_iCampSight;
+        private Testing m_tester;
 
     }
 
@@ -366,7 +152,7 @@ namespace MoeConsole
             {
                 MoeSzyslakLibrary.VerifyLibrary();
                 Console.WriteLine(MoeSzyslakLibrary.Version);
-                UserService.UnitTest();
+                CampSight.UnitTest();
             }
             catch (Exception e)
             {

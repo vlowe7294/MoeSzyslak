@@ -2,23 +2,32 @@
 #include "Creature.h"
 #include "Placeable.h"
 
-Creature::Creature()
+Creature::Creature(const wchar_t* szName)
 {
 	m_cRef = 1;
-	m_thirst = 0;
-	m_thirstRate = 1700;
-	m_nCount = 0;
-	memset(&m_location, 0, sizeof(LOCATION));
+	m_name = szName;
+	m_class = CLASS_NONE;
+
+	m_thirst.amt = 0;
+	m_thirst.count = 0;
+	m_thirst.rate = 1700;
+
 	memset(m_pConnectedObjects, 0, sizeof(void*) * 10);
 	memset(m_nTravelTimes, 0, sizeof(int) * 10);
 	m_faction = FACTION_EXPLORER;
 	m_pMoveTowards = NULL;
 
+	m_hunger.amt = 0;
+	m_hunger.count = 0;
+	m_hunger.rate = 1700;
+	m_courage = 10;
+	m_pArea = NULL;
 }
 
 Creature::~Creature()
 {
-
+	if (m_pArea != NULL)
+		m_pArea->Release();
 }
 
 HRESULT __stdcall Creature::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -62,11 +71,19 @@ ULONG __stdcall Creature::Release()
 
 HRESULT __stdcall Creature::Tick(int nSec)
 {
-	m_nCount += nSec;
-
-	if (m_nCount >= m_thirstRate)
+	m_hunger.count += nSec;
+	m_thirst.count += nSec;
+	
+	while (m_hunger.count >= m_hunger.rate)
 	{
-		m_thirst++;
+		m_hunger.amt++;
+		m_hunger.count -= m_hunger.rate;
+	}
+
+	while (m_thirst.count >= m_thirst.rate)
+	{
+		m_thirst.amt++;
+		m_thirst.count -= m_thirst.rate;
 	}
 
 	if (m_faction == FACTION_EXPLORER && m_pMoveTowards == NULL)
@@ -82,7 +99,6 @@ HRESULT __stdcall Creature::Tick(int nSec)
 		if (m_nMoveTime <= 0)
 		{
 			m_pMoveTowards = NULL;
-			memset(&m_location, 0, sizeof(LOCATION));
 			memset(m_pConnectedObjects, 0, sizeof(void*) * 10);
 			memset(m_nTravelTimes, 0, sizeof(int) * 10);			
 		}
@@ -105,3 +121,28 @@ void Creature::AddConnectedObject(void* pObject, int nTravelSec)
 	}
 
 }
+
+void Creature::SetArea(IUnknown* iUnk)
+{
+	IAREA* iArea = NULL;
+
+	if (m_pArea != NULL)
+	{
+		m_pArea->Release();
+		m_pArea = NULL;
+	}
+
+	// make sure it's a legitimate area object
+
+	if (iUnk == NULL)
+		return;
+
+	iUnk->QueryInterface(AREA_IID, (void**)&iArea);
+
+	if (iArea == NULL)
+		return;
+
+	m_pArea = iUnk;
+}
+
+

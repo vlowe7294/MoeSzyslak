@@ -19,11 +19,21 @@
 class User : public IUSER
 {
 public:
-	User(const wchar_t* szName, const wchar_t* szPwd);
+	User(const wchar_t* szName, const wchar_t* szPwd, BOOL bIsAdmin);
 	~User();
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+
+	/**
+	 * @brief Attempts to authenticate the user
+	 *
+	 * If the login name and password match the internal name and password
+	 * state is updated
+	 *
+	 * @return S_OK on success (even if login fails), or error codes.
+	 */
+	HRESULT __stdcall Login(const wchar_t* szName, const wchar_t* szPwd);
 
 	/**
 	 * @brief Executes a command string against the user object.
@@ -54,16 +64,6 @@ public:
 	 * @return HRESULT status.
 	 */
 	HRESULT __stdcall Properties(IUnknown** iPrp);
-
-	/**
-	 * @brief Attempts to authenticate the user 
-	 *
-	 * If the login name and password match the internal name and password
-	 * state is updated 
-	 *
-	 * @return S_OK on success (even if login fails), or error codes.
-	 */
-	HRESULT __stdcall Login(const wchar_t* szName, const wchar_t* szPwd);
 
 	/**
 	 * @brief Saves all users in the master list to the provided database.
@@ -124,6 +124,8 @@ public:
 	 * Will set login state to FALSE, if more than 15 minutes have passed since last check	 
 	 */
 	BOOL IsLoggedIn();
+
+	void Save(Table& tbl);
 	
 
 private:
@@ -142,7 +144,7 @@ private:
 	wstring m_name;		                ///< Login name.
 	wstring m_password;			        ///< Password (plaintext).
 	BOOL m_bIsLoggedIn;			        ///< Login state flag.
-	VLVariable* m_pIsAdmin;             ///< Administrator privilege flag.
+	BOOL m_bIsAdmin;					///< Administrator privilege flag.
 	VLVariable* m_pEmail;               ///< Email address.
 	MoeInf<IDATETIME, CLASSID::DATETIME> m_iLastActive; ///< Last activity timestamp.
 	StringInf m_iReturnStr;             ///< Return string for property commands.

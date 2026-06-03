@@ -1,13 +1,57 @@
 #include "pch.h"
 #include "Area.h"
 
-Area::Area()
+Dice::Dice(UINT nSides, UINT nSeed) : m_rng(nSeed)
+{
+	m_nSides = nSides;
+}
+
+Dice::~Dice()
+{
+
+}
+
+UINT Dice::Roll(UINT nRolls)
+{
+	UINT nRet = 0;
+
+	std::uniform_int_distribution<int> dist(1, m_nSides);
+
+	for (int i = 0; i < nRolls; i++)
+	{
+		nRet += dist(m_rng);
+	}
+
+	return nRet;
+
+}
+
+
+
+
+Location::Location()
+{
+
+}
+
+Location::~Location()
+{
+
+}
+
+
+
+
+
+
+Area::Area(const wchar_t* szName, int nDanger)
 {
 	m_cRef = 1;
 
 	m_pProperties = new VariableCollection();
 
-	m_pName = m_pProperties->NewVariable(L"name");
+	m_name = szName;
+
 	VLVariable* v = m_pProperties->NewVariable(L"contents");
 
 	
@@ -17,11 +61,23 @@ Area::Area()
 	v->SetInterface(m_contents, CLASSID::INTERFACELIST);
 
 	plc->Release();
+	m_nDangerLevel = nDanger;
+	m_pQuest = new Quest(L"Gather Herbs at the Forest Edge", 1, 0);
+	m_locations[0] = NULL;
 }
 
 Area::~Area()
 {
 	m_pProperties->Release();
+	delete m_pQuest;
+
+	int i = 0;
+
+	while (i < 5 && m_locations[i] != NULL)
+	{
+		delete m_locations[i];
+		i++;
+	}	
 }
 
 HRESULT __stdcall Area::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -133,4 +189,22 @@ void Area::Save(Table& tbl)
 void Area::Load(Table& tbl)
 {
 	m_pProperties->Load(&tbl);
+}
+
+Location& Area::AddLocation()
+{
+	int i = 0;
+
+	while (i < 5 && m_locations[i] != NULL)
+		i++;
+
+	if (i == 5)  // TODO  this will be a collection list eventually, for now just a straight array
+		return *m_locations[4];
+
+	m_locations[i] = new Location();
+
+	if (i < 4)
+		m_locations[i + 1] = NULL;
+
+	return *m_locations[i];
 }

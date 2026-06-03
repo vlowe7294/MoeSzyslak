@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>    
+</head>
+
+<body>
+
+    <header>Login</header>
+
+    <div class="container">
+
+        <form method="POST">
+            <div>
+                <table>
+                    <tr>
+                        <td width="150px"><label for="Login Name">Login Name</label></td>
+                        <td><input id="Login Name" name="Login Name" value="{{ LoginName }}"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="Password">Password</label></td>
+                        <td><input type="password" id="Password" name="Password"></td>
+                    </tr>
+                </table>
+                <br /><button type="submit">Log In</button>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>

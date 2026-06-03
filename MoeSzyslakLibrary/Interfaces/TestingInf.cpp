@@ -59,3 +59,13 @@ TestingInf::ITESTING* TestingInf::operator->()
 
 	return m_iVar;
 }
+
+TestingInf::operator IUnknown* ()
+{
+	Attach();
+
+	if (m_iUnk != NULL)
+		m_iUnk->AddRef();
+
+	return m_iUnk;
+}

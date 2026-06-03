@@ -4,11 +4,53 @@
 #include "Placeable.h"
 #include "Creature.h"
 #include "..\Utilities\Database.h"
+#include <random>	
+
+class Dice
+{
+public:
+	Dice(UINT m_nSides, UINT nSeed = std::random_device{}());
+	~Dice();
+	UINT Roll(UINT nRolls = 1);
+
+private:
+	UINT m_nSides;
+	std::mt19937 m_rng;
+	
+
+};
+
+
+
+
+
+
+class Quest
+{
+public:
+	Quest(const wchar_t* szName, int nDuration, int nDifficulty);
+	~Quest();
+	void Copy(Quest& copyFrom);
+	void Randomize();
+	inline wstring Name() { return m_name; }
+private:
+	wstring m_name;
+	int m_duration;
+	int m_difficulty;
+};
+
+class Location
+{
+public:
+	Location();
+	~Location();
+};
+
 
 class Area : public IAREA
 {
 public:
-	Area();
+	Area(const wchar_t* szName, int nDanger);
 	~Area();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
@@ -20,12 +62,19 @@ public:
 	Placeable& GetPlaceable(int ndx);
 	void Save(Table& tbl);
 	void Load(Table& tbl);
+	Location& AddLocation();
+
+	inline Quest& GetQuest() { return *m_pQuest; };
+	inline wstring GetName() { return m_name; };
 	
 
 private:
 	int m_cRef;
-	VLVariable* m_pName;
+	wstring m_name;
 	InterfaceCollectionInf m_contents;
 	VariableCollection* m_pProperties;
+	int m_nDangerLevel;
+	Quest* m_pQuest;
+	Location* m_locations[5];
 
 };
