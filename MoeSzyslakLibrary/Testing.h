@@ -45,14 +45,13 @@ public:
 	 * @param tme  Timestamp value (typically milliseconds since test start).
 	 * @param mem  Memory usage value at the time of logging.
 	 */
-	LogEntry(wstring txt, long long tme, long long mem);
+	LogEntry(wstring txt, long long tme, long long mem, int nDebugLvl);
 
 	/** @brief Destructor. */
 	~LogEntry();
-	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
-
-	ULONG __stdcall AddRef();
-	ULONG __stdcall Release();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj) override;
+	ULONG __stdcall AddRef() override;
+	ULONG __stdcall Release() override;
 
 	/**
 	 * @brief Retrieves the property collection associated with this entry.
@@ -97,10 +96,11 @@ private:
 	int m_cRef;                         ///< COM reference count.
 	int m_nID;                         
 	VariableCollection* m_pProperties;  ///< Property collection for this entry.
-	VLVariable* m_pTxt;                 ///< Log message text.
+	wstring m_txt;		                ///< Log message text.
 	VLVariable* m_pTime;                ///< Timestamp value.
 	VLVariable* m_pMemUsed;             ///< Memory usage value.
 	VLVariable* m_pReturnVar;           ///< Return string for command results.
+	UINT m_nDebugLevel;
 };
 
 struct TESTVALUE
@@ -132,7 +132,8 @@ public:
 		DEBUG_VERBOSE,
 		DEBUG_INFO,
 		DEBUG_WARN,
-		DEBUG_CRITICAL
+		DEBUG_CRITICAL,
+		DEBUG_MAX
 	};
 
 	/** @brief Constructs a new Testing object. */
@@ -145,38 +146,17 @@ public:
 	ULONG __stdcall Release();
 
 	/**
-	 * @brief Retrieves the property collection for this test runner.
-	 * @param iPrp Receives an IUnknown pointer to the property collection.
+	 * @brief Logs a message to the test report.
+	 * @param szMsg The message text.
 	 * @return S_OK on success.
 	 */
-	HRESULT __stdcall Properties(IUnknown** iPrp);
+	HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl);
+	HRESULT __stdcall SetDebugLevel(int level);
 
-	/**
-	 * @brief Executes a command string against the testing framework.
-	 *
-	 * Supported commands include:
-	 * - `get <property>`
-	 * - `log <message>`
-	 * - `load <file>`
-	 * - `message <text>`
-	 * - `runtest <classID>`
-	 * - `set <name> <value>`
-	 * - `settestdata <name> <value>`
-	 * - `testvalues <command>`
-	 * - `unittest`
-	 *
-	 * @param szCmd The command text.
-	 * @return S_OK on success, or an HRESULT error code.
-	 */
-	HRESULT __stdcall Command(const wchar_t* szCmd);
+	HRESULT __stdcall GetLogEntry(int ndx, IUnknown** iEntry);
 
-	/**
-	 * @brief Retrieves the return string from the last command.
-	 * @param iStr Receives an IUnknown pointer to the return string.
-	 * @return S_OK on success.
-	 */
-	HRESULT __stdcall GetReturnString(IUnknown** iStr);
-
+	
+	
 	/**
 	 * @brief Runs a test suite based on a class ID.
 	 * @param nClassID The class ID to test.
@@ -199,13 +179,6 @@ public:
 	 * @return The original HRESULT.
 	 */
 	HRESULT __stdcall VerifyHResult(HRESULT hr, LPCWSTR szMsg);
-
-	/**
-	 * @brief Logs a message to the test report.
-	 * @param szMsg The message text.
-	 * @return S_OK on success.
-	 */
-	HRESULT __stdcall Message(LPCWSTR szMsg);
 
 	/**
 	 * @brief Loads test results and test values from a database file.
@@ -245,13 +218,13 @@ public:
 
 	HRESULT __stdcall UnitTest();	
 
-	inline void SetDebugLevel(DEBUG_LEVEL level) { m_debugLevel = level; }
+	
 
 private:
 	int m_cRef;                          ///< COM reference count.
 	wstring m_report;					 ///< Report output variable.
+	bool m_bPass;		                 ///< Pass/fail indicator.
 
-	VLVariable* m_pPass;                 ///< Pass/fail indicator.
 	VLVariable* m_pMemCheck;             ///< Memory usage check flag.
 	
 	VLVariable* m_pLogEntriesVar;        ///< Log entries list variable.

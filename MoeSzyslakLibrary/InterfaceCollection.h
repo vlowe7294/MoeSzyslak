@@ -24,17 +24,19 @@ public:
 	HRESULT __stdcall Dispose();
 
 	void GetLocalString(IUnknown** iStr);
+	void RemoveByTag(const wchar_t* szTag);
 
 protected:
 	int m_cRef;
 	int m_nObjects;
 	int m_maxObjects;
 	IUnknown** m_array;
-	std::map<std::wstring, IUnknown*> m_objectMap;
 	std::map<UINT, UINT> m_classIDs;
 	int m_nCurrent;
 	IUnknown* m_iRetString;
 	StringInf m_iLocalStr;	
+	std::map<std::wstring, int> m_mapToIndex;
+	std::map<int, std::wstring> m_mapToTag;
 
 	IUnknown* Get(std::wstring tag);
 };

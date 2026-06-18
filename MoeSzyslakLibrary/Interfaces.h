@@ -288,7 +288,9 @@ struct IASTRALWORKSHOP : public IUnknown
 	 * @return S_OK on success, or an HRESULT error code on failure.
 	 */
 	virtual HRESULT __stdcall Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen) = 0;
-
+	virtual HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger) = 0;
+	virtual HRESULT __stdcall Export(const wchar_t* szPath) = 0;
+	virtual HRESULT __stdcall Save(const wchar_t* szPath) = 0;
 	virtual HRESULT UnitTest() = 0;
 };
 
@@ -296,6 +298,7 @@ struct ICAMPSIGHT : public IUnknown
 {
 	virtual HRESULT __stdcall GetTester(IUnknown** iTester) = 0;
 	virtual HRESULT __stdcall AddSite(const wchar_t* szArea, const wchar_t* szSite, double lat, double lon) = 0;
+	virtual HRESULT __stdcall GetArea(UINT ndx, wchar_t* szName, UINT nLen) = 0;
 	virtual HRESULT __stdcall UnitTest() = 0;
 };
 
@@ -555,13 +558,6 @@ private:
 	void Attach();
 };
 
-
-
-
-
-
-
-void VersionAsString(IUnknown* iunk);
 
 
 

@@ -2,6 +2,26 @@
 #include <windows.h>
 #include <shellapi.h>
 #include "CampSight.h"
+#include "Testing.h"
+
+wstring VersionAsString();
+
+Trail::Trail(wstring nme, DIFFICULTY diff, double len)
+{
+	m_name = nme;
+	m_difficulty = diff;
+	m_lengthMiles = len;
+
+	wprintf(L"%s\tdifficulty:  %d\tlength:  %f miles\n", m_name.c_str(), m_difficulty, m_lengthMiles);
+}
+
+Trail::~Trail()
+{
+}
+
+
+
+
 
 std::atomic<uint32_t> g_nextSiteId{ 1 };
 
@@ -65,11 +85,12 @@ CampArea::CampArea(wstring nme)
 {
 	m_cRef = 1;
 	m_name = nme;
+	m_pTrail = NULL;
 }
 
 CampArea::~CampArea()
 {
-
+	delete m_pTrail;
 }
 
 HRESULT __stdcall CampArea::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -151,18 +172,19 @@ void CampArea::Load(Database& db)
 
 
 
-
+extern MemoryChecker g_memoryChecker;
 
 TestingInf CampSight::m_test;
 
 CampSight::CampSight()
 {
 	m_cRef = 1;
+	g_memoryChecker.IncrementInstance(CLASSID::CAMPSIGHT);
 }
 
 CampSight::~CampSight()
 {
-	
+	g_memoryChecker.DecrementInstance(CLASSID::CAMPSIGHT);
 }
 
 HRESULT __stdcall CampSight::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -229,20 +251,36 @@ HRESULT __stdcall CampSight::AddSite(const wchar_t* szArea, const wchar_t* szSit
 	}
 
 	Site* pSite = new Site(szSite, lat, lon);
-	pArea->GetSites().Add(pSite, L"", 0);
+	pArea->GetSites().Add(pSite, szSite, 0);
 	pArea->Print();
 
 	pSite->Release();
 	return S_OK;
 }
 
+HRESULT __stdcall CampSight::GetArea(UINT ndx, wchar_t* szName, UINT nLen)
+{
+	CampArea* pArea = NULL;
+
+	szName[0] = L'\0';		
+
+	m_areas.Get(ndx, (IUnknown**)&pArea);
+
+	if (pArea != NULL)
+	{
+		wcsncpy_s(szName, nLen, pArea->GetName().c_str(), _TRUNCATE);
+	}
+
+	
+
+	return S_OK;
+
+}
+
 HRESULT __stdcall CampSight::UnitTest()
 {
-	wchar_t rpt[1024];
-
-	m_test->Report(rpt, 1024);
-	wprintf(L"%s\n", rpt);
-
+	
+	
 	std::wstring url = L"https://www.google.com/maps?q=" +
 		std::to_wstring(32.251301564676666) + L"," + std::to_wstring(-97.81124046064532);
 
@@ -261,5 +299,10 @@ HRESULT __stdcall CampSight::UnitTest()
 
 	pArea->Load(*pDB);
 	pDB->Release();
+
+	Trail* pTrail = new Trail(L"Black-Capped Vireo Trail", Trail::DIFFICULTY_MODERATE, 4.3);
+	pArea->SetTrail(pTrail);
+
+	pArea->GetSites().RemoveByTag(L"Laham Mill #14");
 	return S_OK;
 }

@@ -179,6 +179,7 @@ class UserService:
 
         unk = ctypes.cast(unk_ptr.value, CPOINTER(IUnknown))
         self.iUserService = unk.QueryInterface(IUSERSERVICE)
+        
 
     def UnitTest(self):
         #hr = self.iUserService.UnitTest()

@@ -1,6 +1,8 @@
 #include "..\pch.h"
 #include "NeverwinterNights.h"
 
+wstring VersionAsString();
+
 UINT Room::m_lastID;
 Room::DIRECTION Room::OPPOSITE_DIRECTION[MAX_DIRECTIONS] =
 {
@@ -286,14 +288,12 @@ void NeverwinterNights::Start()
 
 	istr.Init();
 
-	VersionAsString(istr);
-
 	m_iModule->Properties(&iunk);
 	VariableInfCollection iPrp(iunk);
 
 	m_iReturnStr->Append(iPrp.Get(L"Module Name").c_str());
 	m_iReturnStr->Append(L" ");
-	m_iReturnStr->Append((const wchar_t*)istr);
+	m_iReturnStr->Append(VersionAsString().c_str());
 
 	VLDateTime now_time;
 

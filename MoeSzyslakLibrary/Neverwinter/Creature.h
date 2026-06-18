@@ -37,7 +37,7 @@ public:
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
-	HRESULT __stdcall Tick(int nSec);
+	virtual HRESULT __stdcall Tick(int nSec);
 
 	void AddConnectedObject(void* pObject, int nTravelSec);
 	void SetArea(IUnknown* iArea);

@@ -39,11 +39,24 @@ private:
 	int m_difficulty;
 };
 
-class Location
+class Location : public IUnknown
 {
 public:
-	Location();
+	Location(const wchar_t* szName);
 	~Location();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+
+	void AddNeighbor(Location& neighbor, int travelTimeSec);
+
+private:
+	LONG m_cRef;
+	wstring m_name;
+
+	// Graph edges
+	vector<Location*> m_neighbors;
+	vector<int> m_travelTimes; // seconds to travel to each neighbor
 };
 
 
@@ -62,7 +75,8 @@ public:
 	Placeable& GetPlaceable(int ndx);
 	void Save(Table& tbl);
 	void Load(Table& tbl);
-	Location& AddLocation();
+	Location& AddLocation(const wchar_t* szCmd);
+	void LinkLocations(Location& a, Location& b, int travelTimeSec);
 
 	inline Quest& GetQuest() { return *m_pQuest; };
 	inline wstring GetName() { return m_name; };
@@ -75,6 +89,6 @@ private:
 	VariableCollection* m_pProperties;
 	int m_nDangerLevel;
 	Quest* m_pQuest;
-	Location* m_locations[5];
+	InterfaceCollection m_locations;
 
 };

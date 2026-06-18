@@ -1,22 +1,23 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace MoeConsole
 {
     public class LogEntry
     {
-        public LogEntry(uint hTesting, uint ndx)
+        public LogEntry(IntPtr iunk)
         {
-            m_hTesting = hTesting;
-            m_ndx = ndx;
-            MoeSzyslakLibrary.InvokeHandle(m_hTesting, string.Format("log {0} get text", m_ndx));
-            m_strText = MoeSzyslakLibrary.GetReturnString(m_hTesting);
+            m_iunk = iunk;
+        }
 
-            MoeSzyslakLibrary.InvokeHandle(m_hTesting, string.Format("log {0} get time", m_ndx));
-            m_nTime = int.Parse(MoeSzyslakLibrary.GetReturnString(m_hTesting));
-
-            MoeSzyslakLibrary.InvokeHandle(m_hTesting, string.Format("log {0} get \"memory used\"", m_ndx));
-            m_memoryUsed = int.Parse(MoeSzyslakLibrary.GetReturnString(m_hTesting));
+        public void Dispose()
+        {
+            if (m_iunk != IntPtr.Zero)
+            {
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iunk = IntPtr.Zero;
+            }
         }
 
         public void Print()
@@ -27,7 +28,7 @@ namespace MoeConsole
             Console.WriteLine(string.Format("{0}\t{1}\t{2}", m_nTime, m_strText, m_memoryUsed));
         }
 
-        private uint m_hTesting;
+        private IntPtr m_iunk;
         private uint m_ndx;
         private string m_strText;
         private int m_nTime;
@@ -35,20 +36,35 @@ namespace MoeConsole
 
     }
 
-    public class Testing
+    public class Testing 
     {
         static public uint classID = 398981;
+
+        public enum DEBUG_LEVEL
+        {
+            DEBUG_FULL,
+            DEBUG_VERBOSE,
+            DEBUG_INFO,
+            DEBUG_WARN,
+            DEBUG_CRITICAL
+        };
 
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("7C6DA0F8-84AE-4E97-86F0-13BB1E67C713")]
         private interface ITESTING
         {
-            void Properties(ref IntPtr iPrp);
-		    void Command([MarshalAs(UnmanagedType.LPWStr)] string szCmd);
-            void GetReturnString(ref IntPtr iStr);
-		    void RunTest(uint nClassID);
+            void Message([MarshalAs(UnmanagedType.LPWStr)] string szMsg, int nDebugLvl);
+            void SetDebugLevel(int level);
+            void GetLogEntry(int ndx, ref IntPtr iEntry);
+            void RunTest(uint nClassID);
 		    void VerifyVariable([MarshalAs(UnmanagedType.LPWStr)] string varName, [MarshalAs(UnmanagedType.LPWStr)] string val);
 		    void VerifyHResult(uint hr, [MarshalAs(UnmanagedType.LPWStr)] string szMsg);
-		    void Message([MarshalAs(UnmanagedType.LPWStr)] string szMsg);            
+		    void GetTestData([MarshalAs(UnmanagedType.LPWStr)] string szName, IntPtr iStr);
+		    void SetTestData([MarshalAs(UnmanagedType.LPWStr)] string szName, [MarshalAs(UnmanagedType.LPWStr)] string szVal);
+		    void GetClassName(uint nClassID, IntPtr iStrClassName);
+		    void GetClassID([MarshalAs(UnmanagedType.LPWStr)] string szClassName, ref uint nClassID);
+		    void Report([MarshalAs(UnmanagedType.LPWStr)] StringBuilder szRpt, uint nlen);
+		    void Verify(uint bVal, [MarshalAs(UnmanagedType.LPWStr)] string szMsg);
+		    void UnitTest();
         }
 
         public Testing(IntPtr iunk)
@@ -65,6 +81,11 @@ namespace MoeConsole
 
         public void Dispose()
         {
+            foreach (LogEntry le in m_logEntries)
+                le.Dispose();
+
+            m_logEntries.Clear();
+
             if (m_iTesting != null)
             {
                 Marshal.ReleaseComObject(m_iTesting);
@@ -74,14 +95,22 @@ namespace MoeConsole
             }
         }
 
-        public void Message(string strMsg)
+        public void Message(string strMsg, DEBUG_LEVEL dbg)
         {
-            m_iTesting.Message(strMsg);
+            m_iTesting.Message(strMsg, (int)dbg);
+        }
+
+        public string Report()
+        {
+            m_iTesting.Report(m_strBuilder, (uint)m_strBuilder.Capacity);
+            return m_strBuilder.ToString();
+
         }
 
 
         private IntPtr m_iunk;
         private ITESTING m_iTesting;
+        static private StringBuilder m_strBuilder = new StringBuilder(1024);
 
         public void RunTest(uint nClassID)
         {
@@ -96,12 +125,6 @@ namespace MoeConsole
 
             string cnt = MoeSzyslakLibrary.GetReturnString(m_hObj);
             m_logEntries.Clear();
-
-            for (uint i = 0; i < uint.Parse(cnt); i++)
-            {
-                m_logEntries.Add(new LogEntry(m_hObj, i));
-                m_logEntries[(int)i].Print();
-            }
 
             MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Passed");
             m_bPassed = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
@@ -142,29 +165,44 @@ namespace MoeConsole
             MoeSzyslakLibrary.InvokeHandle(m_hObj, "load \"" + flePath + "\"");
         }
 
+        public void Update()
+        {
+            int nCnt = 0;
+            IntPtr iunk = IntPtr.Zero;
+
+            foreach (LogEntry le in m_logEntries)
+                le.Dispose();
+
+            m_logEntries.Clear();
+
+            m_iTesting.GetLogEntry(nCnt, ref iunk);
+
+            while (iunk != IntPtr.Zero)
+            {
+                m_logEntries.Add(new LogEntry(iunk));
+                iunk = IntPtr.Zero;
+                nCnt++;
+                m_iTesting.GetLogEntry(nCnt, ref iunk);
+            }
+
+        }
+
         static public void UnitTest()
         {
-            string message = "Testing Object Self Unit Test";
-
             try
             {
-                Database db = new Database();
-                Testing tst = new Testing(IntPtr.Zero);
+                using (CampSight cs = new CampSight())
+                {
+                    Testing tst = cs.theTester;                    
 
-                tst.SetTestValue("message", message);
-                //tst.Load(@"C:\Users\loweva\Visual Studio 2019\MoeSzyslak\MoeConsole\bin\Debug\net5.0\testing.db");
+                    tst.DebugLevel = DEBUG_LEVEL.DEBUG_CRITICAL;
+                    tst.Message("Testing Object Self Unit Test", Testing.DEBUG_LEVEL.DEBUG_INFO);
+                    tst.Update();
 
-                tst.Message("Testing Object Self Unit Test");
-                tst.RunTest((uint)MoeSzyslakLibrary.CLASSID.TESTING);
+                    
 
-                if (tst.GetTestValue("message") != message)
-                    throw new Exception("message did not match expected value.");
-
-                if (tst.m_logEntries.Count != 5)
-                    throw new Exception("Should be 5 log entries.");
-
-
-                tst.Dispose();
+                    // tst.m_iTesting.UnitTest();
+                }
             }
             catch (Exception ex)
             {
@@ -185,6 +223,15 @@ namespace MoeConsole
             get { return m_bMemoryCheck; }
         }
         private bool m_bMemoryCheck = false;
+
+        DEBUG_LEVEL DebugLevel
+        {
+            set 
+            {
+                m_iTesting.SetDebugLevel((int)value); 
+            }
+
+        }
 
 
     }

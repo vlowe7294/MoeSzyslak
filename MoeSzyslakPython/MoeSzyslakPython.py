@@ -8,11 +8,13 @@ from comtypes import CoInitialize, CoUninitialize, POINTER as CPOINTER
 from comtypes.hresult import S_OK
 
 from ctypes import *
+from pathlib import Path
 
 class MoeSzyslakLibrary:
 
     _libPath = r"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll"
-    _nMinVersion = 1601
+    #_libPath = str(Path(__file__).parent / "MoeSzyslakLibrary.dll")
+    _nMinVersion = 1615
     _nVersion = 0
     _hllDll = 0
     _sb = create_unicode_buffer(1000)
@@ -31,7 +33,7 @@ class MoeSzyslakLibrary:
 
         if MoeSzyslakLibrary._nVersion < MoeSzyslakLibrary._nMinVersion:
              print(MoeSzyslakLibrary.Version())
-             raise Exception("Requires Moe Szyslak Library Version 1.2.5." + str(MoeSzyslakLibrary._nMinVersion)) 
+             raise Exception("Requires Moe Szyslak Library Version 1.3.6." + str(MoeSzyslakLibrary._nMinVersion - 1530)) 
         
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32)
         MoeSzyslakLibrary.CreateHandle = hllApiProto (("CreateMoeSzyslakHandle", MoeSzyslakLibrary._hllDll))
@@ -49,7 +51,6 @@ class MoeSzyslakLibrary:
         MoeSzyslakLibrary.CreateMoeSzyslakInterface =  MoeSzyslakLibrary._hllDll.CreateMoeSzyslakInterface
         MoeSzyslakLibrary.CreateMoeSzyslakInterface.argtypes = [c_uint, ctypes.POINTER(c_void_p)]
         MoeSzyslakLibrary.CreateMoeSzyslakInterface.restype = None
-        print('CreateMoeSzyslakInterface created')
 
     def GetReturnString(hObj, nCapacity = 1000):
         ret = ''

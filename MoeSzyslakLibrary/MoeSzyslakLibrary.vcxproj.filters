@@ -29,7 +29,7 @@
       <UniqueIdentifier>{ff14ab4b-3b62-4f79-945b-55a219e5fe50}</UniqueIdentifier>
     </Filter>
     <Filter Include="AstralWorkshop">
-      <UniqueIdentifier>{fda00557-5bd8-4bcb-aed8-84d48ad08cc9}</UniqueIdentifier>
+      <UniqueIdentifier>{7e4a1e27-811b-4a4a-9841-1023a402d411}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +134,12 @@
     </ClInclude>
     <ClInclude Include="CampSight.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AstralWorkshop\Character.h">
+      <Filter>AstralWorkshop</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +248,9 @@
     <ClCompile Include="CampSight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AstralWorkshop\Character.cpp">
+      <Filter>AstralWorkshop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MoeSzyslak.def">
@@ -250,5 +259,10 @@
     <None Include="docs\FinanceDesign.htm">
       <Filter>Docs</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MoeSzyslakLibrary.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

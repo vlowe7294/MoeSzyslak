@@ -66,20 +66,18 @@ void MemoryChecker::DecrementInstance(UINT nClassID)
 UINT __stdcall GetLibraryVersion();
 const wchar_t* GetLibraryPath();
 
-LogEntry::LogEntry(wstring txt, long long tme, long long mem)
+LogEntry::LogEntry(wstring txt, long long tme, long long mem, int nDebugLvl)
 {
 	static int id = 0;
 	id++;
 	m_nID = id;
 
+	printf("LogEntry constructor called\n");
+
 	m_cRef = 1;
 	g_memoryChecker.IncrementInstance(LogEntryInf::ClassID);
 	m_pProperties = new VariableCollection();
 	
-	m_pTxt = m_pProperties->NewVariable(L"text");
-	m_pTxt->SetString(txt.c_str());
-	m_pTxt->SetLocked(true);
-
 	m_pTime = m_pProperties->NewVariable(L"time");
 	m_pTime->SetAsInt((int)tme, 0);
 	m_pTime->SetLocked(true);
@@ -89,10 +87,12 @@ LogEntry::LogEntry(wstring txt, long long tme, long long mem)
 	m_pMemUsed->SetLocked(TRUE);
 
 	m_pReturnVar = m_pProperties->NewVariable(L"return");
+	m_nDebugLevel = nDebugLvl;
 }
 
 LogEntry::~LogEntry()
 {
+	printf("LogEntry destructor called\n");
 	m_pProperties->Release();
 	g_memoryChecker.DecrementInstance(LogEntryInf::ClassID);
 }
@@ -119,12 +119,14 @@ HRESULT __stdcall LogEntry::QueryInterface(REFIID riid, LPVOID* ppvObj)
 ULONG __stdcall LogEntry::AddRef()
 {
 	m_cRef++;
+	printf("LogEntry AddRef -> %lu\n", m_cRef);
 	return m_cRef;
 }
 
 ULONG __stdcall LogEntry::Release()
 {
 	m_cRef--;
+	printf("LogEntry Release -> %lu\n", m_cRef);
 
 	if (0 == m_cRef)
 	{
@@ -188,7 +190,7 @@ void LogEntry::Read(IUnknown* iTbl)
 wstring LogEntry::GetHTML()
 {
 	wstring htm = L"\n      <tr>\n         <td>" + m_pTime->GetString() + L"</td>\n";
-	htm += L"         <td>" + m_pTxt->GetString() + L"</td>\n";
+	htm += L"         <td>" + m_txt + L"</td>\n";
 	htm += L"         <td>" + m_pMemUsed->GetString() + L"</td>\n      </tr>";
 	return htm;
 }
@@ -203,10 +205,10 @@ const TESTVALUE Testing::m_testValues[m_nTestValues] =
 Testing::Testing()
 {
 	m_cRef = 1;
+	printf("Testing constructor called\n");
 	
 	m_pProperties = new VariableCollection();
-	m_pPass = m_pProperties->NewVariable(L"Passed");
-	m_pPass->SetAsBool(FALSE);
+	m_bPass = false;
 
 	m_pMemCheck = m_pProperties->NewVariable(L"Memory Check");
 	m_pMemCheck->SetAsBool(FALSE);
@@ -230,6 +232,7 @@ Testing::Testing()
 
 Testing::~Testing()
 {
+	printf("Testing destructor called\n");
 	m_pProperties->Release();
 
 	if (m_pTestTime != NULL)
@@ -260,12 +263,14 @@ HRESULT __stdcall Testing::QueryInterface(REFIID riid, LPVOID* ppvObj)
 ULONG __stdcall Testing::AddRef()
 {
 	m_cRef++;
+	printf("AddRef -> %lu\n", m_cRef);
 	return m_cRef;
 }
 
 ULONG __stdcall Testing::Release()
 {
 	m_cRef--;
+	printf("Release -> %lu\n", m_cRef);
 
 	if (0 == m_cRef)
 	{
@@ -274,108 +279,6 @@ ULONG __stdcall Testing::Release()
 	}
 
 	return m_cRef;
-}
-
-HRESULT __stdcall Testing::Properties(IUnknown** iPrp)
-{
-	m_pProperties->QueryInterface(IID_IUnknown, (void**)iPrp);
-	m_pProperties->Release();
-	return S_OK;
-}
-
-HRESULT __stdcall Testing::Command(const wchar_t* szCmd)
-{
-	HRESULT hr = E_FAIL;
-	VLStringCollection cmds;
-	wstring s;
-
-	if (!szCmd || wcslen(szCmd) == 0)
-		return E_INVALIDARG;
-	
-	cmds.Split(szCmd, L' ');
-	cmds.ToLower(0);
-
-	switch (szCmd[0])
-	{
-		case L'g':
-		case L'G':
-			if (cmds.Compare(0, L"get"))
-			{
-				m_pProperties->Command(szCmd);
-				m_pProperties->GetReturnString(m_iRetStr);				
-				hr = S_OK;
-			}
-			break;
-
-		case L'l':
-		case L'L':
-			if (cmds.Compare(0, L"log"))
-			{
-				hr = m_iEntries->Command(cmds.SubString(1, L' ').c_str());
-				m_iEntries->GetReturnString(m_iRetStr);
-			}
-			else if (cmds.Compare(0, L"load"))
-			{
-				hr = Load(cmds.Get(1).c_str());
-			}
-			break;
-
-		case L'm':
-		case L'M':
-			if (cmds.Compare(0, L"message"))
-			{
-				hr = Message(cmds.Get(1).c_str());
-			}
-			break;
-
-		case L'r':
-		case L'R':
-			if (cmds.Compare(0, L"runtest"))
-			{
-				hr = RunTest(_wtoi(cmds.Get(1).c_str()));				
-			}
-			break;
-
-		case L'S':
-		case L's':
-			if (cmds.Compare(0, L"settestdata"))
-			{
-				hr = SetTestData(cmds.Get(1).c_str(), cmds.Get(2).c_str());
-			}
-			else if (cmds.Compare(0, L"set"))
-			{
-				m_pProperties->Set(cmds.Get(1), cmds.Get(2), VLVariable::TYPE_STRING);
-				hr = S_OK;
-			}
-			break;
-
-		case L't':
-		case L'T':
-			if (cmds.Compare(0, L"testvalues"))
-			{
-				hr = m_pTestValues->Command(cmds.SubString(1, L' ').c_str());
-				m_pTestValues->GetReturnString(m_iRetStr);
-			}
-			break;
-
-
-		case L'u':
-		case L'U':
-			if (cmds.Compare(0, L"unittest"))
-			{
-				hr = UnitTest();
-			}
-			break;
-
-	}
-
-	return hr;
-}
-
-HRESULT __stdcall Testing::GetReturnString(IUnknown** iStr)
-{
-	*iStr = (IUnknown*)m_iRetStr;
-	return S_OK;
 }
 
 HRESULT __stdcall Testing::RunTest(UINT nClassID)
@@ -387,7 +290,7 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	DWORD bufCharCount = MAX_COMPUTERNAME_LENGTH + 1;
 	StringInf iStr;
 
-	m_pPass->SetAsBool(TRUE);
+	m_bPass = true;
 	//m_iEntries->Clear();
 	GetComputerName(nme, &bufCharCount);
 
@@ -397,18 +300,18 @@ HRESULT __stdcall Testing::RunTest(UINT nClassID)
 	m_pTestTime = new VLDateTime();
 
 	s += GetLibraryPath();
-	Message(s.c_str());
+	Message(s.c_str(), 0);
 	iStr.Init();
 	m_pTestTime->ToString(iStr);
 	
 	s = L"Tested on ";
 	s += (const wchar_t*)iStr;
-	Message(s.c_str());
+	Message(s.c_str(), 0);
 	s = L"Version  1.3.6." + std::to_wstring(v);
 
-	Message(s.c_str());
+	Message(s.c_str(), 0);
 	s = L"Local Machine:\t" + wstring(nme);
-	Message(s.c_str());
+	Message(s.c_str(), 0);
 
 	switch (nClassID)
 	{
@@ -517,7 +420,7 @@ HRESULT __stdcall Testing::VerifyHResult(HRESULT hr, LPCWSTR szMsg)
 	return hr;
 }
 
-HRESULT __stdcall Testing::Message(LPCWSTR szMsg)
+HRESULT __stdcall Testing::Message(LPCWSTR szMsg, int nDebugLvl)
 {
 	LogEntry* l;
 
@@ -531,9 +434,39 @@ HRESULT __stdcall Testing::Message(LPCWSTR szMsg)
 	mem = mem / 1024;
 	mem = mem / 1024;
 
-	l = new LogEntry(szMsg, ms, mem);
+	if (nDebugLvl < 0 || nDebugLvl >= DEBUG_MAX)
+		nDebugLvl = 0;
+
+	l = new LogEntry(szMsg, ms, mem, nDebugLvl);
 	m_iEntries->Add((IUnknown*)l, L"", LogEntryInf::ClassID);
 	l->Release();
+
+	if (nDebugLvl >= m_debugLevel)
+		wprintf(L"%lld ms: %s\n", ms, szMsg);
+
+	return S_OK;
+}
+
+HRESULT __stdcall Testing::SetDebugLevel(int nDebugLvl)
+{
+	if (nDebugLvl < 0 || nDebugLvl >= DEBUG_MAX)
+	{
+		wstring msg = std::to_wstring(nDebugLvl) + L" is an invalid debug level.";
+		Verify(FALSE, msg.c_str());
+		return E_FAIL;
+	}
+
+	m_debugLevel = (DEBUG_LEVEL)nDebugLvl;
+	return S_OK;
+}
+
+HRESULT __stdcall Testing::GetLogEntry(int ndx, IUnknown** iEntry)
+{
+	m_iEntries->Get(ndx, iEntry);
+
+	if (*iEntry != NULL)
+		(*iEntry)->AddRef();
+
 	return S_OK;
 }
 
@@ -560,7 +493,7 @@ HRESULT __stdcall Testing::Load(LPCWSTR szFilePath)
 
 	while (i < nCnt)
 	{
-		iEnt = new LogEntry(L"", 0, 0);
+		iEnt = new LogEntry(L"", 0, 0, 0);
 		iEnt->Read(iTbl);
 		pTbl->NextRow();
 
@@ -595,37 +528,11 @@ void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
 
 HRESULT __stdcall Testing::UnitTest()
 {
-	//StringInf iStr;
-	UINT nID = 0;
+	IUnknown* iEntry = NULL;
+	GetLogEntry(0, &iEntry);
 
-	//iStr.Init();
-
-	
-
-	Database* pDB = new Database();
-	pDB->ReadFromSQL();
-	pDB->Release();
-
-	pDB = new Database();
-	VLVariable* pVar = NULL;
-	MoeInf<ITABLE, CLASSID::TABLE> iTbl;
-	
-
-	pDB->GetTable(L"test_values", iTbl);
-
-	for (int i = 0; i < m_nTestValues; i++)
-	{
-		if (i > 0)
-			iTbl->NewRow();
-
-		iTbl->Set(L"test_id", std::to_wstring(i).c_str(), VLVariable::TYPE_INT);
-		iTbl->Set(L"class_id", std::to_wstring(TestingInf::ClassID).c_str(), VLVariable::TYPE_INT);
-		iTbl->Set(L"variable_name", m_testValues[i].name, VLVariable::TYPE_STRING);
-		iTbl->Set(L"variable_value", m_testValues[i].value, VLVariable::TYPE_STRING);
-	}
-
-	//pDB->WriteToSQL();
-	pDB->Release();
+	if (iEntry != NULL)
+		iEntry->Release();
 
 	return S_OK;
 }
@@ -634,8 +541,8 @@ HRESULT __stdcall Testing::Verify(BOOL bVal, LPCWSTR szMsg)
 {
 	if (bVal == FALSE)
 	{
-		Message(szMsg);
-		m_pPass->SetAsBool(FALSE);
+		Message(szMsg, 0);
+		m_bPass = false;
 	}
 
 	return S_OK;
@@ -649,8 +556,8 @@ void Testing::TripPlannerTest()
 	
 	try
 	{
-		Message(L"Trip Planner Unit Test");
-		Message(L"Trip Name:\tChicago Trip");
+		Message(L"Trip Planner Unit Test", 0);
+		Message(L"Trip Name:\tChicago Trip", 0);
 
 		iTrp->Command(L"set \"Trip Name\" \"Chicago Trip\"");
 		iTrp->Command(L"AddStop");
@@ -668,7 +575,7 @@ void Testing::TripPlannerTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 }
 
@@ -740,7 +647,7 @@ void Testing::VariableTest()
 	try
 	{
 		iVar.Init();
-		Message(L"Variable Unit Test");
+		Message(L"Variable Unit Test", 0);
 
 		cmd = L"set display \"" + m_pProperties->Get(L"name");
 		cmd += L"\"";
@@ -794,7 +701,7 @@ void Testing::VariableTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 }
 
@@ -811,7 +718,7 @@ void Testing::NeverwinterTest()
 		
 	try
 	{
-		Message(L"Neverwinter Nights Unit Test");
+		Message(L"Neverwinter Nights Unit Test", 0);
 
 		VerifyHResult(iNWN->Command(L"Module set \"Module Name\" \"Out of the Abyss\""), L"set module name failure");
 		
@@ -850,7 +757,7 @@ void Testing::NeverwinterTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 }
 
@@ -862,7 +769,7 @@ void Testing::IOSTest()
 
 	try
 	{
-		Message(L"IOS Unit Test");		
+		Message(L"IOS Unit Test", 0);
 		iIOS.Attach(NULL);
 		iIOS->Properties(&iunk);
 		VariableInfCollection iPrp(iunk);
@@ -880,7 +787,7 @@ void Testing::IOSTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 
 }
@@ -893,7 +800,7 @@ void Testing::UserTest()
 	iUserService.Init();
 	
 
-	Message(L"User Unit Test");
+	Message(L"User Unit Test", 0);
 	
 	VerifyHResult(iUser->UnitTest(), L"Unit test returned failure code");
 }
@@ -909,7 +816,7 @@ void Testing::FinanceTest()
 	try
 	{
 		iFnc.Attach();
-		Message(L"Finance Unit Test");
+		Message(L"Finance Unit Test", 0);
 		VerifyHResult(iFnc->Command(L"account set name \"Wells Fargo\""), L"account set name failed");
 		VerifyHResult(iFnc->Command(L"account set balance 1000.0"), L"account set balance failed");
 
@@ -935,7 +842,7 @@ void Testing::FinanceTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 
 }
@@ -966,7 +873,7 @@ void Testing::SelfTest()
 	catch (...)
 	{
 		Verify(false, L"Unhandled exception during test");
-		m_pPass->SetAsBool(FALSE);
+		m_bPass = false;
 	}
 
 }

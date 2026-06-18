@@ -81,11 +81,14 @@ HRESULT __stdcall InterfaceCollection::Add(IUnknown* iObj, const wchar_t* szTag,
 		iObj->AddRef();
 
 	m_classIDs[m_nObjects] = nClassID;
-	m_nObjects++;
-
+	
 	if (tag.length() > 0)
-		m_objectMap[tag] = iObj;
+	{
+		m_mapToIndex[tag] = m_nObjects;
+		m_mapToTag[m_nObjects] = tag;
+	}
 
+	m_nObjects++;
 	return S_OK;
 }
 
@@ -113,6 +116,13 @@ HRESULT __stdcall InterfaceCollection::Remove(int ndx)
 	if (ndx < 0 || ndx >= m_nObjects)
 		return E_FAIL;
 
+	if (m_mapToTag.find(ndx) != m_mapToTag.end())
+	{
+		std::wstring tag = m_mapToTag[ndx];
+		m_mapToTag.erase(ndx);
+		m_mapToIndex.erase(tag);
+	}
+
 	if (m_array[ndx] != NULL)
 	{
 		m_array[ndx]->Release();
@@ -139,7 +149,8 @@ HRESULT __stdcall InterfaceCollection::Clear()
 	}
 
 	m_nObjects = 0;
-	m_objectMap.clear();
+	m_mapToIndex.clear();
+	m_mapToTag.clear();
 	return S_OK;
 }
 
@@ -261,12 +272,6 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		itrp->GetReturnString(&m_iRetString);
 		break;
 
-	case TestingInf::ClassID:
-		iTst.Attach(iunk);
-		hr = iTst->Command(subCmd.c_str());
-		iTst->GetReturnString(&m_iRetString);
-		break;
-
 	case NeverwinterInf::ClassID:
 		iNvr.Attach(iunk);
 		hr = iNvr->Command(subCmd.c_str());
@@ -292,11 +297,12 @@ IUnknown* InterfaceCollection::Get(std::wstring szTag)
 {
 	IUnknown* iRet = NULL;
 
-	if (m_objectMap.find(szTag) == m_objectMap.end())  // tag does not exist
+	if (m_mapToIndex.find(szTag) == m_mapToIndex.end())  // tag does not exist
 		return iRet;
 
-	iRet = m_objectMap[szTag];
-	return iRet;
+	int i = m_mapToIndex[szTag];
+
+	return m_array[i];
 }
 
 HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
@@ -309,7 +315,7 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 	IUnknown* iAddObj = NULL;
 
 	iTst.Attach(iunk);
-	iTst->Message(L"Interface Collection Unit Test");
+	iTst->Message(L"Interface Collection Unit Test", 0);
 
 	iStr.Init();
 	iTst->GetTestData(L"count", iStr);
@@ -334,12 +340,12 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 			iAddObj->Release();
 	}
 
-	iTst->Message(msg.c_str());
+	iTst->Message(msg.c_str(), 0);
 	iTst->GetTestData(L"get", iStr);
 	ndx = _wtoi(iStr);
 
 	msg = L"Getting object at index " + std::to_wstring(ndx);
-	iTst->Message(msg.c_str());
+	iTst->Message(msg.c_str(), 0);
 	iTst->VerifyHResult(Get(ndx, iVar), L"Get failed");
 
 	Count(&nCnt);
@@ -347,7 +353,7 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 
 	iTst->GetTestData(L"command", iStr);	
 	msg = L"Excecuting command '" + wstring(iStr) + L"'";
-	iTst->Message(msg.c_str());	
+	iTst->Message(msg.c_str(), 0);
 	iTst->VerifyHResult(Command(iStr), L"Command Failed");
 
 	iTst->GetTestData(L"remove", iStr);
@@ -369,4 +375,12 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 void InterfaceCollection::GetLocalString(IUnknown** iStr)
 {
 	*iStr = (IUnknown*)m_iLocalStr;
+}
+
+void InterfaceCollection::RemoveByTag(const wchar_t* szTag)
+{
+	if (m_mapToIndex.find(szTag) == m_mapToIndex.end())  // tag does not exist
+		return;
+
+	Remove(m_mapToIndex[szTag]);
 }

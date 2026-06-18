@@ -29,8 +29,10 @@ UINT Dice::Roll(UINT nRolls)
 
 
 
-Location::Location()
+Location::Location(const wchar_t* szName)
 {
+	m_name = szName;
+	m_cRef = 1;
 
 }
 
@@ -39,6 +41,43 @@ Location::~Location()
 
 }
 
+HRESULT __stdcall Location::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+
+	if (riid == IID_IUnknown)
+	{
+		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else
+		return E_NOINTERFACE;
+}
+
+ULONG __stdcall Location::AddRef()
+{
+	InterlockedIncrement(&m_cRef);
+	return m_cRef;
+}
+
+ULONG __stdcall Location::Release()
+{
+	InterlockedDecrement(&m_cRef);
+
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
+}
+
+void Location::AddNeighbor(Location& neighbor, int travelTimeSec)
+{
+	m_neighbors.push_back(&neighbor);
+	m_travelTimes.push_back(travelTimeSec);
+}
 
 
 
@@ -63,21 +102,12 @@ Area::Area(const wchar_t* szName, int nDanger)
 	plc->Release();
 	m_nDangerLevel = nDanger;
 	m_pQuest = new Quest(L"Gather Herbs at the Forest Edge", 1, 0);
-	m_locations[0] = NULL;
 }
 
 Area::~Area()
 {
 	m_pProperties->Release();
 	delete m_pQuest;
-
-	int i = 0;
-
-	while (i < 5 && m_locations[i] != NULL)
-	{
-		delete m_locations[i];
-		i++;
-	}	
 }
 
 HRESULT __stdcall Area::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -182,8 +212,8 @@ Placeable& Area::GetPlaceable(int ndx)
 
 void Area::Save(Table& tbl)
 {
-	m_pProperties->Save(&tbl);
-
+	tbl.Set(L"area_name", m_name.c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+	tbl.Set(L"danger_level", std::to_wstring(m_nDangerLevel).c_str(), VLVariable::VAR_TYPE::TYPE_INT);
 }
 
 void Area::Load(Table& tbl)
@@ -191,20 +221,16 @@ void Area::Load(Table& tbl)
 	m_pProperties->Load(&tbl);
 }
 
-Location& Area::AddLocation()
+Location& Area::AddLocation(const wchar_t* szCmd)
 {
-	int i = 0;
+	Location* pLoc = new Location(szCmd);
+	m_locations.Add(pLoc, L"", 0);
+	pLoc->Release();
+	return *pLoc;
+}
 
-	while (i < 5 && m_locations[i] != NULL)
-		i++;
-
-	if (i == 5)  // TODO  this will be a collection list eventually, for now just a straight array
-		return *m_locations[4];
-
-	m_locations[i] = new Location();
-
-	if (i < 4)
-		m_locations[i + 1] = NULL;
-
-	return *m_locations[i];
+void Area::LinkLocations(Location& a, Location& b, int travelTimeSec)
+{
+	a.AddNeighbor(b, travelTimeSec);
+	b.AddNeighbor(a, travelTimeSec);
 }

@@ -54,7 +54,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1601
+#define VERSION 1615
 
 VLString g_dllPath;
 
@@ -85,16 +85,18 @@ UI_EXPORT UINT __stdcall GetLibraryVersion()
     return VERSION;
 }
 
-void VersionAsString(IUnknown* iunk)
+wstring VersionAsString()
 {
-    StringInf iStr;
     wstring s;
 
-    iStr.Attach(iunk);
-
     UINT v = VERSION;
-    s = L"Version 1.3.6." + std::to_wstring(v - 1530);
-    iStr->Set(s.c_str());
+
+#ifdef _DEBUG
+    s = L"Debug Version 1.3.6." + std::to_wstring(v - 1530);
+#else
+    s = L"Release Version 1.3.6." + std::to_wstring(v - 1530);
+#endif
+    return s;
 }
 
 UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
@@ -261,8 +263,7 @@ UI_EXPORT void _cdecl MoeSzyslakHTML(UINT nClassID, const wchar_t* szGet, wchar_
     if (i > 0)
     {
         str = htm.substr(0, i);
-        VersionAsString(iRetStr);
-        str += L"<div>Moe Szyslak Library " + wstring(iRetStr);
+        str += L"<div>Moe Szyslak Library " + VersionAsString();
 
         str += L"</div>";
         str += htm.substr(i);

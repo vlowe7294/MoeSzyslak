@@ -10,13 +10,12 @@ public:
 
 	struct ITESTING : public IUnknown
 	{
-		virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
-		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
-		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+		virtual HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl) = 0;
+		virtual HRESULT __stdcall SetDebugLevel(int level) = 0;
+		virtual HRESULT __stdcall GetLogEntry(int ndx, IUnknown** iEntry) = 0;
 		virtual HRESULT __stdcall RunTest(UINT nClassID) = 0;
 		virtual HRESULT __stdcall VerifyVariable(LPCWSTR varName, LPCWSTR val) = 0;
-		virtual HRESULT __stdcall VerifyHResult(HRESULT hr, LPCWSTR szMsg) = 0;
-		virtual HRESULT __stdcall Message(LPCWSTR szMsg) = 0;
+		virtual HRESULT __stdcall VerifyHResult(HRESULT hr, LPCWSTR szMsg) = 0;		
 		virtual HRESULT __stdcall GetTestData(LPCWSTR szName, IUnknown* iStr) = 0;
 		virtual HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal) = 0;
 		virtual HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName) = 0;

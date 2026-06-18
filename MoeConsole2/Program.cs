@@ -10,75 +10,19 @@ using System.Xml.Linq;
 using static MoeConsole.TripPlanner;
 using static System.Collections.Specialized.BitVector32;
 using static System.Net.Mime.MediaTypeNames;
+using System.Collections.Generic;
 
 namespace MoeConsole
 {
 
-    public class AstralWorkshop : IDisposable
+    class CampArea
     {
-        static public uint classID = 133671;
-
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("F43BA252-2FCA-41A2-9CFA-22A5D87C584C")]
-        private interface IASTRALWORKSHOP
+        public CampArea(string nme)
         {
-            void Command([MarshalAs(UnmanagedType.LPWStr)] string strCmd, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder strRet, uint nLen);
-            void UnitTest();
+            m_name = nme;
         }
 
-        public AstralWorkshop()
-        {
-            MoeSzyslakLibrary.CreateMoeSzyslakInterface(classID, ref m_iunk);
-            m_iAstralWorkshop = (IASTRALWORKSHOP)Marshal.GetObjectForIUnknown(m_iunk);
-        }
-
-        ~AstralWorkshop() => Dispose(false);
-
-        public static void UnitTest()
-        {
-            using (AstralWorkshop aw = new AstralWorkshop())
-            {
-                Console.WriteLine("Create");
-                Console.WriteLine(aw.Command("Create"));
-
-                Console.WriteLine("Rowan");
-                Console.WriteLine(aw.Command("Rowan"));
-
-                Console.WriteLine("1");
-                Console.WriteLine(aw.Command("1"));
-
-                Console.WriteLine("2");
-                Console.WriteLine(aw.Command("2"));
-
-                Console.WriteLine("exit");
-                Console.WriteLine(aw.Command("exit"));
-
-                //aw.m_iAstralWorkshop.UnitTest();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        void Dispose(bool disposing)
-        {
-            Marshal.ReleaseComObject(m_iAstralWorkshop);
-            MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
-            m_iAstralWorkshop = null;
-            m_iunk = IntPtr.Zero;
-        }
-
-        string Command(string cmd)
-        {
-            m_iAstralWorkshop.Command(cmd, m_sb, (uint)m_sb.Capacity);
-            return m_sb.ToString();
-        }   
-
-        private IntPtr m_iunk = IntPtr.Zero;
-        private IASTRALWORKSHOP m_iAstralWorkshop;
-        private StringBuilder m_sb = new StringBuilder(1024);
+        private string m_name;
     }
 
 
@@ -93,6 +37,7 @@ namespace MoeConsole
         {
             void GetTester(ref IntPtr iTester);
             void AddSite([MarshalAs(UnmanagedType.LPWStr)] string szArea, [MarshalAs(UnmanagedType.LPWStr)] string szSite, double lat, double lon);
+            void GetArea(uint ndx, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder szName, uint nLen);
             void UnitTest();
         }
 
@@ -126,20 +71,48 @@ namespace MoeConsole
             m_iCampSight.AddSite(strArea, strSite, lat, lon);
         }
 
+        public void Update()
+        {
+            int i = 0;
+            string nme;
+
+            m_campArea.Clear();
+            m_iCampSight.GetArea(0, m_sb, (uint)m_sb.Capacity);
+            nme = m_sb.ToString();
+
+            while (!string.IsNullOrEmpty(nme))
+            {
+                CampArea ca = new CampArea(nme);
+                m_campArea.Add(ca);
+
+                i++;
+                m_iCampSight.GetArea((uint)i, m_sb, (uint)m_sb.Capacity);
+                nme = m_sb.ToString();
+            }
+
+        }
+
         public static void UnitTest()
         {
             using (CampSight cs = new CampSight())
             {
-                cs.m_tester.Message("Camp Sight Unit Test");
+                cs.m_tester.Message("Camp Sight Unit Test", Testing.DEBUG_LEVEL.DEBUG_INFO);
                 cs.AddSite("Dinosaur Valley State Park", "Laham Mill #14", 32.251301564676666, -97.8112404606453);
+                cs.Update();
                 cs.m_iCampSight.UnitTest();
+                Console.WriteLine(cs.m_tester.Report());
 
             }
         }
 
         private IntPtr m_iunk = IntPtr.Zero;
         private ICAMPSIGHT m_iCampSight;
+
+        public Testing theTester { get { return m_tester; } }
         private Testing m_tester;
+
+        private static StringBuilder m_sb = new StringBuilder(1024);
+        private List<CampArea> m_campArea = new List<CampArea>();
 
     }
 
@@ -151,8 +124,7 @@ namespace MoeConsole
             try
             {
                 MoeSzyslakLibrary.VerifyLibrary();
-                Console.WriteLine(MoeSzyslakLibrary.Version);
-                CampSight.UnitTest();
+                Testing.UnitTest();
             }
             catch (Exception e)
             {

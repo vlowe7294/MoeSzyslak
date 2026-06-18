@@ -1,41 +1,7 @@
 #pragma once
-#include "../Neverwinter/Creature.h"
 #include "../Neverwinter/Area.h"
+#include "Character.h"
 
-class Character : public Creature
-{
-	public:
-		enum BACKGROUND
-		{
-			BACKGROUND_NONE,
-			BACKGROUND_NOBLE,
-			BACKGROUND_PEASANT,
-			BACKGROUND_OUTLAW,
-			BACKGROUND_MAX
-		};
-
-		enum ACTIVITY
-		{
-			ACTIVITY_IDLE,
-			ACTIVITY_ON_QUEST,
-			ACTIVITY_RETURNING,
-			ACTIVITY_RESTING
-		};
-
-		Character(const wchar_t* szName);
-		~Character();
-		HRESULT CreateCharacter(wstring strCmd, wstring& strOut);
-		HRESULT UnitTest();
-
-		inline bool IsComplete() { return m_bComplete; }
-
-private:
-	bool m_bComplete;
-	BACKGROUND m_background;
-	ACTIVITY m_activity;
-	int m_nEditStep;
-
-};
 
 /**
  * @class AstralWorkshop
@@ -49,6 +15,14 @@ private:
 class AstralWorkshop : public IASTRALWORKSHOP
 {
 public:
+
+	enum ENGINE_STATE
+	{
+		STATE_NORMAL,
+		STATE_CHARACTER_CREATION,
+		STATE_WORLD_EDITOR
+	};
+
 	AstralWorkshop();
 	~AstralWorkshop();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
@@ -70,14 +44,23 @@ public:
 	 */
 	HRESULT __stdcall Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen);
 
+	HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger);
+
+	HRESULT __stdcall Export(const wchar_t* szPath);
+	HRESULT __stdcall Save(const wchar_t* szPath);
+	HRESULT __stdcall NewCharacter(IUnknown** iCharacter, const wchar_t* szName, int nClass, int nBackground);
+
 	HRESULT UnitTest();
 
 private:
 	LONG m_cRef;
-	int m_state;
+	ENGINE_STATE m_state;
 	int m_instance;
-	Area* m_pArea;
+	InterfaceCollection m_areas;
+	Area* m_pStartArea;
 	Character* m_pNewCharacter;
+
+	void HandleCharacterCreationCommand(const wchar_t* szCmd, wchar_t* szRet, UINT nLen);
 	
 };
 

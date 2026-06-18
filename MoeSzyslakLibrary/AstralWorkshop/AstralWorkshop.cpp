@@ -37,120 +37,27 @@ void Quest::Randomize()
 
 
 
-Character::Character(const wchar_t* szName) : Creature(szName)
-{
-	m_bComplete = false;
-	m_activity = ACTIVITY_IDLE;
-	m_background = BACKGROUND_NONE;
-	m_nEditStep = 0;
-
-}
-
-Character::~Character()
-{
-
-}
-
-HRESULT Character::CreateCharacter(wstring strCmd, wstring& strOut)
-{
-	int n = 0;
-
-	switch (m_nEditStep)
-	{
-	case 0 :
-		strOut = L"Welcome to character creation.\nWhat is your character's name?";
-		m_nEditStep = 1;
-		m_name.clear();
-		break;
-
-	case 1:
-		if (strCmd.empty())
-		{
-			strOut = L"What is your character's name?";
-			return S_OK;
-		}
-
-		m_nEditStep = 2;
-		m_name = strCmd;
-		strOut = L"1) Warrior\n2) Mage\n3) Rogue\nWhat class do you want " + m_name + L" to be?";
-		break;
-
-	case 2:
-		n = _wtoi(strCmd.c_str());
-
-		if (n <= CLASS_NONE || n >= CLASS_MAX)
-		{			
-			strOut = L"1) Warrior\n2) Mage\n3) Rogue\nWhat class do you want " + m_name + L" to be?";
-			m_class = CLASS_NONE;
-			return S_OK;
-		}
-
-		m_class = (CLASS)n;
-		m_nEditStep = 3;
-		strOut = L"1) Noble\n2) Peasant\n3) Outlaw\nWhat do you want " + m_name + L"'s background to be?";
-		break;
-
-	case 3:
-		n = _wtoi(strCmd.c_str());
-
-		if (n <= BACKGROUND_NONE || n >= BACKGROUND_MAX)
-		{
-			strOut = L"1) Noble\n2) Peasant\n3) Outlaw\nWhat do you want " + m_name + L"'s background to be?";
-			m_background = BACKGROUND_NONE;
-			return S_OK;
-		}
-
-		m_background = (BACKGROUND)n;
-		m_nEditStep = 4;
-		strOut = m_name + L" character created.  Enter command:";
-
-		m_bComplete = true;
-		break;
-	}
-
-	return S_OK;
-}
-
-HRESULT Character::UnitTest()
-{
-	if (m_pArea != NULL)
-	{
-		Area* pArea = NULL;
-		m_pArea->QueryInterface(AREA_IID, (void**)&pArea);
-		Quest* pQst = new Quest(L"", 0, 0);
-
-		pQst->Copy(pArea->GetQuest());
-		pQst->Randomize();
-		wprintf(L"%s has departed on a quest: \"%s\"\n", m_name.c_str(), pQst->Name().c_str());
-
-		pArea->Release();
-		delete pQst;
-	}
-	
-
-	for (int i = 0; i < 100; i++)
-	{
-		Tick(100);
-	}
-
-	return S_OK;
-}
 
 
 
 AstralWorkshop::AstralWorkshop()
 {
 	m_cRef = 1;
-	m_state = 0;
-	m_pArea = new Area(L"The Whispering Glade", 0);
+	m_state = STATE_NORMAL;
+	m_pStartArea = NULL;
+
 	m_pNewCharacter = NULL;
 }
 
 AstralWorkshop::~AstralWorkshop()
 {
 	printf("ComObjectBase destructor called\n");	
-	m_pArea->Release();
-	delete m_pNewCharacter;
+
+	if (m_pNewCharacter != NULL)
+		m_pNewCharacter->Release();
+
+	if (m_pStartArea != NULL)
+		m_pStartArea->Release();
 }
 
 HRESULT __stdcall AstralWorkshop::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -204,57 +111,62 @@ ULONG __stdcall AstralWorkshop::Release()
 HRESULT __stdcall AstralWorkshop::Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen)
 {
 	VLStringCollection wrds;
-	wstring strOut;
+	wstring strOut;	
 
 	if (szCmd == NULL || szRet == NULL)
 		return E_FAIL;
-
-	if (m_pNewCharacter != NULL && !m_pNewCharacter->IsComplete())
-	{
-		m_pNewCharacter->CreateCharacter(szCmd, strOut);
-		
-
-		if (m_pNewCharacter->IsComplete())
-		{
-			m_pNewCharacter->SetArea(m_pArea);
-			strOut += L"\n" + m_pNewCharacter->GetName() + L" is now in " + m_pArea->GetName();
-		}
-
-		wcsncpy_s(szRet, nLen, strOut.c_str(), _TRUNCATE);
-
-		return S_OK;
-	}
-
-	wrds.Split(szCmd, ' ');
-	wrds.ToLower(0);
 
 	if (wcslen(szCmd) == 0)
 	{
 		wcsncpy_s(szRet, nLen, L"Enter a command:", _TRUNCATE);
 		return S_OK;
 	}
+
+	wrds.Split(szCmd, ' ');
+	wrds.ToLower(0);
+
+	if (m_state == STATE_CHARACTER_CREATION)
+	{
+		HandleCharacterCreationCommand(szCmd, szRet, nLen);
+		return S_OK;
+	}
+
+	if (m_state == STATE_WORLD_EDITOR)
+	{
+		wrds.ToLower(1);
+		if (wrds.Compare(0, L"new"))
+		{
+			if (wrds.Compare(1, L"area"))
+			{
+
+				swprintf_s(szRet, nLen, L"Created area '%s' (danger %s).", wrds.Get(2).c_str(), wrds.Get(3).c_str());
+
+			}
+			else
+				wcsncpy_s(szRet, nLen, L"I don't know what that is.  Enter Command:", _TRUNCATE);
+
+		}
+		else
+			wcsncpy_s(szRet, nLen, L"I don't know what to do with that command.  Enter Command:", _TRUNCATE);
+
+		return S_OK;
+	}
+
 		
 
 	switch (szCmd[0])
 	{
-	case L'c':
-	case L'C':
-		if (wrds.Compare(0, L"create"))
-		{
-			delete m_pNewCharacter;
-			m_pNewCharacter = new Character(L"");
-			m_pNewCharacter->CreateCharacter(L"", strOut);
-
-			wcsncpy_s(szRet, nLen, strOut.c_str(), _TRUNCATE);
-			return S_OK;
-		}
-		break;
-
 	case L'e':
 	case L'E':
 		if (wrds.Compare(0, L"exit"))
 		{
 			wcsncpy_s(szRet, nLen, L"Exiting Astral Workshop", _TRUNCATE);
+			return S_OK;
+		}
+		else if (wrds.Compare(0, L"editor"))
+		{
+			wcsncpy_s(szRet, nLen, L"World editor activated", _TRUNCATE);
+			m_state = STATE_WORLD_EDITOR;
 			return S_OK;
 		}
 		break;
@@ -264,30 +176,107 @@ HRESULT __stdcall AstralWorkshop::Command(const wchar_t* szCmd, wchar_t* szRet, 
 	return S_OK;
 }
 
+HRESULT __stdcall AstralWorkshop::NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger)
+{
+	m_areas.Count(ndx);
+	Area* pNewArea = new Area(szName, nDanger);
+
+	pNewArea->QueryInterface(IID_IUnknown, (void**)iArea);
+	m_areas.Add(pNewArea, szName, 0);
+	pNewArea->Release();
+	return S_OK;
+}
+
+void AstralWorkshop::HandleCharacterCreationCommand(const wchar_t* szCmd, wchar_t* szRet, UINT nLen)
+{
+	wstring strOut;
+	m_pNewCharacter->CreateCharacter(szCmd, strOut);
+
+	if (m_pNewCharacter->IsComplete())
+	{
+		m_pNewCharacter->SetArea(m_pStartArea);
+		strOut += L"\n" + m_pNewCharacter->GetName() + L" is now in " + m_pStartArea->GetName();
+		m_state = STATE_NORMAL;
+	}
+
+	wcsncpy_s(szRet, nLen, strOut.c_str(), _TRUNCATE);		
+}
+
+HRESULT __stdcall AstralWorkshop::Export(const wchar_t* szPath)
+{
+	Database* pDB = new Database();
+	Area* pArea = NULL;
+	Table* iTbl = NULL;
+	int r = 0;
+
+	pDB->GetTable(L"areas", (IUnknown**)&iTbl);
+
+	while (m_areas.ForEach((IUnknown**)&pArea) == S_OK)
+	{
+		if (r > 0)
+			iTbl->NewRow();
+		r++;
+
+		pArea->Save(*iTbl);
+	}
+
+	VLFile fle;
+	fle.Create(szPath);
+
+	if (!fle.IsOpen())
+		return E_FAIL;
+
+	fle.Write(pDB->Export());
+	pDB->Release();
+	return S_OK;
+}
+
+HRESULT __stdcall AstralWorkshop::Save(const wchar_t* szPath)
+{
+	Database* pDB = new Database();
+	Area* pArea = NULL;
+	Table* iTbl = NULL;
+	int r = 0;
+
+	pDB->GetTable(L"areas", (IUnknown**)&iTbl);
+
+	while (m_areas.ForEach((IUnknown**)&pArea) == S_OK)
+	{
+		if (r > 0)
+			iTbl->NewRow();
+		r++;
+		pArea->Save(*iTbl);
+	}
+
+	pDB->Save(szPath);
+	pDB->Release();
+	return S_OK;
+
+}
+
+HRESULT __stdcall AstralWorkshop::NewCharacter(IUnknown** iCharacter, const wchar_t* szName, int nClass, int nBackground)
+{
+	if (m_pNewCharacter != NULL)
+		m_pNewCharacter->Release();
+
+	if (nClass < 0 || nClass >= Character::CLASS_MAX)
+		nClass = Character::CLASS_NONE;
+
+	if (nBackground < 0 || nBackground >= Character::BACKGROUND_MAX)
+		nBackground = Character::BACKGROUND_NONE;
+
+	m_pNewCharacter = new Character(szName, (Creature::CLASS)nClass, (Character::BACKGROUND)nBackground);
+	m_pNewCharacter->QueryInterface(IID_IUnknown, (void**)iCharacter);
+	return S_OK;
+}
+
 HRESULT __stdcall AstralWorkshop::UnitTest()
 {
-	Character* pChar = new Character(L"");
+	Character* pChar = NULL;
+	NewCharacter((IUnknown**)&pChar, L"Gert Addams", 1, 2);
+	pChar->Release();
+	return S_OK;
 
-	Location& forestEdge = m_pArea->AddLocation();
-	Location& oldStoneWell = m_pArea->AddLocation();
-
-	
-	HRESULT hr = pChar->UnitTest();
-	
-
-	wchar_t szLines[] = L"The wind carries the scent of pine and distant rain.\n"
-		L"In the valley below, lanterns flicker to life as dusk settles.\n"
-		L"Travelers whisper of unrest in the old kingdoms.\n"
-		L"And somewhere, your story quietly begins...\n";
-
-	wprintf(L"%s\n", szLines);
-
-	
-	
-	delete pChar;
-
-
-	return hr;
 }
 
 

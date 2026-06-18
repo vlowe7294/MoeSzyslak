@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AstralWorkshop\AstralWorkshop.h" />
+    <ClInclude Include="AstralWorkshop\Character.h" />
     <ClInclude Include="CampSight.h" />
     <ClInclude Include="Finance.h" />
     <ClInclude Include="framework.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Neverwinter\NeverwinterNights.h" />
     <ClInclude Include="Neverwinter\Placeable.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="sqlite3.h" />
     <ClInclude Include="Testing.h" />
     <ClInclude Include="tinyxml2.h" />
@@ -202,6 +204,10 @@
     <ClCompile Include="AstralWorkshop\AstralWorkshop.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="AstralWorkshop\Character.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CampSight.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -275,6 +281,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="MoeSzyslak.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MoeSzyslakLibrary.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

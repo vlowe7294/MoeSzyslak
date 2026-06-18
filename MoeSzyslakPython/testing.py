@@ -14,45 +14,6 @@ import UserClass
 
 from UserClass import *
 
-
-__version__ = 1573
-
-class VLVariable:
-    def __init__(self):
-        self._displayName = ''
-        self._bLocked = False
-        self._str = ''
-        self._bCanBeEmpty = True
-
-    def __str__(self):
-        return self._str        
-
-    def SetString(self, strVal):
-        if not isinstance(strVal, str):
-            raise TypeError("value must be a string")
-
-        if self._bLocked is True:
-            raise ValueError("Variable is locked and cannot be modified")
-
-        if self._bCanBeEmpty is False and len(strVal) == 0:
-            raise ValueError("Variable cannot be empty")
-
-        self._str = strVal
-
-    def Print(self):
-        print(f"{self._displayName}:\t{self._str}")
-
-    @property
-    def DisplayName(self):
-        return self._displayName
-
-    @DisplayName.setter
-    def DisplayName(self, new_value):
-        if not isinstance(new_value, str):
-            raise TypeError("DisplayName must be a string")
-
-        self._displayName = new_value
-
 class VariableCollection:
 
     def __init__(self):
@@ -99,29 +60,9 @@ class VariableCollection:
 ## This class stores a time value and an associated text string. It provides
 ## read‑only access to the timestamp through a property.
 class LogEntry:
-    Version = __version__
-    ## @brief Constructs a new LogEntry.
-    ##
-    ## @param tme float representing ms since test start.
-    ## @param txt string text message for this log entry.
-    def __init__(self, tme: float, txt: str):
-        if not isinstance(txt, str):
-            raise TypeError("txt must be a string")
 
-        if not isinstance(tme, float):
-            raise TypeError("tme must be a float")
-
-        if math.isnan(tme) or math.isinf(tme):
-            raise ValueError("tme must be a finite number  (something went wrong with input most likely.)")
-
-        if tme < 0:
-            raise ValueError("tme cannot be negative")
-
-        self._time = tme
-        self._text = txt
-
-        self._properties = VariableCollection()
-        self._varTxt = self._properties.NewVariable("text")
+    def __init__(self, iunk):       
+        self._iunk = iunk
 
     def __str__(self):
         return f"LogEntry(time={self._time!r}, text={self._text!r})"
@@ -142,42 +83,62 @@ class LogEntry:
     def text(self):
         return self._text
     
+TESTING_IID = GUID("{7C6DA0F8-84AE-4E97-86F0-13BB1E67C713}")
 
+class ITESTING(IUnknown):
+    _iid_ = TESTING_IID
+    _methods_ = [
+         COMMETHOD(
+            [], HRESULT, "Message",
+            (['in'], c_wchar_p, "strMsg"),
+            (['in'], c_int32, "nDebugLvl"),
+        ),
 
-class TestRunner:
-    """
-    A simple, extensible unit test runner that:
-      - Lets the user choose which test class to run
-      - Discovers test_ methods automatically
-      - Times each test
-      - Prints results and error messages
-    """
-    _timestart = time.perf_counter() * 1000
-    ClassID = 398981
+        COMMETHOD(
+            [], HRESULT, "SetDebugLevel",
+            (['in'], c_int32, "level"),
+        ),
 
-    _testVersion = 1587
-    
-    def __init__(self):
-        self.Clear()        
+        COMMETHOD(
+            [], HRESULT, "GetLogEntry",
+            (['in'], c_int32, "ndx"),
+            (['out, retval'], CPOINTER(CPOINTER(IUnknown)), "iEntry")
+        ),
 
-    def list_tests(self):
-        """Print available test classes."""
-        print("\nAvailable Test Suites:")
-        for i, name in enumerate(self.test_classes.keys(), start=1):
-            print(f"  {i}. {name}")
+        COMMETHOD(
+            [], HRESULT, "RunTest",
+            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+        ),
 
-    def select_test_class(self) -> Type:
-        """Prompt the user to choose a test class."""
-        self.list_tests()
-        choice = input("\nSelect a test suite by number: ")
+        COMMETHOD(
+            [], HRESULT, "VerifyVariable",
+            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+        ),
 
-        try:
-            index = int(choice) - 1
-            name = list(self.test_classes.keys())[index]
-            return self.test_classes[name]
-        except (ValueError, IndexError):
-            print("Invalid selection.")
-            return None
+        COMMETHOD(
+            [], HRESULT, "VerifyHResult",
+            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+        ),
+
+       
+    ]
+
+class Testing:
+
+    DEBUG_FULL = 0
+    DEBUG_VERBOSE = 1
+    DEBUG_INFO = 2
+    DEBUG_WARN = 3
+    DEBUG_CRITICAL = 4
+
+    def __init__(self, iTst):
+        self._iTesting = iTst 
+        print(f"m_iTesting = {self._iTesting}")
+        self._logEntries = []
+
+    def Message(self, strMsg, nDebugLvl):
+        self._iTesting.Message(strMsg, nDebugLvl)
+        
 
     def run_test_method(self, instance: Any, method: Callable):
         """Run a single test method and measure execution time."""
@@ -208,11 +169,6 @@ class TestRunner:
             print(f"Error running test: {e}")
             self.Message(str(e))
             self._bPassed = False
-
-    def Message(self, strMsg):
-        now = time.perf_counter() * 1000
-        dur = now - self._timestart
-        self._logEntries.append(LogEntry(dur, strMsg))
 
     def Verify(self, bVal, szMsg):
         if not bVal:
@@ -247,17 +203,6 @@ class TestRunner:
         else:
             print("Result:  FAILED")
 
-    def SelfTest(self):
-        self.Message("Testing Object Self Unit Test")
-        self.Message(f"Log Entry Version 1.3.6.{LogEntry.Version - 1530}")
-        self._bPassed = True
-
-        self._testTime = datetime.datetime.now()
-        self.Message(f"Tested on {self._testTime}")
-
-        self.Message(self._testValues['message'])  
-        self.Verify(len(self._logEntries) > 2, "Log entry count < 2") 
-
     def Clear(self):
         self._testValues = {}
         self._bMemoryCheck = False
@@ -265,9 +210,26 @@ class TestRunner:
         self._logEntries = []
         self._testTime = datetime.datetime.now()
 
-    @property
-    def Passed(self):
-        return self._bPassed
+    def DebugLevel(self, dbgVal):
+        self._iTesting.SetDebugLevel(dbgVal)
+        print(f"Debug level set to {dbgVal}")
+
+    def Update(self):
+        unk_ptr = CPOINTER(IUnknown)()
+        self._iTesting.GetLogEntry(0, byref(unk_ptr))
+        self._logEntries.clear()
+        nCnt = 0
+
+        while unk_ptr:
+            self._logEntries.append(LogEntry(unk_ptr))
+            nCnt = nCnt + 1
+            self._iTesting.GetLogEntry(nCnt, byref(unk_ptr))
+
+    def UnitTest(cmpste):
+        tst = cmpste.theTester()
+        tst.DebugLevel(Testing.DEBUG_FULL)
+        tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO)
+        tst.Update()
 
 def test_self_test():
 
@@ -328,9 +290,7 @@ class Table:
         return tbl_elem
 
 
-class Database:
-    Version = __version__
-
+class Database:    
     def __init__(self):
         self._tables = dict()
 
