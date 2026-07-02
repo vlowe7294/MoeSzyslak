@@ -209,7 +209,6 @@ HRESULT __stdcall NeverwinterNights::UnitTest()
 	iAreas->Get(0, (IUnknown**)&pArea);
 	Area& ar = *pArea;	
 
-	ar.Properties(iPrp);
 	iPrp.GetVariableInterface(L"contents", iContents);
 	pCreature = new Creature(L"Gert Addams");
 

@@ -28,55 +28,75 @@ extern MemoryChecker g_memoryChecker;
 
 /**
  * @class LogEntry
- * @brief Represents a single diagnostic or test log entry containing text,
- *        timestamp, and memory usage information.
+ * @brief Represents a single structured diagnostic entry produced during testing.
  *
- * LogEntry implements the ILOGENTRY COM interface and provides access to
- * structured log data. Each entry stores a message, a timestamp, memory
- * usage at the time of logging, and a return string used by command
- * operations. Entries can be serialized to and from database tables.
+ * A LogEntry captures:
+ *   - The log message text
+ *   - The timestamp of when the entry was created
+ *   - Memory usage at the time of logging
+ *   - The debug level associated with the message
+ *   - A category label for grouping or filtering
+ *   - The delta time since the previous log entry
+ *   - A unique, monotonically increasing entry ID
+ *
+ * LogEntry implements the ILOGENTRY COM interface and exposes its fields
+ * through COM‑compatible getters (BSTR and primitive out‑parameters).
+ *
  */
+
 class LogEntry : public ILOGENTRY
 {
 public:
 	/**
-	 * @brief Constructs a new LogEntry.
-	 * @param txt  The log message text.
-	 * @param tme  Timestamp value (typically milliseconds since test start).
-	 * @param mem  Memory usage value at the time of logging.
+	 * @brief Constructs a new LogEntry with full diagnostic context.
+	 *
+	 * @param nDebugLvl  Debug/verbosity level associated with this entry.
+	 * @param ctgry      Category or subsystem name for grouping/filtering.
+	 * @param prevTme    Timestamp of the previous log entry, used to compute delta time.
+	 *
+	 * The constructor assigns a unique entry ID, initializes the property
+	 * collection, computes delta time, and registers the allocation with
+	 * the global MemoryChecker.
 	 */
-	LogEntry(wstring txt, long long tme, long long mem, int nDebugLvl);
-
-	/** @brief Destructor. */
+	LogEntry(wstring ctgry);
 	~LogEntry();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj) override;
 	ULONG __stdcall AddRef() override;
 	ULONG __stdcall Release() override;
 
 	/**
-	 * @brief Retrieves the property collection associated with this entry.
-	 * @param iProp Receives an IUnknown pointer to the property collection.
-	 * @return S_OK on success.
+	 * @brief Retrieves the log message text as a BSTR.
+	 * @param bsTxt Receives the allocated BSTR.
+	 * @return S_OK on success, E_OUTOFMEMORY on allocation failure.
 	 */
-	HRESULT __stdcall Properties(IUnknown** iProp);
+	HRESULT __stdcall GetText(BSTR* bsTxt);
+	HRESULT __stdcall SetText(const wchar_t* szTxt);
 
 	/**
-	 * @brief Executes a command against this log entry.
-	 *
-	 * Supported commands:
-	 * - `get <property>` — retrieves a property value.
-	 *
-	 * @param szCmd The command string.
-	 * @return S_OK on success, or an HRESULT error code.
+	 * @brief Retrieves the timestamp associated with this entry.
+	 * @param tme Receives the timestamp value.
 	 */
-	HRESULT __stdcall Command(const wchar_t* szCmd);
+	HRESULT __stdcall GetTime(long long* tme);
 
 	/**
-	 * @brief Retrieves the return string produced by the last command.
-	 * @param iStr Receives an IUnknown pointer to the return string.
-	 * @return S_OK on success.
+	 * @brief Retrieves the memory usage value stored in this entry.
+	 * @param mem Receives the memory usage value.
 	 */
-	HRESULT __stdcall GetReturnString(IUnknown** iStr);
+	HRESULT __stdcall GetMemUsed(long long* mem);
+
+	inline HRESULT __stdcall SetDebugLevel(int nDebug)
+	{
+		m_nDebugLevel = nDebug;
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall GetDebugLevel(int* nDebug)
+	{
+		*nDebug = m_nDebugLevel;
+		return S_OK;
+	}
+
+	HRESULT __stdcall UnitTest();
 
 	/**
 	 * @brief Writes this log entry to a database table.
@@ -85,22 +105,40 @@ public:
 	void Write(IUnknown* iTbl);
 
 	/**
-	 * @brief Reads this log entry from a database table.
-	 * @param iTbl The table interface to read from.
+	 * @brief Loads this entry's property collection from a database table.
 	 */
 	void Read(IUnknown* iTbl);
 
+	/**
+     * @brief Generates an HTML table row representing this log entry.
+     *
+     * The HTML includes the message text and memory usage. Additional
+     * fields (debug level, category, delta time) can be added as needed.
+     *
+     * @return A formatted HTML string.
+     */
 	wstring GetHTML();
+
+	inline void SetFile(wstring fle) { m_file = fle; };
+	inline void SetLine(int nLne) { m_line = nLne; };
+
+	
 	
 private:
 	int m_cRef;                         ///< COM reference count.
-	int m_nID;                         
-	VariableCollection* m_pProperties;  ///< Property collection for this entry.
-	wstring m_txt;		                ///< Log message text.
-	VLVariable* m_pTime;                ///< Timestamp value.
-	VLVariable* m_pMemUsed;             ///< Memory usage value.
-	VLVariable* m_pReturnVar;           ///< Return string for command results.
-	UINT m_nDebugLevel;
+	int m_nID;                          ///< Unique entry ID.
+	wstring m_txt;                      ///< Log message text.
+	long long m_time;                   ///< Timestamp of the entry.
+	long long m_memUsed;                ///< Memory usage at log time.
+	UINT m_nDebugLevel;                 ///< Debug/verbosity level.
+	wstring m_category;                 ///< Category or subsystem label.
+	long long m_deltaTime;              ///< Time since previous log entry.
+	wstring m_file;
+	int m_line;
+	static std::chrono::steady_clock::time_point m_timeStamp; ///< Test start time.
+	static long long m_prevTime;
+	DWORD m_threadID;
+	DWORD m_processID;
 };
 
 struct TESTVALUE
@@ -150,20 +188,12 @@ public:
 	 * @param szMsg The message text.
 	 * @return S_OK on success.
 	 */
-	HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl);
+	HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory);
 	HRESULT __stdcall SetDebugLevel(int level);
 
 	HRESULT __stdcall GetLogEntry(int ndx, IUnknown** iEntry);
-
 	
 	
-	/**
-	 * @brief Runs a test suite based on a class ID.
-	 * @param nClassID The class ID to test.
-	 * @return S_OK on success.
-	 */
-	HRESULT __stdcall RunTest(UINT nClassID);
-
 	/**
 	 * @brief Verifies that a stored test variable matches an expected value.
 	 * @param varName The variable name.
@@ -190,10 +220,10 @@ public:
 	/**
 	 * @brief Retrieves a test data value by name.
 	 * @param szName The variable name.
-	 * @param iStr   Receives an IUnknown pointer to the string interface containing the value.
+	 * @param bsStr a BSTR containing the value.
 	 * @return S_OK on success.
 	 */
-	HRESULT __stdcall GetTestData(LPCWSTR szName, IUnknown* iStr);
+	HRESULT __stdcall GetTestData(LPCWSTR szName, BSTR* bsStr);
 
 	/**
 	 * @brief Sets a test data value.
@@ -214,11 +244,25 @@ public:
 	 * @param bVal  Boolean result of the test.
 	 * @param szMsg Description of the test.
 	 */
-	HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg);
+	HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory);
 
-	HRESULT __stdcall UnitTest();	
+	inline HRESULT __stdcall GetPassed(BOOL* bVal) 
+	{
+		if (m_bPass)
+			*bVal = TRUE;
+		else
+			*bVal = FALSE;
+		
+		return S_OK;
+	}
 
-	
+	HRESULT __stdcall NewEntry(IUnknown** iEntry);
+
+	HRESULT __stdcall UnitTest();
+
+	inline void SetFile(wstring fle) { m_file = fle; };
+	inline void SetLine(int nLne) { m_line = nLne; };
+	LogEntry& GetLastEntry();	
 
 private:
 	int m_cRef;                          ///< COM reference count.
@@ -227,20 +271,18 @@ private:
 
 	VLVariable* m_pMemCheck;             ///< Memory usage check flag.
 	
-	VLVariable* m_pLogEntriesVar;        ///< Log entries list variable.
 	VariableCollection* m_pProperties;   ///< Property collection.
 
-	std::chrono::steady_clock::time_point m_timeStamp; ///< Test start time.
-	MEMORYSTATUSEX m_memInfo;            ///< Memory usage snapshot.
-	InterfaceCollectionInf m_iEntries;   ///< Collection of log entries.
+	ComCollection m_entries;			 ///< Collection of log entries.
 	VLDateTime* m_pTestTime;             ///< Timestamp for test execution.
 	StringInf m_iRetStr;                 ///< Return string buffer.
 	VariableCollection* m_pTestValues;   ///< Loaded test data values.
 	static const int m_nTestValues;
 	static const TESTVALUE m_testValues[2];
 	int m_nTestNdx;
-	DEBUG_LEVEL m_debugLevel;
-	
+	DEBUG_LEVEL m_debugLevel;	
+	wstring m_file;
+	int m_line;
 
 	/** @brief Runs variable subsystem tests. */
 	void VariableTest();

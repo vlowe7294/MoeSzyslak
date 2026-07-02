@@ -3,6 +3,7 @@ from _pytest.recwarn import T
 import MoeSzyslakPython
 from MoeSzyslakPython import *
 from xml.dom import minidom
+from comtypes import BSTR
 
 import time
 import traceback
@@ -11,48 +12,31 @@ import datetime
 import xml.etree.ElementTree as ET
 import math
 import UserClass
+import comtypes
 
 from UserClass import *
 
-class VariableCollection:
 
-    def __init__(self):
-        self._array = []
-        self._classIDs = []
-        self._nObjects = 0
-        self._objectMap = dict()
+LOGENTRY_IID = GUID("{AC597284-A906-482F-9BE9-C4E13AB43E50}")
 
-    def NewVariable(self, tag):
-        if not isinstance(tag, str):
-            raise TypeError("tag must be a string")
+class ILOGENTRY(IUnknown):
+    _iid_ = LOGENTRY_IID
+    _methods_ = [
+         COMMETHOD(
+            [], HRESULT, "GetText",
+            (['out, retVal'], POINTER(BSTR), "strTxt"),
+        ),
 
-        var = VLVariable()         
-        var.DisplayName = tag
-        self.Add(var, tag, 0)
-        return var
-
-    def Add(self, obj, tag = '', nClassID = 0):
-        if math.isnan(nClassID) or math.isinf(nClassID):
-            raise ValueError("nClassID must be a finite number  (something went wrong with input most likely.)")
-
-        if nClassID < 0:
-            raise ValueError("nClassID cannot be negative")
-
-        if not isinstance(tag, str):
-            raise TypeError("tag must be a string")
-
-        self._array.append(obj)
-        self._classIDs.append(nClassID)
-        self._nObjects += 1
-
-        if (len(tag) > 0):
-            self._objectMap[tag] = obj
-
-    def Get(self, nme):
-        return self._objectMap.get(nme)
-
-
-
+         COMMETHOD(
+            [], HRESULT, "SetText",
+            (['in'], c_wchar_p, "strTxt"),
+        ),
+        
+        COMMETHOD(
+            [], HRESULT, "GetTime",
+            (['out, retVal'], POINTER(c_longlong), "tme"),
+        ),   
+    ]
 
 ## @class LogEntry
 ## @brief Represents a single log entry containing a timestamp and text message.
@@ -61,11 +45,20 @@ class VariableCollection:
 ## read‑only access to the timestamp through a property.
 class LogEntry:
 
-    def __init__(self, iunk):       
-        self._iunk = iunk
+    def __init__(self, iLogEntry): 
+        print('LogEntry constructor')
+        self._text = ''
+       
+        self._iLogEntry = iLogEntry
+        
+        t = c_longlong()
 
-    def __str__(self):
-        return f"LogEntry(time={self._time!r}, text={self._text!r})"
+        self._iLogEntry.GetTime(comtypes.byref(t))
+        self._nTime = t.value
+        print('end constructor')
+
+    def Print(self):
+        print(f"\t{self._nTime}\t{self.text}") 
 
     ## @property Time
     ## @brief Gets the timestamp of the log entry.
@@ -80,7 +73,14 @@ class LogEntry:
     ##
     ## @return The stored text string.
     @property
-    def text(self):
+    def text(self, txt = None):
+
+        if txt is not None:
+            self._iLogEntry.SetText(txt)
+
+        txt_bstr = BSTR()
+        self._iLogEntry.GetText(comtypes.byref(txt_bstr))
+        self._text = txt_bstr.value
         return self._text
     
 TESTING_IID = GUID("{7C6DA0F8-84AE-4E97-86F0-13BB1E67C713}")
@@ -92,6 +92,7 @@ class ITESTING(IUnknown):
             [], HRESULT, "Message",
             (['in'], c_wchar_p, "strMsg"),
             (['in'], c_int32, "nDebugLvl"),
+            (['in'], c_wchar_p, "strCategory"),
         ),
 
         COMMETHOD(
@@ -106,21 +107,27 @@ class ITESTING(IUnknown):
         ),
 
         COMMETHOD(
-            [], HRESULT, "RunTest",
-            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
-        ),
-
-        COMMETHOD(
             [], HRESULT, "VerifyVariable",
-            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+            (['in'], c_wchar_p, "varName"),
+            (['in'], c_wchar_p, "val"),
         ),
 
         COMMETHOD(
             [], HRESULT, "VerifyHResult",
             (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+        ), 
+        
+        COMMETHOD(
+            [], HRESULT, "GetTestData",
+            (['in'], c_wchar_p, "szName"),
+            (['out, retVal'], POINTER(BSTR), "iStr")
         ),
 
-       
+        COMMETHOD(
+            [], HRESULT, "SetTestData",
+            (['in'], c_wchar_p, "strName"),
+            (['in'], c_wchar_p, "strVal")
+        ),
     ]
 
 class Testing:
@@ -131,13 +138,14 @@ class Testing:
     DEBUG_WARN = 3
     DEBUG_CRITICAL = 4
 
-    def __init__(self, iTst):
-        self._iTesting = iTst 
-        print(f"m_iTesting = {self._iTesting}")
+    def __init__(self, unk_ptr):
+        self._iunk = unk_ptr
+        self._iTesting = unk_ptr.QueryInterface(ITESTING)
         self._logEntries = []
+        self._debugLevel = Testing.DEBUG_FULL
 
-    def Message(self, strMsg, nDebugLvl):
-        self._iTesting.Message(strMsg, nDebugLvl)
+    def Message(self, strMsg, nDebugLvl, strCat):
+        self._iTesting.Message(strMsg, nDebugLvl, strCat)
         
 
     def run_test_method(self, instance: Any, method: Callable):
@@ -175,17 +183,15 @@ class Testing:
             self.Message(szMsg)
             self._bPassed = False
 
-    def TestValue(self, name, val = None):        
+    def TestData(self, name, val = None):        
         if val is not None:
-            self._testValues[name] = val
-            return val
+            self._iTesting.SetTestData(name, val)
 
-        ret = self._testValues.get(name)
+        txt_bstr = BSTR()
 
-        if ret is None:
-            ret = ''
-        
-        return ret
+        self._iTesting.GetTestData(name, comtypes.byref(txt_bstr))
+        val = txt_bstr.value        
+        return val
 
     def LogEntry(self, ndx):
         if 0 <= ndx < len(self._logEntries):
@@ -194,14 +200,14 @@ class Testing:
             raise IndexError("Log entry index out of range")
 
     def Report(self):
-        print("Time\tMessage")
-        for entry in self._logEntries:
-            print(f"{entry.time:.2f}\t{entry.text}")
+        print("\tStart time(ms)\tText")
+        n = 1
+        self.Update()
 
-        if self._bPassed is True:
-            print("Result:  PASS")
-        else:
-            print("Result:  FAILED")
+        for le in self._logEntries:
+            print(str(n), end="")
+            le.Print()
+            n = n + 1
 
     def Clear(self):
         self._testValues = {}
@@ -210,10 +216,6 @@ class Testing:
         self._logEntries = []
         self._testTime = datetime.datetime.now()
 
-    def DebugLevel(self, dbgVal):
-        self._iTesting.SetDebugLevel(dbgVal)
-        print(f"Debug level set to {dbgVal}")
-
     def Update(self):
         unk_ptr = CPOINTER(IUnknown)()
         self._iTesting.GetLogEntry(0, byref(unk_ptr))
@@ -221,33 +223,35 @@ class Testing:
         nCnt = 0
 
         while unk_ptr:
-            self._logEntries.append(LogEntry(unk_ptr))
+            iLogEntry = unk_ptr.QueryInterface(ILOGENTRY)
+            unk_ptr = CPOINTER(IUnknown)()
+            self._logEntries.append(LogEntry(iLogEntry))
             nCnt = nCnt + 1
             self._iTesting.GetLogEntry(nCnt, byref(unk_ptr))
 
+    def VerifyVariable(self, varName, val):
+        self._iTesting.VerifyVariable(varName, val)
+
+    @property
+    def DebugLevel(self):
+        return self._debugLevel
+
+    @DebugLevel.setter
+    def DebugLevel(self, dbgVal):
+        self._iTesting.SetDebugLevel(dbgVal)
+        self._debugLevel = dbgVal
+
     def UnitTest(cmpste):
         tst = cmpste.theTester()
-        tst.DebugLevel(Testing.DEBUG_FULL)
-        tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO)
+        tst.DebugLevel = Testing.DEBUG_CRITICAL
+
+        tst.TestData("message", "Log Entry unit test")
+        tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO, "testing")
+
+        tst.VerifyVariable("message", "Log Entry unit test")
+
         tst.Update()
-
-def test_self_test():
-
-    if __version__  < 1573:
-        raise ImportError(f"Incompatible version: testing.py is 1.3.6.{__version__ - 1530} but >= 1.3.6.{1590- 1573} is required.")
-    tst = TestRunner()
-    print("Running Self test 1")
-
-    tst.TestValue("message", "test message 1")
-    tst.RunTest(type(TestRunner))
-
-    if tst.Passed is False:
         tst.Report()
-    
-    print("Running Self test 2")
-    tst.TestValue("message", "")
-    tst.RunTest(type(TestRunner))
-    tst.Report()
 
 class Row:
     def __init__(self):
@@ -311,47 +315,9 @@ class Database:
     def pretty_xml(elem):
         rough = ET.tostring(elem, 'utf-8')
         reparsed = minidom.parseString(rough)
-        return reparsed.toprettyxml(indent="    ")
+        return reparsed.toprettyxml(indent="    ")         
 
-    def UnitTest():
-        tst = TestRunner()
-        db = Database()
 
-        try:
-            tst.Message("Testing Database Unit Test")
-            tst.Message(f"Database Version 1.3.6.{Database.Version - 1530}")
-            tst.Message(f"Tested on {datetime.datetime.now()}")
-
-            tbl = db.GetTable("test_values")
-            tbl.Set("test_id", 1)
-            tbl.Set("class_id", TestRunner.ClassID)
-
-            tbl.Set("variable_name", "message")
-            tbl.Set("variable_value", "test message 1")
-            xml_str = Database.pretty_xml(db.Export())
-
-            with open("test_database.xml", "w", encoding="utf-8") as f:
-                f.write(xml_str)
-
-        except Exception as e:
-            tst.Verify(False, f"Exception during Database unit test: {e}")
-
-        tst.Report()
-        
-
-if __name__ == "__main__":  
-    sel = ""
-    tst = TestRunner()
-
-    while sel != "2":
-        print("Class tester")
-        print()
-        print("1)  User")
-        print("2)  Exit")
-        sel = input("select:  ")
-
-        if sel == "1":
-            User.UnitTest(tst)
     
     
     

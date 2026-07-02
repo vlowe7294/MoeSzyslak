@@ -82,6 +82,10 @@ static const GUID USER_IID =
 static const GUID USERSERVICE_IID =
 { 0x39663c08, 0xd7c0, 0x4cb2, { 0xb4, 0xf0, 0xe, 0x1f, 0x24, 0x45, 0xa5, 0xb0 } };
 
+// {7D5339E3-2CA0-4EDB-8277-6140AC1F5F05}
+static const GUID LOCATION_IID =
+{ 0x7d5339e3, 0x2ca0, 0x4edb, { 0x82, 0x77, 0x61, 0x40, 0xac, 0x1f, 0x5f, 0x5 } };
+
 // {F43BA252-2FCA-41A2-9CFA-22A5D87C584C}
 static const GUID ASTRALWORKSHOP_IID =
 { 0xf43ba252, 0x2fca, 0x41a2, { 0x9c, 0xfa, 0x22, 0xa5, 0xd8, 0x7c, 0x58, 0x4c } };
@@ -105,13 +109,18 @@ struct IDATETIME : public IUnknown
 struct ICREATURE : public IUnknown
 {
 	virtual HRESULT __stdcall Tick(int nSec) = 0;
+	virtual HRESULT __stdcall SetArea(IUnknown* iArea) = 0;
 };
 
 struct IAREA : public IUnknown
 {
-	virtual HRESULT __stdcall Properties(IUnknown** iPrp) = 0;
-	virtual HRESULT __stdcall Command(const wchar_t* szCmd, IUnknown* iRetStr) = 0;
-	virtual HRESULT __stdcall Tick(int nSec) = 0;
+	/**
+	 * @brief Creates and adds a new Location to this Area.
+	 *
+	 * @param[out] iLoc      Receives the IUnknown pointer for the new Location.
+	 * @param[in]  locName   Name of the Location.
+	 */
+	virtual HRESULT __stdcall AddLocation(IUnknown** iLoc, const wchar_t* locName) = 0;
 };
 
 struct IMODULE : public IUnknown
@@ -123,30 +132,12 @@ struct IMODULE : public IUnknown
 
 struct ILOGENTRY : public IUnknown
 {
-	/**
-	 * @brief Retrieves the property collection associated with this entry.
-	 * @param iProp Receives an IUnknown pointer to the property collection.
-	 * @return S_OK on success.
-	 */
-	virtual HRESULT __stdcall Properties(IUnknown** iProp) = 0;
-
-	/**
-	 * @brief Executes a command against this log entry.
-	 *
-	 * Supported commands:
-	 * - `get <property>` — retrieves a property value.
-	 *
-	 * @param szCmd The command string.
-	 * @return S_OK on success, or an HRESULT error code.
-	 */
-	virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
-
-	/**
-	 * @brief Retrieves the return string produced by the last command.
-	 * @param iStr Receives an IUnknown pointer to the return string.
-	 * @return S_OK on success.
-	 */
-	virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;
+	virtual HRESULT __stdcall GetText(BSTR* bsTxt) = 0;
+	virtual HRESULT __stdcall SetText(const wchar_t* szTxt) = 0;
+	virtual HRESULT __stdcall GetTime(long long* tme) = 0;
+	virtual HRESULT __stdcall GetMemUsed(long long* mem) = 0;
+	virtual HRESULT __stdcall SetDebugLevel(int nDebug) = 0;
+	virtual HRESULT __stdcall GetDebugLevel(int* nDebug) = 0;
 };
 
 struct ITABLE : public IUnknown
@@ -263,6 +254,12 @@ struct ICOMMGENERALPAGE : public IUnknown
 	virtual HRESULT __stdcall Commit() = 0;
 };
 
+struct ILOCATION : public IUnknown
+{
+	virtual HRESULT __stdcall AddNeighbor(IUnknown* iNeighbor, int travelTimeSec) = 0;
+	virtual HRESULT __stdcall AddEncounter(const wchar_t* szTag, int dif, int nMax) = 0;
+};
+
 /**
  * @interface IASTRALWORKSHOP
  * @brief COM-based game engine façade for the Astral Workshop simulation.
@@ -275,22 +272,26 @@ struct ICOMMGENERALPAGE : public IUnknown
 struct IASTRALWORKSHOP : public IUnknown
 {
 	/**
-	 * @brief Processes a command string and returns a response.
+	 * @brief Creates a new Area and registers it with the engine.
 	 *
-	 * This is the primary entry point for external callers. Commands may
-	 * initiate character creation, exit the engine, or be routed to the
-	 * character creation state machine if a character is currently being built.
-	 *
-	 * @param szCmd The input command string (wide-character).
-	 * @param szRet Output buffer receiving the engine's response text.
-	 * @param nLen  Length of the output buffer in wide characters.
-	 *
-	 * @return S_OK on success, or an HRESULT error code on failure.
+	 * @param[out] iArea  Receives the IUnknown pointer for the new Area.
+	 * @param[out] ndx    Receives the index of the Area in the engine's list.
+	 * @param[in]  szName Name of the Area.
+	 * @param[in]  nDanger Initial danger rating for the Area.
 	 */
-	virtual HRESULT __stdcall Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen) = 0;
 	virtual HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger) = 0;
+
+	/**
+	 * @brief Exports the world to an external XML, human-readable format.
+	 *
+	 * @param[in] szPath Output file path.
+	 */
 	virtual HRESULT __stdcall Export(const wchar_t* szPath) = 0;
 	virtual HRESULT __stdcall Save(const wchar_t* szPath) = 0;
+	virtual HRESULT __stdcall NewCharacter(IUnknown** iCharacter, const wchar_t* szName, int nClass, int nBackground) = 0;
+	virtual HRESULT __stdcall Heartbeat(int nSec) = 0;
+	virtual HRESULT __stdcall GetTester(IUnknown** iTst) = 0;
+	virtual HRESULT __stdcall GetAreaNames(BSTR* areaList) = 0;
 	virtual HRESULT UnitTest() = 0;
 };
 

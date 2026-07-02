@@ -10,18 +10,19 @@ public:
 
 	struct ITESTING : public IUnknown
 	{
-		virtual HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl) = 0;
+		virtual HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory) = 0;
 		virtual HRESULT __stdcall SetDebugLevel(int level) = 0;
 		virtual HRESULT __stdcall GetLogEntry(int ndx, IUnknown** iEntry) = 0;
-		virtual HRESULT __stdcall RunTest(UINT nClassID) = 0;
 		virtual HRESULT __stdcall VerifyVariable(LPCWSTR varName, LPCWSTR val) = 0;
 		virtual HRESULT __stdcall VerifyHResult(HRESULT hr, LPCWSTR szMsg) = 0;		
-		virtual HRESULT __stdcall GetTestData(LPCWSTR szName, IUnknown* iStr) = 0;
+		virtual HRESULT __stdcall GetTestData(LPCWSTR szName, BSTR* iStr) = 0;
 		virtual HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal) = 0;
 		virtual HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName) = 0;
 		virtual HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID) = 0;
 		virtual HRESULT __stdcall Report(wchar_t* szRpt, UINT nlen) = 0;
-		virtual HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg) = 0;
+		virtual HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory) = 0;
+		virtual HRESULT __stdcall GetPassed(BOOL* bVal) = 0;
+		virtual HRESULT __stdcall NewEntry(IUnknown** iEntry) = 0;
 		virtual HRESULT __stdcall UnitTest() = 0;
 	};
 

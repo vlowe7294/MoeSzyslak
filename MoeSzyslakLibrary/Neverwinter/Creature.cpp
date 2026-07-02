@@ -107,6 +107,32 @@ HRESULT __stdcall Creature::Tick(int nSec)
 	return S_OK;
 }
 
+HRESULT __stdcall Creature::SetArea(IUnknown* iUnk)
+{
+	IAREA* iArea = NULL;
+
+	printf("Creature::SetArea() line 114\n");
+	
+	if (m_pArea != NULL)
+	{
+		m_pArea->Release();
+		m_pArea = NULL;
+	}
+
+	// make sure it's a legitimate area object
+
+	if (iUnk == NULL)
+		return E_FAIL;
+
+	iUnk->QueryInterface(AREA_IID, (void**)&iArea);
+
+	if (iArea == NULL)
+		return E_FAIL;
+
+	m_pArea = iUnk;
+	return S_OK;
+}
+
 void Creature::AddConnectedObject(void* pObject, int nTravelSec)
 {
 	int i = 0;
@@ -122,27 +148,6 @@ void Creature::AddConnectedObject(void* pObject, int nTravelSec)
 
 }
 
-void Creature::SetArea(IUnknown* iUnk)
-{
-	IAREA* iArea = NULL;
 
-	if (m_pArea != NULL)
-	{
-		m_pArea->Release();
-		m_pArea = NULL;
-	}
-
-	// make sure it's a legitimate area object
-
-	if (iUnk == NULL)
-		return;
-
-	iUnk->QueryInterface(AREA_IID, (void**)&iArea);
-
-	if (iArea == NULL)
-		return;
-
-	m_pArea = iUnk;
-}
 
 

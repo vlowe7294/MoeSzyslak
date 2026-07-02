@@ -17,7 +17,34 @@ Character::Character(const wchar_t* szName, CLASS nClass, BACKGROUND nBkgrnd) : 
 
 Character::~Character()
 {
+	printf("Character destroyed\n");
 
+}
+
+HRESULT __stdcall Character::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+
+	return Creature::QueryInterface(riid, ppvObj);
+
+}
+
+ULONG __stdcall Character::AddRef()
+{
+	m_cRef++;
+	return m_cRef;
+}
+
+ULONG __stdcall Character::Release()
+{
+	m_cRef--;
+
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
 }
 
 HRESULT Character::CreateCharacter(wstring strCmd, wstring& strOut)

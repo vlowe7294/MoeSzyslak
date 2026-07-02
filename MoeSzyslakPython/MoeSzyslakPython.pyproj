@@ -38,15 +38,20 @@
     <Compile Include="tripplanner.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="user.py" />
+    <Compile Include="UserClass.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Class Diagrams\" />
+    <Folder Include="templates\" />
     <Folder Include="tests\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Class Diagrams\flowchart.txt" />
     <Content Include="Class Diagrams\NocturneDiagram.txt" />
+    <Content Include="templates\astralplay.html" />
+    <Content Include="templates\astralworkshop.html" />
+    <Content Include="templates\CampSight.html" />
+    <Content Include="templates\login.html" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

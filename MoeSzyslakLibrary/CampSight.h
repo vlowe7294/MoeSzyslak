@@ -2,6 +2,7 @@
 #include "VLString.h"
 #include <atomic>
 #include "Utilities/Database.h"
+#include "Testing.h"
 
 /**
  * @class Trail
@@ -172,6 +173,6 @@ public:
 
 private:
 	LONG m_cRef;                 /**< COM reference count. */
-	static TestingInf m_test;    /**< Global testing interface. */
+	Testing* m_pTest;		     /**< Testing interface. */
 	InterfaceCollection m_areas; /**< Collection of CampArea objects. */
 };

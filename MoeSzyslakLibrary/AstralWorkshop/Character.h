@@ -24,6 +24,10 @@ public:
 
 	Character(const wchar_t* szName, CLASS nClass, BACKGROUND nBkgrnd);
 	~Character();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+
 	HRESULT CreateCharacter(wstring strCmd, wstring& strOut);
 	HRESULT Tick(int nSec);
 	void Save(ITABLE* iTbl);

@@ -14,7 +14,7 @@ class MoeSzyslakLibrary:
 
     _libPath = r"C:\Users\Vaughn\Visual Studio\Sandbox\MoeSzyslak\x64\Debug\MoeSzyslakLibrary.dll"
     #_libPath = str(Path(__file__).parent / "MoeSzyslakLibrary.dll")
-    _nMinVersion = 1615
+    _nMinVersion = 1629
     _nVersion = 0
     _hllDll = 0
     _sb = create_unicode_buffer(1000)

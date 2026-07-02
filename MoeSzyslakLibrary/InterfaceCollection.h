@@ -40,3 +40,26 @@ protected:
 
 	IUnknown* Get(std::wstring tag);
 };
+
+
+// This is an improved interface collection that adheres more closely to COM rules.
+class ComCollection
+{
+public:
+	ComCollection();
+	~ComCollection();
+	void Add(IUnknown* iObj, const wchar_t* szTag, UINT nClassID);
+	void Clear();
+	int Count();
+	bool ForEach(IUnknown** ppObj);
+	IUnknown* Get(int ndx);
+
+private:
+	std::vector<IUnknown*> m_array;
+	std::map<UINT, UINT> m_classIDs;
+	int m_nCurrent;
+	std::map<std::wstring, int> m_mapToIndex;
+	std::map<int, std::wstring> m_mapToTag;
+
+	void Reset();
+};

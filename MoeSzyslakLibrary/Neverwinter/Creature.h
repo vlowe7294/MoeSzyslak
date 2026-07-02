@@ -34,13 +34,13 @@ public:
 
 	Creature(const wchar_t* szName);
 	~Creature();
-	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
-	ULONG __stdcall AddRef();
-	ULONG __stdcall Release();
+	virtual HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	virtual ULONG __stdcall AddRef();
+	virtual ULONG __stdcall Release();
 	virtual HRESULT __stdcall Tick(int nSec);
+	virtual HRESULT __stdcall SetArea(IUnknown* iArea);
 
 	void AddConnectedObject(void* pObject, int nTravelSec);
-	void SetArea(IUnknown* iArea);
 	
 	inline wstring GetName() { return m_name; };
 	inline void SetName(LPCWSTR szName) { m_name = szName; }

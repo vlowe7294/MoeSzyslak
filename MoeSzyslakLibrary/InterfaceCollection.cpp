@@ -237,12 +237,6 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		iVar->GetReturnString(&m_iRetString);
 		break;
 
-	case LogEntryInf::ClassID:
-		iLog.Attach(iunk);
-		hr = iLog->Command(subCmd.c_str());
-		iLog->GetReturnString(&m_iRetString);
-		break;
-
 	case CLASSID::INTERFACELIST:
 		iList.Attach(iunk);
 		hr = iList->Command(subCmd.c_str());
@@ -315,15 +309,8 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 	IUnknown* iAddObj = NULL;
 
 	iTst.Attach(iunk);
-	iTst->Message(L"Interface Collection Unit Test", 0);
-
-	iStr.Init();
-	iTst->GetTestData(L"count", iStr);
-	nObjects = _wtoi(iStr);
-
-	iTst->GetTestData(L"object type", iStr);
-	nType = _wtoi(iStr);
-
+	iTst->Message(L"Interface Collection Unit Test", 0, L"");
+	
 	msg = L"Created " + std::to_wstring(nObjects) + L" objects of type ";
 	msg += std::to_wstring(nType);
 	
@@ -340,24 +327,18 @@ HRESULT __stdcall InterfaceCollection::UnitTest(IUnknown* iunk)
 			iAddObj->Release();
 	}
 
-	iTst->Message(msg.c_str(), 0);
-	iTst->GetTestData(L"get", iStr);
-	ndx = _wtoi(iStr);
-
+	iTst->Message(msg.c_str(), 0, L"");
+	
 	msg = L"Getting object at index " + std::to_wstring(ndx);
-	iTst->Message(msg.c_str(), 0);
+	iTst->Message(msg.c_str(), 0, L"");	
 	iTst->VerifyHResult(Get(ndx, iVar), L"Get failed");
 
 	Count(&nCnt);
 	iTst->VerifyVariable(L"count", std::to_wstring(nCnt).c_str());
 
-	iTst->GetTestData(L"command", iStr);	
-	msg = L"Excecuting command '" + wstring(iStr) + L"'";
-	iTst->Message(msg.c_str(), 0);
+	iTst->Message(msg.c_str(), 0, L"");
 	iTst->VerifyHResult(Command(iStr), L"Command Failed");
 
-	iTst->GetTestData(L"remove", iStr);
-	nType = _wtoi(iStr);
 	iTst->VerifyHResult(Remove(nType), L"Remove Failed");	
 
 	tag = L"Test Variable " + std::to_wstring(ndx);
@@ -383,4 +364,96 @@ void InterfaceCollection::RemoveByTag(const wchar_t* szTag)
 		return;
 
 	Remove(m_mapToIndex[szTag]);
+}
+
+
+
+
+
+ComCollection::ComCollection()
+{
+	m_nCurrent = 0;
+
+}
+
+ComCollection::~ComCollection()
+{
+	Clear();
+}
+
+void ComCollection::Clear()
+{
+	for (IUnknown* p : m_array)
+	{
+		if (p)
+			p->Release();
+	}
+	
+	m_mapToIndex.clear();
+	m_mapToTag.clear();
+}
+
+void ComCollection::Add(IUnknown* iObj, const wchar_t* szTag, UINT nClassID)
+{
+	std::wstring tag = (szTag ? szTag : L"");
+	int ndx = static_cast<int>(m_array.size());
+
+	if (iObj)
+		iObj->AddRef();
+
+	m_array.push_back(iObj);
+	m_classIDs[ndx] = nClassID;
+
+	if (tag.length() > 0)
+	{
+		m_mapToIndex[tag] = ndx;
+		m_mapToTag[ndx] = tag;
+	}
+}
+
+int ComCollection::Count()
+{
+	return static_cast<int>(m_array.size());
+}
+
+bool ComCollection::ForEach(IUnknown** ppObj)
+{
+	if (!ppObj)
+		return false;
+
+	// End of collection?
+	if (m_nCurrent >= static_cast<int>(m_array.size()))
+	{
+		Reset();
+		return false;
+	}
+		
+
+	IUnknown* p = m_array[m_nCurrent++];
+
+	if (p)
+		p->AddRef();   // COM rule: caller owns the returned reference
+
+	*ppObj = p;
+	return true;
+}
+
+void ComCollection::Reset()
+{
+	m_nCurrent = 0;
+}
+
+IUnknown* ComCollection::Get(int ndx)
+{
+	IUnknown* iunk = NULL;
+
+	if (m_array.size() > ndx)
+	{
+		iunk = m_array[ndx];
+
+		if (iunk != NULL)
+			iunk->AddRef();
+	}
+
+	return iunk;
 }

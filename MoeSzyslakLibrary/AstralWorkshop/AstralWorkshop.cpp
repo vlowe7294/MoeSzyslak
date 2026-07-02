@@ -43,21 +43,24 @@ void Quest::Randomize()
 AstralWorkshop::AstralWorkshop()
 {
 	m_cRef = 1;
-	m_state = STATE_NORMAL;
+	g_memoryChecker.IncrementInstance(CLASSID::ASTRALWORKSHOP);
 	m_pStartArea = NULL;
 
 	m_pNewCharacter = NULL;
+	m_pTester = new Testing();
 }
 
 AstralWorkshop::~AstralWorkshop()
 {
-	printf("ComObjectBase destructor called\n");	
+	g_memoryChecker.DecrementInstance(CLASSID::ASTRALWORKSHOP);
 
 	if (m_pNewCharacter != NULL)
 		m_pNewCharacter->Release();
 
 	if (m_pStartArea != NULL)
 		m_pStartArea->Release();
+
+	m_pTester->Release();
 }
 
 HRESULT __stdcall AstralWorkshop::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -83,20 +86,12 @@ HRESULT __stdcall AstralWorkshop::QueryInterface(REFIID riid, LPVOID* ppvObj)
 ULONG __stdcall AstralWorkshop::AddRef()
 {
 	ULONG newCount = InterlockedIncrement(&m_cRef);
-	printf("AddRef -> %lu\n", newCount);
 	return m_cRef;
 }
 
 ULONG __stdcall AstralWorkshop::Release()
 {
-	ULONG newCount = InterlockedDecrement(&m_cRef);
-	
-	printf("Release -> %lu\n", newCount);
-
-	if (newCount == 0)
-	{
-		printf("Refcount reached zero, deleting object\n");
-	}
+	InterlockedDecrement(&m_cRef);
 
 	if (0 == m_cRef)
 	{
@@ -108,78 +103,16 @@ ULONG __stdcall AstralWorkshop::Release()
 }
 
 
-HRESULT __stdcall AstralWorkshop::Command(const wchar_t* szCmd, wchar_t* szRet, UINT nLen)
-{
-	VLStringCollection wrds;
-	wstring strOut;	
-
-	if (szCmd == NULL || szRet == NULL)
-		return E_FAIL;
-
-	if (wcslen(szCmd) == 0)
-	{
-		wcsncpy_s(szRet, nLen, L"Enter a command:", _TRUNCATE);
-		return S_OK;
-	}
-
-	wrds.Split(szCmd, ' ');
-	wrds.ToLower(0);
-
-	if (m_state == STATE_CHARACTER_CREATION)
-	{
-		HandleCharacterCreationCommand(szCmd, szRet, nLen);
-		return S_OK;
-	}
-
-	if (m_state == STATE_WORLD_EDITOR)
-	{
-		wrds.ToLower(1);
-		if (wrds.Compare(0, L"new"))
-		{
-			if (wrds.Compare(1, L"area"))
-			{
-
-				swprintf_s(szRet, nLen, L"Created area '%s' (danger %s).", wrds.Get(2).c_str(), wrds.Get(3).c_str());
-
-			}
-			else
-				wcsncpy_s(szRet, nLen, L"I don't know what that is.  Enter Command:", _TRUNCATE);
-
-		}
-		else
-			wcsncpy_s(szRet, nLen, L"I don't know what to do with that command.  Enter Command:", _TRUNCATE);
-
-		return S_OK;
-	}
-
-		
-
-	switch (szCmd[0])
-	{
-	case L'e':
-	case L'E':
-		if (wrds.Compare(0, L"exit"))
-		{
-			wcsncpy_s(szRet, nLen, L"Exiting Astral Workshop", _TRUNCATE);
-			return S_OK;
-		}
-		else if (wrds.Compare(0, L"editor"))
-		{
-			wcsncpy_s(szRet, nLen, L"World editor activated", _TRUNCATE);
-			m_state = STATE_WORLD_EDITOR;
-			return S_OK;
-		}
-		break;
-	}
-
-	wcsncpy_s(szRet, nLen, L"I don't know what to do with that command.  Enter Command:", _TRUNCATE);
-	return S_OK;
-}
-
 HRESULT __stdcall AstralWorkshop::NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger)
 {
-	m_areas.Count(ndx);
+	*ndx = m_areas.Count();
 	Area* pNewArea = new Area(szName, nDanger);
+
+	if (m_pStartArea == NULL)
+	{
+		m_pStartArea = pNewArea;
+		m_pStartArea->AddRef();
+	}
 
 	pNewArea->QueryInterface(IID_IUnknown, (void**)iArea);
 	m_areas.Add(pNewArea, szName, 0);
@@ -196,7 +129,6 @@ void AstralWorkshop::HandleCharacterCreationCommand(const wchar_t* szCmd, wchar_
 	{
 		m_pNewCharacter->SetArea(m_pStartArea);
 		strOut += L"\n" + m_pNewCharacter->GetName() + L" is now in " + m_pStartArea->GetName();
-		m_state = STATE_NORMAL;
 	}
 
 	wcsncpy_s(szRet, nLen, strOut.c_str(), _TRUNCATE);		
@@ -211,13 +143,17 @@ HRESULT __stdcall AstralWorkshop::Export(const wchar_t* szPath)
 
 	pDB->GetTable(L"areas", (IUnknown**)&iTbl);
 
-	while (m_areas.ForEach((IUnknown**)&pArea) == S_OK)
+	while (m_areas.ForEach((IUnknown**)&pArea))
 	{
 		if (r > 0)
 			iTbl->NewRow();
 		r++;
 
-		pArea->Save(*iTbl);
+		if (pArea != NULL)
+		{
+			pArea->Save(*iTbl);
+			pArea->Release();
+		}
 	}
 
 	VLFile fle;
@@ -240,12 +176,17 @@ HRESULT __stdcall AstralWorkshop::Save(const wchar_t* szPath)
 
 	pDB->GetTable(L"areas", (IUnknown**)&iTbl);
 
-	while (m_areas.ForEach((IUnknown**)&pArea) == S_OK)
+	while (m_areas.ForEach((IUnknown**)&pArea))
 	{
 		if (r > 0)
 			iTbl->NewRow();
 		r++;
-		pArea->Save(*iTbl);
+
+		if (pArea != NULL)
+		{
+			pArea->Save(*iTbl);
+			pArea->Release();
+		}		
 	}
 
 	pDB->Save(szPath);
@@ -270,13 +211,106 @@ HRESULT __stdcall AstralWorkshop::NewCharacter(IUnknown** iCharacter, const wcha
 	return S_OK;
 }
 
+HRESULT __stdcall AstralWorkshop::Heartbeat(int nSec)
+{
+	printf("AstralWorkshop::Heartbeat line 201\n");
+	m_worldTimeSec += nSec;
+	Area* iArea = NULL;
+
+	while (m_areas.ForEach((IUnknown**)&iArea))
+	{
+		if (iArea != NULL)
+		{
+			iArea->Tick(nSec);
+			iArea->Release();
+		}
+	}
+
+	return S_OK;
+}
+
+HRESULT __stdcall AstralWorkshop::GetTester(IUnknown** iTst)
+{
+	m_pTester->QueryInterface(IID_IUnknown, (void**)iTst);
+	return S_OK;
+}
+
+HRESULT __stdcall AstralWorkshop::GetAreaNames(BSTR* areaList)
+{
+	Area* iArea = NULL;
+	wstring list;
+
+	
+	while (m_areas.ForEach((IUnknown**)&iArea))
+	{
+		if (iArea != NULL)
+		{
+			if (!list.empty())
+				list += L"\n";
+
+			list += iArea->GetName();
+			iArea->Release();
+		}
+	}
+
+	*areaList = SysAllocString(list.c_str());
+	return S_OK;
+}
+
+
+
 HRESULT __stdcall AstralWorkshop::UnitTest()
 {
-	Character* pChar = NULL;
-	NewCharacter((IUnknown**)&pChar, L"Gert Addams", 1, 2);
-	pChar->Release();
-	return S_OK;
+	wstring gameCommand = L"new character", result;
 
+	// Trim whitespace
+	if (gameCommand.size() == 0)
+	{
+		result = L"Enter a command.";
+		return S_OK;
+	}
+
+	VLStringCollection wrds;
+	wrds.Split(gameCommand.c_str(), ' ');
+	wrds.ToLower(0);
+	std::wstring verb = wrds.Get(0);
+
+	// ---------------------------------------------------------
+	// 1. Character Creation Required Before Gameplay
+	// ---------------------------------------------------------
+	if (m_pNewCharacter == nullptr)
+	{
+		// Only allow "create" or "new" commands
+		if (verb == L"create" || verb == L"new")
+		{
+			if (wrds.GetCount() < 2)
+			{
+				result = L"Usage: create <name>";
+			}
+			else
+			{
+				std::wstring name = wrds.Get(0);
+				m_pNewCharacter = new Character(name.c_str(), Creature::CLASS_WARRIOR, Character::BACKGROUND_PEASANT);
+				result = L"Character '" + name + L"' created.\n"
+					L"You may now begin your adventure.";
+			}
+		}
+		else
+		{
+			result = L"No character exists.\n"
+				L"Create one using: create <name>";
+		}
+
+	}
+
+	
+
+	
+	result = L"I don't understand that command.";
+
+	wprintf(L"%s\n%s  Enter command:  \n", gameCommand.c_str(), result.c_str());
+	
+	return S_OK;
 }
 
 

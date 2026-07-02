@@ -54,7 +54,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1615
+#define VERSION 1629
 
 VLString g_dllPath;
 

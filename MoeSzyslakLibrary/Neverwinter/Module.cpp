@@ -102,10 +102,6 @@ HRESULT __stdcall Module::Command(const wchar_t* szCmd, IUnknown* iRetStr)
 			iStr->Set(L"Invalid area index");
 			return E_FAIL;
 		}
-		else
-		{
-			return iArea->Command(wrds.SubString(2, L' ').c_str(), iRetStr);
-		}
 	}
 
 	iStr->Set(L"Unknown Command");

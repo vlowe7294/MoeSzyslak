@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <shellapi.h>
 #include "CampSight.h"
-#include "Testing.h"
 
 wstring VersionAsString();
 
@@ -174,17 +173,17 @@ void CampArea::Load(Database& db)
 
 extern MemoryChecker g_memoryChecker;
 
-TestingInf CampSight::m_test;
-
 CampSight::CampSight()
 {
 	m_cRef = 1;
 	g_memoryChecker.IncrementInstance(CLASSID::CAMPSIGHT);
+	m_pTest = new Testing();
 }
 
 CampSight::~CampSight()
 {
 	g_memoryChecker.DecrementInstance(CLASSID::CAMPSIGHT);
+	m_pTest->Release();
 }
 
 HRESULT __stdcall CampSight::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -228,7 +227,7 @@ ULONG __stdcall CampSight::Release()
 
 HRESULT __stdcall  CampSight::GetTester(IUnknown** iTester)
 {
-	*iTester = (IUnknown*)m_test;
+	m_pTest->QueryInterface(IID_IUnknown, (void**)iTester);
 	return S_OK;
 }
 
@@ -238,7 +237,10 @@ HRESULT __stdcall CampSight::AddSite(const wchar_t* szArea, const wchar_t* szSit
 
 	if (szArea == NULL || szArea[0] == L'\0' || szSite == NULL || szSite[0] == L'\0')
 	{
-		m_test->Verify(FALSE, L"CampSight::AddSite() Invalid area or site name");
+		m_pTest->Verify(FALSE, L"CampSight::AddSite() Invalid area or site name", Testing::DEBUG_CRITICAL, L"CampSight");
+		LogEntry& l = m_pTest->GetLastEntry();
+		l.SetFile(L"CampSight.cpp");
+		l.SetLine(__LINE__);
 		return E_INVALIDARG;
 	}		
 

@@ -27,18 +27,33 @@ UINT Dice::Roll(UINT nRolls)
 }
 
 
+Encounter::Encounter(wstring tag, DIFFICULTY dif, int nMax)
+{
+	m_tag = tag;
+	m_difficulty = dif;
+	m_maximumCreatures = nMax;
+}
+
+Encounter::~Encounter()
+{
+
+}
+
+
 
 
 Location::Location(const wchar_t* szName)
 {
 	m_name = szName;
 	m_cRef = 1;
+	m_pEncounter = NULL;
 
 }
 
 Location::~Location()
 {
-
+	printf("Location destructor called\n");
+	delete m_pEncounter;
 }
 
 HRESULT __stdcall Location::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -47,6 +62,12 @@ HRESULT __stdcall Location::QueryInterface(REFIID riid, LPVOID* ppvObj)
 	if (riid == IID_IUnknown)
 	{
 		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else if (riid == LOCATION_IID)
+	{
+		*ppvObj = static_cast<ILOCATION*>(this);
 		AddRef();
 		return NOERROR;
 	}
@@ -73,12 +94,41 @@ ULONG __stdcall Location::Release()
 	return m_cRef;
 }
 
-void Location::AddNeighbor(Location& neighbor, int travelTimeSec)
+HRESULT __stdcall Location::AddNeighbor(IUnknown* iunk, int travelTimeSec)
 {
-	m_neighbors.push_back(&neighbor);
+	Location* iLoc = NULL;
+	printf("Location::AddNeighbor() line 100\n");
+
+	if (iunk == NULL)
+		return E_FAIL;
+
+	iunk->QueryInterface(LOCATION_IID, (void**)&iLoc);
+
+	if (iLoc == NULL)
+		return E_FAIL;
+	
+	m_neighbors.push_back(iLoc);
 	m_travelTimes.push_back(travelTimeSec);
+	iLoc->Release();
+	return S_OK;
 }
 
+HRESULT __stdcall Location::AddEncounter(const wchar_t* szTag, int dif, int nMax)
+{
+	printf("Location::AddEncounter() line 118\n");
+
+	if (dif < 0 || dif >= Encounter::DIFFICULTY_MAX)
+		return E_FAIL;
+
+	delete m_pEncounter;
+	m_pEncounter = new Encounter(szTag, (Encounter::DIFFICULTY)dif, nMax);
+	return S_OK;
+}
+
+void Location::Tick(int nSec)
+{
+
+}
 
 
 
@@ -86,26 +136,21 @@ void Location::AddNeighbor(Location& neighbor, int travelTimeSec)
 Area::Area(const wchar_t* szName, int nDanger)
 {
 	m_cRef = 1;
+	g_memoryChecker.IncrementInstance(CLASSID::AREA);
 
 	m_pProperties = new VariableCollection();
 
 	m_name = szName;
 
 	VLVariable* v = m_pProperties->NewVariable(L"contents");
-
 	
-
-	Placeable* plc = new Placeable();
-	m_contents->Add(plc, L"", 0);
-	v->SetInterface(m_contents, CLASSID::INTERFACELIST);
-
-	plc->Release();
 	m_nDangerLevel = nDanger;
 	m_pQuest = new Quest(L"Gather Herbs at the Forest Edge", 1, 0);
 }
 
 Area::~Area()
 {
+	g_memoryChecker.DecrementInstance(CLASSID::AREA);
 	m_pProperties->Release();
 	delete m_pQuest;
 }
@@ -149,13 +194,6 @@ ULONG __stdcall Area::Release()
 	return m_cRef;
 }
 
-HRESULT __stdcall Area::Properties(IUnknown** iPrp)
-{
-	m_pProperties->QueryInterface(IID_IUnknown, (void**)iPrp);
-	m_pProperties->Release();
-	return S_OK;
-}
-
 HRESULT __stdcall Area::Command(const wchar_t* szCmd, IUnknown* iRetStr)
 {
 	VLStringCollection wrds;
@@ -184,31 +222,28 @@ HRESULT __stdcall Area::Command(const wchar_t* szCmd, IUnknown* iRetStr)
 
 HRESULT __stdcall Area::Tick(int nSec)
 {
-	MoeInf<ICREATURE, CLASSID::CREATURE> iCrt;
-	HRESULT hr = S_OK;
-	
-	while (m_contents->ForEach(iCrt) == S_OK)
+	Location* pLoc = NULL;
+		
+	while (m_locations.ForEach((IUnknown**)&pLoc) == S_OK)
 	{
-		iCrt.GetInterface();
-
-		if ((ICREATURE*)iCrt != NULL)
+		if (pLoc != NULL)
 		{
-			if (FAILED(iCrt->Tick(nSec)))
-			{
-				hr = E_FAIL;
-			}
+			pLoc->Tick(nSec);
 		}			
 	}
 
-	return hr;
+	return S_OK;
 }
 
-Placeable& Area::GetPlaceable(int ndx)
+HRESULT __stdcall Area::AddLocation(IUnknown** iLoc, const wchar_t* locName)
 {
-	Placeable* pPlc = NULL;
-	m_contents->Get(ndx, (IUnknown**)&pPlc);
-	return *pPlc;
+	Location* pLoc = new Location(locName);
+	m_locations.Add(pLoc, locName, 0);
+	pLoc->QueryInterface(IID_IUnknown, (void**)iLoc);
+	pLoc->Release();
+	return S_OK;
 }
+
 
 void Area::Save(Table& tbl)
 {
@@ -221,16 +256,9 @@ void Area::Load(Table& tbl)
 	m_pProperties->Load(&tbl);
 }
 
-Location& Area::AddLocation(const wchar_t* szCmd)
+Location& Area::GetLocation(int ndx)
 {
-	Location* pLoc = new Location(szCmd);
-	m_locations.Add(pLoc, L"", 0);
-	pLoc->Release();
-	return *pLoc;
-}
-
-void Area::LinkLocations(Location& a, Location& b, int travelTimeSec)
-{
-	a.AddNeighbor(b, travelTimeSec);
-	b.AddNeighbor(a, travelTimeSec);
+	Location* iLoc = NULL;
+	m_locations.Get(ndx, (IUnknown**)&iLoc);
+	return *iLoc;
 }
