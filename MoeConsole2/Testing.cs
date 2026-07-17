@@ -1,9 +1,47 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace MoeConsole
 {
+    public class VariableCollection
+    {
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("8AFF6079-A5CA-4CF5-935E-8D1E9C954F83")]
+        private interface IVARIABLELIST
+        {
+            void GetAsString([MarshalAs(UnmanagedType.LPWStr)] string szTag, [MarshalAs(UnmanagedType.BStr)] out string bsStr);
+        }
+
+        public VariableCollection(IntPtr iunk)
+        {
+            m_iunk = iunk;
+            m_iVariableList = (IVARIABLELIST)Marshal.GetObjectForIUnknown(m_iunk);
+        }
+
+        public void Dispose()
+        {
+            if (m_iVariableList != null)
+            {
+                Marshal.ReleaseComObject(m_iVariableList);
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iunk = IntPtr.Zero;
+                m_iVariableList = null;
+            }
+        }
+
+        public string GetAsString(string szTag)
+        {
+            string strVal;
+            m_iVariableList.GetAsString(szTag, out strVal);
+            return strVal;
+        }
+
+        IntPtr m_iunk;
+        IVARIABLELIST m_iVariableList;
+
+    }
+
     public class LogEntry
     {
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("AC597284-A906-482F-9BE9-C4E13AB43E50")]
@@ -15,6 +53,13 @@ namespace MoeConsole
             void GetMemUsed(ref UInt64 mem);
             void SetDebugLevel(int nDebug);
 	        void GetDebugLevel(ref int nDebug);
+            void GetCategory([MarshalAs(UnmanagedType.BStr)] out string strCat);
+	        void SetCategory([MarshalAs(UnmanagedType.LPWStr)] string strCat);
+            void GetFile([MarshalAs(UnmanagedType.BStr)] out string bsFile);
+	        void SetFile([MarshalAs(UnmanagedType.LPWStr)] string szFile);
+            void GetDeltaTime(ref Int64 nDeltaTime);
+            void GetLine(ref int nLine);
+	        void SetLine(int nLine);
         }
 
         public LogEntry(IntPtr iunk)
@@ -24,7 +69,6 @@ namespace MoeConsole
             m_iLogEntry.GetText(out m_strText);
             m_iLogEntry.GetTime(ref m_nTime);
             m_iLogEntry.GetMemUsed(ref m_memoryUsed);
-            m_iLogEntry.GetDebugLevel(ref m_nDebugLevel);
         }
 
         public void Dispose()
@@ -55,11 +99,15 @@ namespace MoeConsole
                 m_iLogEntry.SetText(m_strText);
             }
         }
-        private string m_strText;
+        private string m_strText = "";
 
         public int DebugLevel
         {
-            get { return m_nDebugLevel; }
+            get 
+            {
+                m_iLogEntry.GetDebugLevel(ref m_nDebugLevel); 
+                return m_nDebugLevel; 
+            }
             set
             {
                 m_nDebugLevel = value;
@@ -67,6 +115,61 @@ namespace MoeConsole
             }
         }
         private int m_nDebugLevel = 0;
+
+        public string Category
+        {
+            get
+            {
+                m_iLogEntry.GetCategory(out m_strCategory);
+                return m_strCategory;
+            }
+            set
+            {
+                m_strCategory = value;
+                m_iLogEntry.SetCategory(m_strCategory);
+            }
+        }
+        private string m_strCategory = "";
+
+        public string File
+        {
+            get
+            {
+                m_iLogEntry.GetFile(out m_strFile);
+                return m_strFile;
+            }
+            set
+            {
+                m_strFile = value;
+                m_iLogEntry.SetFile(m_strFile);
+            }
+        }
+        private string m_strFile = "";
+
+        public Int64 DeltaTime
+        {
+            get
+            {
+                m_iLogEntry.GetDeltaTime(ref m_deltaTime);
+                return m_deltaTime;            }
+            
+        }
+        private Int64 m_deltaTime = 0;
+
+        public int Line
+        {
+            get
+            {
+                m_iLogEntry.GetLine(ref m_nLine);
+                return m_nLine;
+            }
+            set
+            {
+                m_nLine = value;
+                m_iLogEntry.SetLine(m_nLine);
+            }
+        }
+        private int m_nLine = 0;
 
         private UInt64 m_nTime;
         private UInt64 m_memoryUsed;
@@ -95,19 +198,25 @@ namespace MoeConsole
 		    void VerifyHResult(uint hr, [MarshalAs(UnmanagedType.LPWStr)] string szMsg);
 		    void GetTestData([MarshalAs(UnmanagedType.LPWStr)] string szName, [MarshalAs(UnmanagedType.BStr)] out string iStr);
 		    void SetTestData([MarshalAs(UnmanagedType.LPWStr)] string szName, [MarshalAs(UnmanagedType.LPWStr)] string szVal);
-		    void GetClassName(uint nClassID, IntPtr iStrClassName);
+		    void GetClassName(uint nClassID, [MarshalAs(UnmanagedType.BStr)] out string strClassName);
 		    void GetClassID([MarshalAs(UnmanagedType.LPWStr)] string szClassName, ref uint nClassID);
-		    void Report([MarshalAs(UnmanagedType.LPWStr)] StringBuilder szRpt, uint nlen);
+		    void Report();
 		    void Verify(uint bVal, [MarshalAs(UnmanagedType.LPWStr)] string szMsg, int nDebugLvl, [MarshalAs(UnmanagedType.LPWStr)] string szCategory);
             void GetPassed(ref uint bVal);
             void NewEntry(ref IntPtr iEntry);
+            void GetProperties(ref IntPtr iPrp);
             void UnitTest();
         }
 
         public Testing(IntPtr iunk)
         {
+            IntPtr iPrp = IntPtr.Zero;
+
             m_iunk = iunk;
             m_iTesting = (ITESTING)Marshal.GetObjectForIUnknown(m_iunk);
+            m_iTesting.GetProperties(ref iPrp);
+
+            m_properties = new VariableCollection(iPrp);
 
         }
 
@@ -130,6 +239,8 @@ namespace MoeConsole
                 m_iTesting = null;
                 m_iunk = IntPtr.Zero;
             }
+
+            m_properties.Dispose();
         }
 
         public void Message(string strMsg, DEBUG_LEVEL dbg, string strCategory)
@@ -139,26 +250,8 @@ namespace MoeConsole
 
         public void Report()
         {
-            Update();
-            Console.WriteLine("\tStart time(ms)\tText\tMemory Used");
-            int n = 0;
-
-
-            foreach (LogEntry le in m_logEntries)
-            {
-                Console.Write(n.ToString());
-                le.Print();
-                n++;
-            }
-
-            uint r = 0;
-            m_iTesting.GetPassed(ref r);
-
-            if (r > 0)
-                Console.WriteLine("Result:  PASS");
-            else
-                Console.WriteLine("Result:  FAIL");
-
+            m_iTesting.Report();
+            Console.WriteLine(m_properties.GetAsString("Report"));
         }
 
         public void Verify(bool bVal, string szMsg, int nDebugLevel, string strCategory)
@@ -219,28 +312,31 @@ namespace MoeConsole
         public void Update()
         {
             int nCnt = 0;
-            IntPtr iunk = IntPtr.Zero;
+            
 
             foreach (LogEntry le in m_logEntries)
                 le.Dispose();
 
             m_logEntries.Clear();
+            LogEntry newEntry = GetLogEntry(0);
 
-            m_iTesting.GetLogEntry(nCnt, ref iunk);
-
-            while (iunk != IntPtr.Zero)
+            while (newEntry != null)
             {
-                m_logEntries.Add(new LogEntry(iunk));
-                iunk = IntPtr.Zero;
+                m_logEntries.Add(newEntry);
                 nCnt++;
-                m_iTesting.GetLogEntry(nCnt, ref iunk);
+                newEntry = GetLogEntry(nCnt);
             }
-
         }
 
-        public LogEntry GetLogEntry(int ndx)
+        private LogEntry GetLogEntry(int ndx)
         {
-            return m_logEntries[ndx];
+            IntPtr iunk = IntPtr.Zero;
+            m_iTesting.GetLogEntry(ndx, ref iunk);
+
+            if (iunk != IntPtr.Zero)
+                return new LogEntry(iunk);
+            else
+                return null;
         }
         public LogEntry NewEntry()
         {
@@ -267,6 +363,23 @@ namespace MoeConsole
         {
             m_iTesting.VerifyVariable(varName, val);
         }
+
+        public string GetClassName(uint nClassID)
+        {
+            string strClassName;
+            m_iTesting.GetClassName(nClassID, out strClassName);
+            return strClassName;
+        }
+
+        public uint GetClassID(string strClassName)
+        {
+            uint nClassID = 0;
+            m_iTesting.GetClassID(strClassName, ref nClassID);
+            return nClassID;
+        }
+
+        VariableCollection m_properties;
+
         static public void UnitTest()
         {
             using (CampSight cs = new CampSight())
@@ -285,8 +398,19 @@ namespace MoeConsole
                     l.Text = tst.GetTestData("message");
                     tst.VerifyVariable("message", l.Text);
                     l.DebugLevel = (int)DEBUG_LEVEL.DEBUG_INFO;
+                    l.File = "Testing.cs";
+                    l.Line = 355;                    
 
-                    //tst.m_iTesting.UnitTest();
+                    Console.WriteLine("Log Entry Delta Time: {0}", l.DeltaTime);
+
+                    string cls = tst.GetClassName(Testing.classID);
+                    uint clsID = tst.GetClassID(cls);
+                    tst.Verify(clsID == Testing.classID, "Class ID mismatch", (int)DEBUG_LEVEL.DEBUG_CRITICAL, "Testing");
+                    tst.Verify(l.File == "Testing.cs", "File name mismatch", (int)DEBUG_LEVEL.DEBUG_CRITICAL, "Testing");
+                    l.Category = cls;                   
+
+
+                    tst.m_iTesting.UnitTest();
 
                 }
                 catch (Exception ex)
@@ -302,6 +426,11 @@ namespace MoeConsole
         private Dictionary<string, string> m_testValues = new Dictionary<string, string>();
         private bool m_bPassed = true;
 
+
+        public List<LogEntry> LogEntries
+        {
+            get { return m_logEntries; }
+        }
         private List<LogEntry> m_logEntries = new List<LogEntry>();
 
 

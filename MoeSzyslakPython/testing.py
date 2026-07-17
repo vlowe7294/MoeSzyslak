@@ -35,8 +35,34 @@ class ILOGENTRY(IUnknown):
         COMMETHOD(
             [], HRESULT, "GetTime",
             (['out, retVal'], POINTER(c_longlong), "tme"),
-        ),   
-    ]
+        ),  
+        
+        COMMETHOD(
+            [], HRESULT, "GetMemUsed",
+            (['out, retVal'], POINTER(c_longlong), "mem"),
+        ), 
+
+        COMMETHOD(
+            [], HRESULT, "SetDebugLevel",
+            (['in'], c_int32, "nDebug"),
+        ), 
+
+        COMMETHOD(
+            [], HRESULT, "GetDebugLevel",
+            (['out, retVal'], POINTER(c_int32), "nDebug"),
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "GetCategory",
+            (['out, retVal'], POINTER(BSTR), "strCat"),
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "SetCategory",
+            (['in'], c_wchar_p, "strCat"),
+        ), 
+    ]    
+    
 
 ## @class LogEntry
 ## @brief Represents a single log entry containing a timestamp and text message.
@@ -48,17 +74,28 @@ class LogEntry:
     def __init__(self, iLogEntry): 
         print('LogEntry constructor')
         self._text = ''
+        self._debugLevel = 0;
        
         self._iLogEntry = iLogEntry
         
         t = c_longlong()
-
         self._iLogEntry.GetTime(comtypes.byref(t))
-        self._nTime = t.value
+        self._time = t.value
+
+        self._iLogEntry.GetMemUsed(comtypes.byref(t))
+        self._memoryUsed = t.value
+        self._category = ''
         print('end constructor')
 
     def Print(self):
-        print(f"\t{self._nTime}\t{self.text}") 
+        print(f"\t{self._nTime}\t{self.text}\t{self._memoryUsed}") 
+
+    def UnitTest(self, tst):
+        tst.Message('LogEntry UnitTest', Testing.DEBUG_INFO, 'LogEntry')
+        print(f"Time: {self.time}")
+        self.Category = 'LogEntry'
+        print(f"Category: {self.Category}")
+        tst.Verify(self.Category == 'LogEntry', 'LogEntry Category should be LogEntry')
 
     ## @property Time
     ## @brief Gets the timestamp of the log entry.
@@ -82,6 +119,34 @@ class LogEntry:
         self._iLogEntry.GetText(comtypes.byref(txt_bstr))
         self._text = txt_bstr.value
         return self._text
+
+    @property
+    def MemUsed(self):
+        return self._memoryUsed
+
+    @property
+    def DebugLevel(self):
+        t = c_int32()
+        self._iLogEntry.GetDebugLevel(comtypes.byref(t))
+        self._debugLevel = t.value
+        return self._debugLevel
+
+    @DebugLevel.setter
+    def DebugLevel(self, dbgVal):
+        self._iLogEntry.SetDebugLevel(dbgVal)
+        self._debugLevel = dbgVal
+
+    @property
+    def Category(self):
+        txt_bstr = BSTR()
+        self._iLogEntry.GetCategory(comtypes.byref(txt_bstr))
+        self._category = txt_bstr.value
+        return self._category
+
+    @Category.setter
+    def Category(self, strCat):
+        self._iLogEntry.SetCategory(strCat)
+        self._category = strCat
     
 TESTING_IID = GUID("{7C6DA0F8-84AE-4E97-86F0-13BB1E67C713}")
 
@@ -128,7 +193,25 @@ class ITESTING(IUnknown):
             (['in'], c_wchar_p, "strName"),
             (['in'], c_wchar_p, "strVal")
         ),
+
+        COMMETHOD(
+            [], HRESULT, "GetClassName",
+            (['in'], c_uint, "nClassID"),
+            (['out, retval'], POINTER(BSTR), "strClassName")
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "GetClassID",
+            (['in'], c_wchar_p, "strClassName"),
+            (['out, retval'], POINTER(c_uint), "nClassID")
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "Report",
+            (['out, retval'], POINTER(BSTR), "strRpt")
+        ),
     ]
+    
 
 class Testing:
 
@@ -137,6 +220,8 @@ class Testing:
     DEBUG_INFO = 2
     DEBUG_WARN = 3
     DEBUG_CRITICAL = 4
+
+    classID = 398981
 
     def __init__(self, unk_ptr):
         self._iunk = unk_ptr
@@ -180,7 +265,7 @@ class Testing:
 
     def Verify(self, bVal, szMsg):
         if not bVal:
-            self.Message(szMsg)
+            self.Message(szMsg, Testing.DEBUG_CRITICAL, "")
             self._bPassed = False
 
     def TestData(self, name, val = None):        
@@ -193,21 +278,17 @@ class Testing:
         val = txt_bstr.value        
         return val
 
-    def LogEntry(self, ndx):
+    def GetLogEntry(self, ndx):
         if 0 <= ndx < len(self._logEntries):
             return self._logEntries[ndx]
         else:
             raise IndexError("Log entry index out of range")
 
     def Report(self):
-        print("\tStart time(ms)\tText")
-        n = 1
-        self.Update()
-
-        for le in self._logEntries:
-            print(str(n), end="")
-            le.Print()
-            n = n + 1
+        txt_bstr = BSTR()
+        self._iTesting.Report(comtypes.byref(txt_bstr))
+        print(txt_bstr.value)
+        
 
     def Clear(self):
         self._testValues = {}
@@ -232,25 +313,45 @@ class Testing:
     def VerifyVariable(self, varName, val):
         self._iTesting.VerifyVariable(varName, val)
 
+    def GetClassName(self, nClassID,):
+        txt_bstr = BSTR()
+        self._iTesting.GetClassName(nClassID, byref(txt_bstr))
+        return txt_bstr.value
+
+    def GetClassID(self, strClassName):
+        clsid = c_uint()
+        self._iTesting.GetClassID(strClassName, byref(clsid));
+        return clsid.value
+
     @property
     def DebugLevel(self):
         return self._debugLevel
 
     @DebugLevel.setter
     def DebugLevel(self, dbgVal):
-        self._iTesting.SetDebugLevel(dbgVal)
+        MoeSzyslakLibrary.check_hresult(self._iTesting.SetDebugLevel(dbgVal))
         self._debugLevel = dbgVal
 
     def UnitTest(cmpste):
         tst = cmpste.theTester()
-        tst.DebugLevel = Testing.DEBUG_CRITICAL
 
-        tst.TestData("message", "Log Entry unit test")
-        tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO, "testing")
+        try:
+            tst.DebugLevel = Testing.DEBUG_CRITICAL
 
-        tst.VerifyVariable("message", "Log Entry unit test")
+            tst.TestData("message", "Log Entry unit test")
+            tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO, "testing")
 
-        tst.Update()
+            tst.VerifyVariable("message", "Log Entry unit test")
+            cls = tst.GetClassName(Testing.classID)
+            tst.GetClassID(cls)
+
+            tst.Update()
+            l = tst.GetLogEntry(0)
+            l.UnitTest(tst)
+        except Exception as e:
+            print(e)
+            tst.Verify(False, f"Exception thrown during unit test: {e}")
+
         tst.Report()
 
 class Row:

@@ -12,7 +12,7 @@
  * and length. Trails may later be extended to include elevation gain,
  * GPS coordinates, photos, or reviews.
  */
-class Trail
+class Trail : public IUnknown
 {
 public:
 
@@ -30,7 +30,14 @@ public:
 	Trail(wstring nme, DIFFICULTY diff, double len);
 	~Trail();
 
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+
+	wstring GetName() { return m_name; }
+
 private:
+	LONG m_cRef;
 	wstring m_name;          /**< Name of the trail. */
 	DIFFICULTY m_difficulty; /**< Difficulty rating. */
 	double m_lengthMiles;    /**< Length of the trail in miles. */
@@ -52,7 +59,7 @@ private:
 class Site : public IUnknown
 {
 public:
-	Site(wstring nme, double lat, double lon);
+	Site(double lat, double lon);
 	~Site();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
@@ -62,6 +69,10 @@ public:
 	 * @brief Prints site information to stdout (debugging).
 	 */
 	void Print();
+	wstring MapLink();
+
+	inline wstring GetName() { return m_name; }
+	inline void SetName(wstring s) { m_name = s; }
 
 private:
 	LONG m_cRef;
@@ -82,7 +93,7 @@ private:
  *
  * This class supports saving/loading from a Database object.
  */
-class CampArea : public IUnknown
+class CampArea : public ICAMPAREA
 {
 public:
 	CampArea(wstring nme);
@@ -91,10 +102,11 @@ public:
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
 
-	/**
-	 * @brief Prints area and site information to stdout (debugging).
-	 */
-	void Print();
+	HRESULT __stdcall GetName(BSTR* szNme);
+	HRESULT __stdcall SetName(const wchar_t* szNme);
+	HRESULT __stdcall GetSite(int ndx, IUnknown** iSite);
+
+
 
 	/**
 	 * @brief Saves area data to a database.
@@ -108,28 +120,20 @@ public:
 	 */
 	void Load(Database& db);
 
+	void AddTrail(Trail* pTrail);
+
 	/**
 	 * @brief Returns the collection of sites belonging to this area.
 	 */
-	inline InterfaceCollection& GetSites() { return m_sites; }
-
-	/**
-	 * @brief Assigns a trail to this area.
-	 * @param pTrail Pointer to a Trail object. Ownership is transferred.
-	 */
-	inline void SetTrail(Trail* pTrail)
-	{
-		delete m_pTrail;
-		m_pTrail = pTrail;
-	};
+	inline ComCollection& GetSites() { return m_sites; }
 
 	inline wstring GetName() { return m_name; }
 
 private:
 	LONG m_cRef;               /**< COM reference count. */
 	wstring m_name;            /**< Name of the area. */
-	InterfaceCollection m_sites; /**< Collection of Site objects. */
-	Trail* m_pTrail;           /**< Optional trail associated with the area. */
+	ComCollection m_sites;	   /**< Collection of Site objects. */
+	ComCollection m_trails;    /**< Collection of trails associated with the area. */
 };
 
 
@@ -166,7 +170,7 @@ public:
 	 */
 	HRESULT __stdcall AddSite(const wchar_t* szArea, const wchar_t* szSite, double lat, double lon);
 
-	HRESULT __stdcall GetArea(UINT ndx, wchar_t* szName, UINT nLen);
+	HRESULT __stdcall GetArea(int ndx, IUnknown** iArea);
 
 
 	HRESULT __stdcall UnitTest();
@@ -174,5 +178,5 @@ public:
 private:
 	LONG m_cRef;                 /**< COM reference count. */
 	Testing* m_pTest;		     /**< Testing interface. */
-	InterfaceCollection m_areas; /**< Collection of CampArea objects. */
+	ComCollection m_areas;		/**< Collection of CampArea objects. */
 };

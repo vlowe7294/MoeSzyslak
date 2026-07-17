@@ -3,14 +3,95 @@ using System.Text;
 
 namespace MoeConsole
 {
-    class CampArea
+    class Site
     {
-        public CampArea(string nme)
+        public Site(IntPtr iunk)
         {
-            m_name = nme;
+            m_iunk = iunk;
         }
 
-        private string m_name;
+        public void Dispose()
+        {
+            if (m_iunk != IntPtr.Zero)
+            { 
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iunk = IntPtr.Zero;                
+            }
+        }
+
+        private IntPtr m_iunk;
+
+    }
+
+    class CampArea
+    {
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("764BAFFA-9281-4610-8683-E0B8B0841D0F")]
+        private interface ICAMPAREA
+        {
+            void GetName([MarshalAs(UnmanagedType.BStr)] out string strNme);
+	        void SetName([MarshalAs(UnmanagedType.LPWStr)] string strNme);
+            void GetSite(int ndx, ref IntPtr iSite);
+        }
+        public CampArea(IntPtr iunk)
+        {
+            m_iunk = iunk;
+            m_iCampArea = (ICAMPAREA)Marshal.GetObjectForIUnknown(m_iunk);
+        }
+
+        public void Dispose()
+        {
+            foreach (Site ste in m_sites)
+            {
+                ste.Dispose();
+            }
+
+            m_sites.Clear();
+
+            if (m_iCampArea != null)
+            {
+                Marshal.ReleaseComObject(m_iCampArea);
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iunk = IntPtr.Zero;
+                m_iCampArea = null;
+            }
+        }
+
+        public void Update()
+        {
+            int i = 0;
+            IntPtr iSite = IntPtr.Zero;
+
+            m_iCampArea.GetName(out m_strName);
+
+            foreach (Site ste in m_sites)
+            {
+                ste.Dispose();
+            }
+
+            m_sites.Clear();
+            m_iCampArea.GetSite(0, ref iSite);
+
+            while (iSite != IntPtr.Zero)
+            {
+                Site ste = new Site(iSite);
+                m_sites.Add(ste);
+                i++;
+                m_iCampArea.GetSite(i, ref iSite);
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return m_strName;
+            }            
+        }
+
+        private IntPtr m_iunk;
+        private ICAMPAREA m_iCampArea;
+        private List<Site> m_sites = new List<Site>();
+        string m_strName = "";
     }
 
     class CampSight : IDisposable
@@ -22,7 +103,7 @@ namespace MoeConsole
         {
             void GetTester(ref IntPtr iTester);
             void AddSite([MarshalAs(UnmanagedType.LPWStr)] string szArea, [MarshalAs(UnmanagedType.LPWStr)] string szSite, double lat, double lon);
-            void GetArea(uint ndx, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder szName, uint nLen);
+            void GetArea(int ndx, ref IntPtr iArea);
             void UnitTest();
         }
 
@@ -45,6 +126,14 @@ namespace MoeConsole
         void Dispose(bool disposing)
         {
             m_tester.Dispose();
+
+            foreach (CampArea ar in m_campAreas)
+            {
+                ar.Dispose();
+            }
+
+            m_campAreas.Clear();
+
             Marshal.ReleaseComObject(m_iCampSight);
             MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
             m_iCampSight = null;
@@ -60,33 +149,50 @@ namespace MoeConsole
         {
             int i = 0;
             string nme;
+            IntPtr iArea = IntPtr.Zero;
 
-            m_campArea.Clear();
-            m_iCampSight.GetArea(0, m_sb, (uint)m_sb.Capacity);
-            nme = m_sb.ToString();
-
-            while (!string.IsNullOrEmpty(nme))
+            foreach(CampArea ar in m_campAreas)
             {
-                CampArea ca = new CampArea(nme);
-                m_campArea.Add(ca);
-
-                i++;
-                m_iCampSight.GetArea((uint)i, m_sb, (uint)m_sb.Capacity);
-                nme = m_sb.ToString();
+                ar.Dispose();
             }
 
+            m_campAreas.Clear();
+            m_iCampSight.GetArea(0, ref iArea);
+
+            while (iArea != IntPtr.Zero)
+            {
+                CampArea ar = new CampArea(iArea);
+                m_campAreas.Add(ar);
+                ar.Update();
+
+                i++;
+                m_iCampSight.GetArea(i, ref iArea);
+            }
         }
 
         public static void UnitTest()
         {
             using (CampSight cs = new CampSight())
             {
-                cs.m_tester.Message("Camp Sight Unit Test", Testing.DEBUG_LEVEL.DEBUG_INFO, "CampSight");
-                cs.AddSite("Dinosaur Valley State Park", "Laham Mill #14", 32.251301564676666, -97.8112404606453);
-                cs.Update();
-                cs.m_iCampSight.UnitTest();
-                cs.m_tester.Report();
+                Testing tst = cs.theTester;
+                try
+                {
+                    cs.m_tester.Message("Camp Sight Unit Test", Testing.DEBUG_LEVEL.DEBUG_INFO, "CampSight");
+                    cs.AddSite("Dinosaur Valley State Park", "Laham Mill #14", 32.251301564676666, -97.8112404606453);
+                    cs.Update();
 
+                    tst.Verify(cs.m_campAreas[0].Name == "Dinosaur Valley State Park", "Area name mismatch", (int)Testing.DEBUG_LEVEL.DEBUG_CRITICAL, "CampSight");
+
+                    Console.WriteLine("Camp Area Name: " + cs.m_campAreas[0].Name);
+
+                    cs.m_iCampSight.UnitTest();
+                }
+                catch (Exception ex)
+                {
+                    tst.Verify(false, ex.Message, (int)Testing.DEBUG_LEVEL.DEBUG_CRITICAL, "CampSight");
+                }
+
+                tst.Report();
             }
         }
 
@@ -97,7 +203,7 @@ namespace MoeConsole
         private Testing m_tester;
 
         private static StringBuilder m_sb = new StringBuilder(1024);
-        private List<CampArea> m_campArea = new List<CampArea>();
+        private List<CampArea> m_campAreas = new List<CampArea>();
 
     }
 }

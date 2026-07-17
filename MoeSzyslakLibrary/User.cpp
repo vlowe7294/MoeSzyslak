@@ -130,18 +130,12 @@ HRESULT __stdcall User::Command(const wchar_t* szCmd)
     cmds.Split(szCmd, L' ');
     cmds.ToLower(0);
 
-    switch (szCmd[0])
-    {
-    default:
-        hr = m_pProperties->Command(szCmd);
-    }
-
     return hr;
 }
 
 HRESULT __stdcall User::GetReturnString(IUnknown** iStr)
 {
-    return m_pProperties->GetReturnString(iStr);
+    return E_FAIL;
 }
 
 HRESULT __stdcall User::UnitTest()
@@ -200,7 +194,6 @@ HRESULT __stdcall User::SaveUserList(IUnknown* iunk)
         iTbl->Set(L"Password", iprp.Get(L"Password").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
 
         iTbl->Set(L"Is Administrator", iprp.Get(L"Is Administrator").c_str(), VLVariable::VAR_TYPE::TYPE_BOOL);
-        iTbl->Set(L"Email", iprp.Get(L"Email").c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
         nCnt++;
     }
 

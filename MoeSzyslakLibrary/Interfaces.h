@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <comdef.h>
 #include <stdexcept>
@@ -16,12 +16,14 @@ enum CLASSID
 	INVALIDCLASS	= 0,
 	ASTRALWORKSHOP	= 133671,
 	INTERFACELIST	= 184004,
+	VARIABLECOLLECTION = 236279,
 	USERSERVICE		= 241805,
 	AREA			= 262241,
 	TABLE			= 416737,
 	TRIPPLANNER		= 507734,
 	DATETIME		= 568996,
 	MODULE			= 628950,
+	CAMPAREA		= 641055,
 	HOST			= 647491,
 	DATABASE		= 781903,	
 	CREATURE		= 924610,
@@ -90,9 +92,19 @@ static const GUID LOCATION_IID =
 static const GUID ASTRALWORKSHOP_IID =
 { 0xf43ba252, 0x2fca, 0x41a2, { 0x9c, 0xfa, 0x22, 0xa5, 0xd8, 0x7c, 0x58, 0x4c } };
 
+// {764BAFFA-9281-4610-8683-E0B8B0841D0F}
+static const GUID CAMPAREA_IID =
+{ 0x764baffa, 0x9281, 0x4610, { 0x86, 0x83, 0xe0, 0xb8, 0xb0, 0x84, 0x1d, 0xf } };
+
 // {583AFD09-699D-42C2-98FE-753E75422F16}
 static const GUID CAMPSIGHT_IID =
 { 0x583afd09, 0x699d, 0x42c2, { 0x98, 0xfe, 0x75, 0x3e, 0x75, 0x42, 0x2f, 0x16 } };
+
+// {8AFF6079-A5CA-4CF5-935E-8D1E9C954F83}
+static const GUID VARIABLELIST_IID =
+{ 0x8aff6079, 0xa5ca, 0x4cf5, { 0x93, 0x5e, 0x8d, 0x1e, 0x9c, 0x95, 0x4f, 0x83 } };
+
+
 
 
 struct IHOST : public IUnknown
@@ -130,14 +142,77 @@ struct IMODULE : public IUnknown
 	virtual HRESULT __stdcall Save(IUnknown* iDB) = 0;
 };
 
+/**
+*@interface ILOGENTRY
+* @brief Represents a single structured diagnostic entry produced during testing.
+*
+* A ILOGENTRY records all diagnostic context associated with a single testing event.
+* Each entry captures :
+*-The log message text
+* -The timestamp at which the entry was created
+* -The memory usage at the time of logging
+* -The debug / verbosity level
+* -A category label for grouping or filtering
+*/
 struct ILOGENTRY : public IUnknown
 {
+	/**
+	 * @brief Retrieves the log message text as a BSTR.
+	 *
+	 * Empty strings produce a NULL BSTR, which is valid in COM and safely
+	 * marshaled as null in C#. Non‑empty strings are allocated via SysAllocString.
+	 *
+	 * @param bsTxt Receives the allocated BSTR.
+	 */
 	virtual HRESULT __stdcall GetText(BSTR* bsTxt) = 0;
+
+	/**
+	 * @brief Sets the log message text.
+	 * @param szTxt Null‑terminated wide string containing the message text.
+	 * @return S_OK on success.
+	 */
 	virtual HRESULT __stdcall SetText(const wchar_t* szTxt) = 0;
+
+	/**
+	 * @brief Retrieves the timestamp associated with this entry.
+	 * @param tme Receives the timestamp value in milliseconds since test start.
+	 */
 	virtual HRESULT __stdcall GetTime(long long* tme) = 0;
+
+	/**
+	 * @brief Retrieves the memory usage value stored in this entry.
+	 * @param mem Receives the memory usage value.
+	 */
 	virtual HRESULT __stdcall GetMemUsed(long long* mem) = 0;
+
+	/**
+	 * @brief Sets the debug/verbosity level for this entry.
+	 */
 	virtual HRESULT __stdcall SetDebugLevel(int nDebug) = 0;
+
+	/**
+	 * @brief Retrieves the debug/verbosity level.
+	 */
 	virtual HRESULT __stdcall GetDebugLevel(int* nDebug) = 0;
+
+	/**
+	 * @brief Retrieves the category label as a BSTR.
+	 */
+	virtual HRESULT __stdcall GetCategory(BSTR* bsCat) = 0;
+
+	/**
+	 * @brief Sets the category label for this log entry.
+	 *
+	 * @param szCat Null-terminated wide string representing the category.
+	 * @return S_OK on success, or an error code on failure.
+	 */
+	virtual HRESULT __stdcall SetCategory(const wchar_t* szCat) = 0;
+
+	virtual HRESULT __stdcall GetFile(BSTR* bsFile) = 0;
+	virtual HRESULT __stdcall SetFile(const wchar_t* szFile) = 0;
+	virtual HRESULT __stdcall GetDeltaTime(long long* nDeltaTime) = 0;
+	virtual HRESULT __stdcall GetLine(int* nLine) = 0;
+	virtual HRESULT __stdcall SetLine(int nLine) = 0;
 };
 
 struct ITABLE : public IUnknown
@@ -262,7 +337,7 @@ struct ILOCATION : public IUnknown
 
 /**
  * @interface IASTRALWORKSHOP
- * @brief COM-based game engine fa�ade for the Astral Workshop simulation.
+ * @brief COM-based game engine façade for the Astral Workshop simulation.
  *
  * This interface acts as the primary
  * command dispatcher for the game engine. It manages engine state, character
@@ -295,12 +370,24 @@ struct IASTRALWORKSHOP : public IUnknown
 	virtual HRESULT UnitTest() = 0;
 };
 
+struct ICAMPAREA : public IUnknown
+{
+	virtual HRESULT __stdcall GetName(BSTR* szNme) = 0;
+	virtual HRESULT __stdcall SetName(const wchar_t* szNme) = 0; 
+	virtual HRESULT __stdcall GetSite(int ndx, IUnknown** iSite) = 0;
+};
+
 struct ICAMPSIGHT : public IUnknown
 {
 	virtual HRESULT __stdcall GetTester(IUnknown** iTester) = 0;
 	virtual HRESULT __stdcall AddSite(const wchar_t* szArea, const wchar_t* szSite, double lat, double lon) = 0;
-	virtual HRESULT __stdcall GetArea(UINT ndx, wchar_t* szName, UINT nLen) = 0;
+	virtual HRESULT __stdcall GetArea(int ndx, IUnknown** iArea) = 0;
 	virtual HRESULT __stdcall UnitTest() = 0;
+};
+
+struct IVARIABLELIST : public IUnknown
+{
+	virtual HRESULT __stdcall GetAsString(const wchar_t* szTag, BSTR* bsStr) = 0;	
 };
 
 

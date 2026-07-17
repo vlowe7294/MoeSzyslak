@@ -61,7 +61,7 @@ void Row::Save(VLFile& fle)
 	int nCol= 0;
 	wstring c;
 
-	m_pValues->Count(&nCol);
+	nCol = m_pValues->Count();
 	fle.Write(nCol);
 
 	while (m_pValues->ForEach(&pVar))

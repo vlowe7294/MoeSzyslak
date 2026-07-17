@@ -57,7 +57,7 @@ HRESULT __stdcall Transaction::QueryInterface(REFIID riid, LPVOID* ppvObj)
 
 HRESULT Transaction::Command(const wchar_t* szCmd)
 {
-    return m_pProperties->Command(szCmd);
+    return E_FAIL;
 }
 
 void Transaction::Print()
@@ -200,9 +200,7 @@ HRESULT Account::Command(const wchar_t* szCmd)
         }
         break;
 
-    default:
-        hr = m_pProperties->Command(szCmd);
-        m_pProperties->GetReturnString(m_iRetStr);
+    default:        
         break;
     }
 

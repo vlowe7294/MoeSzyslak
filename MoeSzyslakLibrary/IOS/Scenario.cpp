@@ -54,5 +54,5 @@ HRESULT __stdcall Scenario::QueryInterface(REFIID riid, LPVOID* ppvObj)
 
 void Scenario::Command(wstring szCmd)
 {
-    m_properties.Command(szCmd.c_str());
+    
 }

@@ -8,9 +8,9 @@ class InterfaceCollection : public InterfaceCollectionInf::IINTERFACECOLLECTION
 public:
 	InterfaceCollection();
 	~InterfaceCollection();
-	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
-	ULONG __stdcall AddRef();
-	ULONG __stdcall Release();
+	virtual HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	virtual ULONG __stdcall AddRef();
+	virtual ULONG __stdcall Release();
 	HRESULT __stdcall Add(IUnknown* iObj, const wchar_t* szTag, UINT nClassID);
 	HRESULT __stdcall Get(int ndx, IUnknown** iunk);
 	HRESULT __stdcall Count(int* nCnt);
@@ -53,13 +53,16 @@ public:
 	int Count();
 	bool ForEach(IUnknown** ppObj);
 	IUnknown* Get(int ndx);
+	IUnknown* GetByTag(const wchar_t* szTag);
+	void Remove(int ndx);
+	void RemoveByTag(const wchar_t* szTag);
+	void Reset();
 
 private:
+	int m_nID;
 	std::vector<IUnknown*> m_array;
 	std::map<UINT, UINT> m_classIDs;
 	int m_nCurrent;
 	std::map<std::wstring, int> m_mapToIndex;
 	std::map<int, std::wstring> m_mapToTag;
-
-	void Reset();
 };

@@ -27,37 +27,36 @@ extern MemoryChecker g_memoryChecker;
 
 
 /**
- * @class LogEntry
- * @brief Represents a single structured diagnostic entry produced during testing.
- *
- * A LogEntry captures:
- *   - The log message text
- *   - The timestamp of when the entry was created
- *   - Memory usage at the time of logging
- *   - The debug level associated with the message
- *   - A category label for grouping or filtering
- *   - The delta time since the previous log entry
- *   - A unique, monotonically increasing entry ID
- *
- * LogEntry implements the ILOGENTRY COM interface and exposes its fields
- * through COM‑compatible getters (BSTR and primitive out‑parameters).
- *
- */
+*@class LogEntry
+* @brief Represents a single structured diagnostic entry produced during testing.
+*
+* A LogEntry records all diagnostic context associated with a single testing event.
+* Each entry captures :
+*-The log message text
+* -The timestamp at which the entry was created
+* -The memory usage at the time of logging
+* -The debug / verbosity level
+* -A category label for grouping or filtering
+* -The delta time since the previous log entry
+* -A unique, monotonically increasing entry ID
+* -The source file and line number where the entry originated
+* -The thread ID and process ID of the caller
+*
+*LogEntry implements the ILOGENTRY COM interface and exposes its fields through
+* COM‑compatible getters(BSTR and primitive out‑parameters).Empty strings are
+* returned as NULL BSTRs, which are valid in COM and safely handled by C# callers.
+*
+* The class also maintains static timing state :
+*-m_timeStamp : the test start time(steady_clock)
+* -m_prevTime : the timestamp of the previous log entry
+*
+*These allow each entry to compute high‑resolution delta timing without requiring
+* external coordination.
+*/
 
 class LogEntry : public ILOGENTRY
 {
 public:
-	/**
-	 * @brief Constructs a new LogEntry with full diagnostic context.
-	 *
-	 * @param nDebugLvl  Debug/verbosity level associated with this entry.
-	 * @param ctgry      Category or subsystem name for grouping/filtering.
-	 * @param prevTme    Timestamp of the previous log entry, used to compute delta time.
-	 *
-	 * The constructor assigns a unique entry ID, initializes the property
-	 * collection, computes delta time, and registers the allocation with
-	 * the global MemoryChecker.
-	 */
 	LogEntry(wstring ctgry);
 	~LogEntry();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj) override;
@@ -66,15 +65,26 @@ public:
 
 	/**
 	 * @brief Retrieves the log message text as a BSTR.
+	 *
+	 * Empty strings produce a NULL BSTR, which is valid in COM and safely
+	 * marshaled as null in C#. Non‑empty strings are allocated via SysAllocString.
+	 *
 	 * @param bsTxt Receives the allocated BSTR.
-	 * @return S_OK on success, E_OUTOFMEMORY on allocation failure.
+	 * @return S_OK on success, E_POINTER if bsTxt is null.
 	 */
 	HRESULT __stdcall GetText(BSTR* bsTxt);
-	HRESULT __stdcall SetText(const wchar_t* szTxt);
 
 	/**
+	 * @brief Sets the log message text.
+	 * @param szTxt Null‑terminated wide string containing the message text.
+	 * @return S_OK on success.
+	 */
+	HRESULT __stdcall SetText(const wchar_t* szTxt);
+
+	
+	/**
 	 * @brief Retrieves the timestamp associated with this entry.
-	 * @param tme Receives the timestamp value.
+	 * @param tme Receives the timestamp value in milliseconds since test start.
 	 */
 	HRESULT __stdcall GetTime(long long* tme);
 
@@ -84,17 +94,72 @@ public:
 	 */
 	HRESULT __stdcall GetMemUsed(long long* mem);
 
+	/**
+	 * @brief Sets the debug/verbosity level for this entry.
+	 */
 	inline HRESULT __stdcall SetDebugLevel(int nDebug)
 	{
 		m_nDebugLevel = nDebug;
 		return S_OK;
 	}
 
+	/**
+	 * @brief Retrieves the debug/verbosity level.
+	 */
 	inline HRESULT __stdcall GetDebugLevel(int* nDebug)
 	{
 		*nDebug = m_nDebugLevel;
 		return S_OK;
 	}
+
+	/**
+	 * @brief Retrieves the category label as a BSTR.
+	 */
+	inline HRESULT __stdcall GetCategory(BSTR* bsCat)
+	{
+		*bsCat = SysAllocString(m_category.c_str());
+		return S_OK;
+	}
+
+	/**
+	 * @brief Sets the category label.
+	 */
+	inline HRESULT __stdcall SetCategory(const wchar_t* szCat)
+	{
+		m_category = szCat;
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall GetFile(BSTR* bsFile)
+	{
+		*bsFile = SysAllocString(m_file.c_str());
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall SetFile(const wchar_t* szFile)
+	{
+		m_file = szFile;
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall GetDeltaTime(long long* nDeltaTime)
+	{
+		*nDeltaTime = m_deltaTime;
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall GetLine(int* nLine)
+	{
+		*nLine = m_line;
+		return S_OK;
+	}
+
+	inline HRESULT __stdcall SetLine(int nLine)
+	{
+		m_line = nLine;
+		return S_OK;
+	}
+		
 
 	HRESULT __stdcall UnitTest();
 
@@ -118,11 +183,6 @@ public:
      * @return A formatted HTML string.
      */
 	wstring GetHTML();
-
-	inline void SetFile(wstring fle) { m_file = fle; };
-	inline void SetLine(int nLne) { m_line = nLne; };
-
-	
 	
 private:
 	int m_cRef;                         ///< COM reference count.
@@ -133,12 +193,12 @@ private:
 	UINT m_nDebugLevel;                 ///< Debug/verbosity level.
 	wstring m_category;                 ///< Category or subsystem label.
 	long long m_deltaTime;              ///< Time since previous log entry.
-	wstring m_file;
-	int m_line;
+	wstring m_file;						///< Source file where the entry originated.
+	int m_line;							///< Source line number.
 	static std::chrono::steady_clock::time_point m_timeStamp; ///< Test start time.
-	static long long m_prevTime;
-	DWORD m_threadID;
-	DWORD m_processID;
+	static std::atomic<long long> m_prevTime;				  ///< Timestamp of previous log entry.
+	DWORD m_threadID;					///< Thread ID of caller.
+	DWORD m_processID;					///< Process ID of caller.
 };
 
 struct TESTVALUE
@@ -233,11 +293,11 @@ public:
 	 */
 	HRESULT __stdcall SetTestData(LPCWSTR szName, LPCWSTR szVal);
 
-	HRESULT __stdcall GetClassName(UINT nClassID, IUnknown* iStrClassName);
+	HRESULT __stdcall GetClassName(UINT nClassID, BSTR* bbsClassName);
 	HRESULT __stdcall GetClassID(LPCWSTR szClassName, UINT* nClassID);
 	
 	/** @brief Generates the final report. */
-	HRESULT __stdcall Report(wchar_t* szRpt, UINT nlen);
+	HRESULT __stdcall Report();
 
 	/**
 	 * @brief Internal verification helper.
@@ -248,15 +308,12 @@ public:
 
 	inline HRESULT __stdcall GetPassed(BOOL* bVal) 
 	{
-		if (m_bPass)
-			*bVal = TRUE;
-		else
-			*bVal = FALSE;
-		
+		m_pPass->GetAsBool(bVal);		
 		return S_OK;
 	}
 
 	HRESULT __stdcall NewEntry(IUnknown** iEntry);
+	HRESULT __stdcall GetProperties(IUnknown** iPrp);
 
 	HRESULT __stdcall UnitTest();
 
@@ -266,8 +323,8 @@ public:
 
 private:
 	int m_cRef;                          ///< COM reference count.
-	wstring m_report;					 ///< Report output variable.
-	bool m_bPass;		                 ///< Pass/fail indicator.
+	VLVariable* m_pReport;				 ///< Report output variable.
+	VLVariable* m_pPass;                 ///< Pass/fail indicator.
 
 	VLVariable* m_pMemCheck;             ///< Memory usage check flag.
 	

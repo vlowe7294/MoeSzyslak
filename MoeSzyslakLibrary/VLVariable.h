@@ -61,6 +61,7 @@ public:
 	inline wstring DisplayName() { return (const wchar_t*)m_iDisplayName; };
 
 private:
+	int m_nID;
 	int m_cRef;
 	bool m_bLocked;
 	StringInf m_iStr;
@@ -79,17 +80,22 @@ private:
 	IUnknown* m_iReturnUnk;
 	StringInf m_iReturnStr;
 	wstring m_origValue;
-	int m_instance;
-
 	
 	void GrowSize(int ndx);
 };
 
-class VariableCollection : public InterfaceCollection
+class VariableCollection : public IVARIABLELIST
 {
 public:
 	VariableCollection();
 	~VariableCollection();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+	HRESULT __stdcall GetAsString(const wchar_t* szTag, BSTR* bsStr);
+
+
+
 	VLVariable* NewVariable(wstring szTag);
 	void Set(wstring szTag, wstring szValue, VLVariable::VAR_TYPE type);
 	wstring Get(wstring szTag);
@@ -99,4 +105,11 @@ public:
 	VLVariable* Get(int ndx);
 	void TurnOffChanged();
 	bool HasChanged();
+	void Clear();	
+	int Count();
+	VLVariable* GetByTag(const wchar_t* szTag);
+
+private:
+	ComCollection m_variables;
+	int m_cRef;
 };

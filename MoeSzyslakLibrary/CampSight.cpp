@@ -7,6 +7,7 @@ wstring VersionAsString();
 
 Trail::Trail(wstring nme, DIFFICULTY diff, double len)
 {
+	m_cRef = 1;
 	m_name = nme;
 	m_difficulty = diff;
 	m_lengthMiles = len;
@@ -18,16 +19,47 @@ Trail::~Trail()
 {
 }
 
+HRESULT __stdcall Trail::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+
+	if (riid == IID_IUnknown)
+	{
+		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else
+		return E_NOINTERFACE;
+
+}
+
+ULONG __stdcall Trail::AddRef()
+{
+	InterlockedIncrement(&m_cRef);
+	return m_cRef;
+}
+
+ULONG __stdcall Trail::Release()
+{
+	InterlockedDecrement(&m_cRef);
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
+}
+
 
 
 
 
 std::atomic<uint32_t> g_nextSiteId{ 1 };
 
-Site::Site(wstring nme, double lat, double lon) : m_id(g_nextSiteId.fetch_add(1, std::memory_order_relaxed))
+Site::Site(double lat, double lon) : m_id(g_nextSiteId.fetch_add(1, std::memory_order_relaxed))
 {
 	m_cRef = 1;
-	m_name = nme;
 	m_latitude = lat;
 	m_longitude = lon;
 }
@@ -75,6 +107,12 @@ void Site::Print()
 	wprintf(L"%s\t%f\t%f\n", m_name.c_str(), m_latitude, m_longitude);
 }
 
+wstring Site::MapLink()
+{
+	std::wstring url = L"https://www.google.com/maps?q=" +
+		std::to_wstring(m_latitude) + L"," + std::to_wstring(m_longitude);
+	return url;
+}
 
 
 
@@ -84,12 +122,12 @@ CampArea::CampArea(wstring nme)
 {
 	m_cRef = 1;
 	m_name = nme;
-	m_pTrail = NULL;
+	g_memoryChecker.IncrementInstance(CLASSID::CAMPAREA);	
 }
 
 CampArea::~CampArea()
 {
-	delete m_pTrail;
+	g_memoryChecker.DecrementInstance(CLASSID::CAMPAREA);
 }
 
 HRESULT __stdcall CampArea::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -98,6 +136,12 @@ HRESULT __stdcall CampArea::QueryInterface(REFIID riid, LPVOID* ppvObj)
 	if (riid == IID_IUnknown)
 	{
 		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else if (riid == CAMPAREA_IID)
+	{
+		*ppvObj = static_cast<ICAMPAREA*>(this);
 		AddRef();
 		return NOERROR;
 	}
@@ -115,7 +159,6 @@ ULONG __stdcall CampArea::AddRef()
 ULONG __stdcall CampArea::Release()
 {
 	InterlockedDecrement(&m_cRef);
-
 	if (0 == m_cRef)
 	{
 		delete this;
@@ -125,20 +168,22 @@ ULONG __stdcall CampArea::Release()
 	return m_cRef;
 }
 
-void CampArea::Print()
+HRESULT __stdcall CampArea::GetName(BSTR* szNme)
 {
-	int i = 0;
-	Site* pSite = NULL;
-	wprintf(L"%s\n", m_name.c_str());
+	*szNme = SysAllocString(m_name.c_str());
+	return S_OK;
+}
+HRESULT __stdcall CampArea::SetName(const wchar_t* szNme)
+{
+	m_name = szNme;
+	return S_OK;
+}
 
-	wprintf(L"Name\tLatitude\tLongitude\n");
+HRESULT __stdcall CampArea::GetSite(int ndx, IUnknown** iSite)
+{
+	*iSite = m_sites.Get(ndx);
+	return S_OK;
 
-	while (m_sites.ForEach((IUnknown**)&pSite) == S_OK)
-	{
-		i++;
-		wprintf(L"%d)  ", i);
-		pSite->Print();
-	}
 }
 
 void CampArea::Save(Database& db)
@@ -167,6 +212,11 @@ void CampArea::Load(Database& db)
 	{
 		m_name = s;
 	}
+}
+
+void CampArea::AddTrail(Trail* pTrail)
+{
+	m_trails.Add(pTrail, pTrail->GetName().c_str(), 0);
 }
 
 
@@ -244,7 +294,7 @@ HRESULT __stdcall CampSight::AddSite(const wchar_t* szArea, const wchar_t* szSit
 		return E_INVALIDARG;
 	}		
 
-	m_areas.GetByTag(szArea, (IUnknown**)&pArea);
+	pArea = (CampArea*)m_areas.GetByTag(szArea);
 
 	if (pArea == NULL)
 	{
@@ -252,46 +302,31 @@ HRESULT __stdcall CampSight::AddSite(const wchar_t* szArea, const wchar_t* szSit
 		m_areas.Add(pArea, szArea, 0);
 	}
 
-	Site* pSite = new Site(szSite, lat, lon);
+	Site* pSite = new Site(lat, lon);
+	pSite->SetName(szSite);
 	pArea->GetSites().Add(pSite, szSite, 0);
-	pArea->Print();
 
 	pSite->Release();
+	pArea->Release();
 	return S_OK;
 }
 
-HRESULT __stdcall CampSight::GetArea(UINT ndx, wchar_t* szName, UINT nLen)
+HRESULT __stdcall CampSight::GetArea(int ndx, IUnknown** iArea)
 {
-	CampArea* pArea = NULL;
-
-	szName[0] = L'\0';		
-
-	m_areas.Get(ndx, (IUnknown**)&pArea);
-
-	if (pArea != NULL)
-	{
-		wcsncpy_s(szName, nLen, pArea->GetName().c_str(), _TRUNCATE);
-	}
-
-	
-
+	*iArea = m_areas.Get(ndx);
 	return S_OK;
-
 }
 
 HRESULT __stdcall CampSight::UnitTest()
-{
-	
-	
-	std::wstring url = L"https://www.google.com/maps?q=" +
-		std::to_wstring(32.251301564676666) + L"," + std::to_wstring(-97.81124046064532);
-
-	//ShellExecuteW(NULL, L"open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
-
+{	
 	CampArea* pArea = NULL;
+	Site* pSite = NULL;
 
-	m_areas.GetByTag(L"Dinosaur Valley State Park", (IUnknown**)&pArea);
+	GetArea(0, (IUnknown**)&pArea);
+	pArea->GetSite(0,(IUnknown**)&pSite);
+	wstring mapLink = pSite->MapLink();
 
+	pSite->Release();
 	Database* pDB = new Database();
 
 	pArea->Save(*pDB);
@@ -303,8 +338,10 @@ HRESULT __stdcall CampSight::UnitTest()
 	pDB->Release();
 
 	Trail* pTrail = new Trail(L"Black-Capped Vireo Trail", Trail::DIFFICULTY_MODERATE, 4.3);
-	pArea->SetTrail(pTrail);
+	pArea->AddTrail(pTrail);
+	pTrail->Release();
 
 	pArea->GetSites().RemoveByTag(L"Laham Mill #14");
+	pArea->Release();
 	return S_OK;
 }

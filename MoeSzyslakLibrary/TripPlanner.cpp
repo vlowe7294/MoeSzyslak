@@ -67,8 +67,7 @@ TripPlanner::TripPlanner()
     m_pName->SetString(L"New Trip");
     m_pName->CanBeEmpty(false);
 
-    m_properties.GetLocalString(m_iRetStr);    
-	m_MPG = 0.0;
+    m_MPG = 0.0;
 }
     
 
@@ -130,13 +129,6 @@ HRESULT __stdcall TripPlanner::Command(const wchar_t* szCmd)
 
     switch (szCmd[0])
     {
-    case L'g':
-    case L'G':
-    case L's':
-    case L'S':
-        hr = m_properties.Command(szCmd);
-        break;
-
     case L'A':
     case L'a':
         cmds.Split(szCmd, L' ');

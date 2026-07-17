@@ -153,12 +153,11 @@ void Radio::Commit(DISNetwork& dis)
 		dt = DATUM_ID_FIXED_AUDIO_VOLUME_COMM_3;
 
 	PDU pdu(dt);
-	VariableInf v;
-	m_properties.GetByTag(L"Enabled", v);
+	VLVariable* v = m_properties.GetByTag(L"Enabled");
 	
 	v->GetAsBool(&b);
 
-	m_properties.GetByTag(L"Volume", v);	
+	v = m_properties.GetByTag(L"Volume");	
 
 	if (b == FALSE)
 		v->SetAsInt(0, 0);
@@ -203,8 +202,7 @@ void Radio::Update(DISNetwork& dis)
 	else if (m_ndx == 2)
 		dt = DATUM_ID_FIXED_AUDIO_VOLUME_COMM_3;
 
-	VariableInf v;
-	m_properties.GetByTag(L"Enabled", v);	
+	VLVariable* v = m_properties.GetByTag(L"Enabled");	
 
 	if (dis.GetPDU(dt, pdu))
 	{
@@ -215,8 +213,8 @@ void Radio::Update(DISNetwork& dis)
 		else
 			v->SetAsBool(FALSE);
 
-		m_properties.GetByTag(L"Volume", v);
-		v.SetInt(vol, 0);
+		v = m_properties.GetByTag(L"Volume");
+		v->SetAsInt(vol, 0);
 	}
 
 	dt = DATUM_ID_FIXED_AUDIO_RADIO_FREQUENCY_COMM_1_IOS;
@@ -580,16 +578,10 @@ void CommGeneralPage::Update()
 
 void CommGeneralPage::Command(const wchar_t* szCmd)
 {
-	m_pProperties->Command(szCmd);
-
+	
 }
 
 wstring  CommGeneralPage::GetReturnString()
-{
-	wstring ret;
-	StringInf iStr;
-	m_pProperties->GetReturnString(iStr);
-
-	ret = (const wchar_t*)iStr;
-	return ret;
+{	
+	return L"";
 }

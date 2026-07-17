@@ -2,12 +2,17 @@
 #include "VLVariable.h"
 #include <algorithm>
 #include "Utilities/Database.h"
+#include "Testing.h"
 
 void _cdecl DestroyMoeSzyslakHandle(UINT hObj);
 UINT AddHandle(IUnknown* iunk, UINT nClassID);
 
 VLVariable::VLVariable()
 {
+	static int nID = 0;
+	nID++;
+	m_nID = nID;
+
 	m_cRef = 1;
 	m_bLocked = false;
 	m_pValues = new double[1];
@@ -29,11 +34,7 @@ VLVariable::VLVariable()
 	m_iDisplayName.Init();
 	m_iReturnUnk = m_iStr;
 	m_iReturnStr.Init();
-	m_iOrigDate = NULL;
-
-	static int hit = 0;
-	hit++;
-	m_instance = hit;
+	m_iOrigDate = NULL;	
 }
 
 VLVariable::~VLVariable()
@@ -783,12 +784,65 @@ void VLVariable::TurnOffChanged()
 
 VariableCollection::VariableCollection()
 {
+	g_memoryChecker.IncrementInstance(CLASSID::VARIABLECOLLECTION);
+	m_cRef = 1;
 
 }
 
 VariableCollection::~VariableCollection()
 {
+	g_memoryChecker.DecrementInstance(CLASSID::VARIABLECOLLECTION);
+}
 
+HRESULT __stdcall VariableCollection::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+	if (riid == IID_IUnknown)
+	{
+		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else if (riid == VARIABLELIST_IID)
+	{
+		*ppvObj = static_cast<IVARIABLELIST*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else
+		return E_NOINTERFACE;
+}
+
+ULONG __stdcall VariableCollection::AddRef()
+{
+	m_cRef++;
+	return m_cRef;
+}
+
+ULONG __stdcall VariableCollection::Release()
+{
+	m_cRef--;
+
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
+}
+
+HRESULT __stdcall VariableCollection::GetAsString(const wchar_t* szTag, BSTR* bsStr)
+{
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag);
+	*bsStr = NULL;
+	
+	if (pVar != NULL)
+	{
+		*bsStr = SysAllocString(pVar->GetString().c_str());
+		pVar->Release();		
+	}
+
+	return S_OK;
 }
 
 VLVariable* VariableCollection::NewVariable(wstring szTag)
@@ -798,7 +852,9 @@ VLVariable* VariableCollection::NewVariable(wstring szTag)
 
 	pVar->GetDisplayName(iStr);
 	iStr->Set(szTag.c_str());
-	InterfaceCollection::Add(pVar, szTag.c_str(), 0);
+
+
+	m_variables.Add(pVar, szTag.c_str(), 0);
 	pVar->Release();
 
 	return pVar;
@@ -810,7 +866,7 @@ void VariableCollection::Set(wstring szTag, wstring szValue, VLVariable::VAR_TYP
 	VLVariable* pVar = NULL;
 	StringInf iStr;
 
-	InterfaceCollection::GetByTag(szTag.c_str(), (IUnknown**)&pVar);
+	pVar = (VLVariable*)m_variables.GetByTag(szTag.c_str());
 
 	if (pVar == NULL)
 	{
@@ -819,23 +875,22 @@ void VariableCollection::Set(wstring szTag, wstring szValue, VLVariable::VAR_TYP
 		iStr->Set(szTag.c_str());
 
 		pVar->SetType(type);
-
-		InterfaceCollection::Add(pVar, szTag.c_str(), 0);
-		pVar->Release();
+		m_variables.Add(pVar, szTag.c_str(), 0);		
 	}
 
 	pVar->SetString(szValue.c_str());
-
+	pVar->Release();
 }
 
 wstring VariableCollection::Get(wstring szTag)
 {
-	VLVariable* pVar = NULL;
-
-	InterfaceCollection::GetByTag(szTag.c_str(), (IUnknown**)&pVar);
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag.c_str());
 
 	if (pVar != NULL)
+	{
+		pVar->Release();
 		return pVar->GetString();
+	}
 	else
 		return L"";
 
@@ -866,14 +921,21 @@ void VariableCollection::Load(IUnknown* iTbl)
 bool VariableCollection::ForEach(VLVariable** pVar)
 {
 	*pVar = NULL;
-	return InterfaceCollection::ForEach((IUnknown**)pVar) == S_OK;
+	bool b = m_variables.ForEach((IUnknown**)pVar);
+
+	if (b && *pVar != NULL)
+		(*pVar)->Release();
+
+	return b;
 }
 
 VLVariable* VariableCollection::Get(int ndx)
 {
-	VLVariable* pVar = NULL;
+	VLVariable* pVar = (VLVariable*)m_variables.Get(ndx);
 
-	InterfaceCollection::Get(ndx, (IUnknown**)&pVar);
+	if (pVar != NULL)
+		pVar->Release();
+
 	return pVar;
 }
 
@@ -899,11 +961,31 @@ bool VariableCollection::HasChanged()
 
 		if (bChanged == TRUE)
 		{
-			m_nCurrent = 0;
+			m_variables.Reset();
 			return true;
 		}
 	}
 
 	return false;
 
+}
+
+VLVariable* VariableCollection::GetByTag(const wchar_t* szTag)
+{
+	VLVariable* v = (VLVariable*)m_variables.GetByTag(szTag);
+
+	if (v != NULL)
+		v->Release();
+
+	return v;
+}
+
+void VariableCollection::Clear()
+{
+	m_variables.Clear();
+}
+
+int VariableCollection::Count()
+{
+	return m_variables.Count();
 }

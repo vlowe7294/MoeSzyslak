@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "VLString.h"
+#include "Testing.h"
 
 InterfaceCollection::InterfaceCollection()
 {
@@ -8,7 +9,7 @@ InterfaceCollection::InterfaceCollection()
 	m_maxObjects = 100;
 	m_array = new IUnknown*[100];
 	m_nCurrent = 0;
-	m_iLocalStr.Init();
+	m_iLocalStr.Init();	
 	
 }
 
@@ -370,8 +371,14 @@ void InterfaceCollection::RemoveByTag(const wchar_t* szTag)
 
 
 
+
 ComCollection::ComCollection()
 {
+	static int nID = 0;
+	nID++;
+	m_nID = nID;
+
+
 	m_nCurrent = 0;
 
 }
@@ -389,6 +396,7 @@ void ComCollection::Clear()
 			p->Release();
 	}
 	
+	m_array.clear();
 	m_mapToIndex.clear();
 	m_mapToTag.clear();
 }
@@ -456,4 +464,45 @@ IUnknown* ComCollection::Get(int ndx)
 	}
 
 	return iunk;
+}
+
+IUnknown* ComCollection::GetByTag(const wchar_t* szTag)
+{
+	IUnknown* iRet = NULL;
+
+	if (m_mapToIndex.find(szTag) == m_mapToIndex.end())  // tag does not exist
+		return iRet;
+
+	int i = m_mapToIndex[szTag];
+
+	iRet = Get(i);
+	return iRet;
+}
+
+void ComCollection::RemoveByTag(const wchar_t* szTag)
+{
+	if (m_mapToIndex.find(szTag) == m_mapToIndex.end())  // tag does not exist
+		return;
+
+	Remove(m_mapToIndex[szTag]);
+}
+
+void ComCollection::Remove(int ndx)
+{
+	if (m_array.size() > ndx)
+	{
+		IUnknown* iunk = m_array[ndx];
+
+		if (iunk != NULL)
+			iunk->Release();
+
+		m_array[ndx] = NULL;
+	}
+
+	if (m_mapToTag.find(ndx) != m_mapToTag.end())
+	{
+		std::wstring tag = m_mapToTag[ndx];
+		m_mapToTag.erase(ndx);
+		m_mapToIndex.erase(tag);
+	}	
 }
