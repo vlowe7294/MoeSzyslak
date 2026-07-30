@@ -40,8 +40,6 @@ class MoeSzyslakLibrary:
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32, ctypes.c_wchar_p)
         MoeSzyslakLibrary.InvokeHandle = hllApiProto (("InvokeMoeSzyslakHandle", MoeSzyslakLibrary._hllDll)) 
 
-        hllApiProto = ctypes.WINFUNCTYPE (None, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_uint32)
-        MoeSzyslakLibrary.MoeSzyslakGetReturnString = hllApiProto (("MoeSzyslakGetReturnString", MoeSzyslakLibrary._hllDll)) 
         hllApiProto = ctypes.WINFUNCTYPE (ctypes.c_uint32, ctypes.c_uint32)
         MoeSzyslakLibrary.DestroyHandle = hllApiProto (("DestroyMoeSzyslakHandle", MoeSzyslakLibrary._hllDll)) 
 
@@ -51,6 +49,10 @@ class MoeSzyslakLibrary:
         MoeSzyslakLibrary.CreateMoeSzyslakInterface =  MoeSzyslakLibrary._hllDll.CreateMoeSzyslakInterface
         MoeSzyslakLibrary.CreateMoeSzyslakInterface.argtypes = [c_uint, ctypes.POINTER(c_void_p)]
         MoeSzyslakLibrary.CreateMoeSzyslakInterface.restype = None
+
+        MoeSzyslakLibrary.DispatchMoeSzyslak =  MoeSzyslakLibrary._hllDll.DispatchMoeSzyslak
+        MoeSzyslakLibrary.DispatchMoeSzyslak.argtypes = [ctypes.c_uint, ctypes.c_int, ctypes.c_void_p]
+        MoeSzyslakLibrary.DispatchMoeSzyslak.restype  = ctypes.c_int
 
     def GetReturnString(hObj, nCapacity = 1000):
         ret = ''
@@ -87,6 +89,65 @@ class MoeSzyslakLibrary:
         if hr & 0x80000000:
             raise RuntimeError(f"{message}: HRESULT=0x{hr:08X}")
         return hr
+
+
+class MoeVariant(ctypes.Structure):
+    _fields_ = [
+        ("type", ctypes.c_int),
+        ("data", ctypes.c_void_p),
+        ("sizeBytes", ctypes.c_size_t)
+    ] 
+
+class MoeVariantList(ctypes.Structure):
+    _fields_ = [
+        ("count", ctypes.c_size_t),
+        ("items", ctypes.c_void_p)   # pointer to array of MoeVariant
+    ]
+
+class MoeDispatch():
+    def make_variant_array(variants):
+        count = len(variants)
+        array_type = MoeVariant * count
+        array_obj = array_type(*variants)
+
+        ptr = ctypes.cast(array_obj, ctypes.c_void_p)
+        return ptr, array_obj  # return both pointer and Python-owned array
+
+    def make_variant_list(variants):
+        items_ptr, array_obj = MoeDispatch.make_variant_array(variants)
+
+        list_obj = MoeVariantList()
+        list_obj.count = len(variants)
+        list_obj.items = items_ptr
+
+        list_ptr = ctypes.cast(ctypes.pointer(list_obj), ctypes.c_void_p)
+
+        return list_ptr, list_obj, array_obj
+
+    def set_property(handle, name, value):
+        # Allocate strings
+        name_buf  = ctypes.create_unicode_buffer(name)
+        value_buf = ctypes.create_unicode_buffer(value)
+
+        # Build variants
+        v_name = MoeVariant(
+            type=0,
+            data=ctypes.cast(name_buf, ctypes.c_void_p),
+            sizeBytes=(len(name) + 1) * 2
+        )
+
+        v_value = MoeVariant(
+            type=0,
+            data=ctypes.cast(value_buf, ctypes.c_void_p),
+            sizeBytes=(len(value) + 1) * 2
+        )
+
+        # Build variant list
+        list_ptr, list_obj, array_obj = MoeDispatch.make_variant_list([v_name, v_value])
+
+        # Dispatch
+        result = MoeSzyslakLibrary.DispatchMoeSzyslak(handle, 1, list_ptr)
+        return result
 
 
 
@@ -128,9 +189,10 @@ class IOS:
 
 
 if __name__ == "__main__": 
-    try:
-        IOS.Start()
-        IOS.Dispose()
-    except Exception as e:
-        print(e)
+    MoeSzyslakLibrary.VerifyLibrary()
+    handle = MoeSzyslakLibrary.CreateHandle(507734)
+
+    value = "Summer Vacation"
+    MoeDispatch.set_property(handle, "TripName", "Summer Vacation")
+    print("TripName =", value)
     

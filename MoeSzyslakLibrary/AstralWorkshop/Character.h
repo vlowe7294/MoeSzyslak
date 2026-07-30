@@ -27,12 +27,15 @@ public:
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
+	HRESULT __stdcall GetIsPC(BOOL* bIsPC);
 
 	HRESULT CreateCharacter(wstring strCmd, wstring& strOut);
 	HRESULT Tick(int nSec);
 	void Save(ITABLE* iTbl);
 	void Load(ITABLE* iTbl);
+	void MessageString(wstring sStringToDisplay);
 	HRESULT UnitTest();
+
 
 	inline bool IsComplete() { return m_bComplete; }
 

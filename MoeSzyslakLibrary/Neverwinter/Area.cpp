@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Area.h"
+#include "..\AstralWorkshop\Character.h"
 
 Dice::Dice(UINT nSides, UINT nSeed) : m_rng(nSeed)
 {
@@ -42,11 +43,14 @@ Encounter::~Encounter()
 
 
 
-Location::Location(const wchar_t* szName)
+Location::Location()
 {
-	m_name = szName;
+	m_pProperties = new VariableCollection();
+	m_pName = m_pProperties->NewVariable(L"Name");
+
 	m_cRef = 1;
 	m_pEncounter = NULL;
+	m_pPlaceable = NULL;
 
 }
 
@@ -54,6 +58,11 @@ Location::~Location()
 {
 	printf("Location destructor called\n");
 	delete m_pEncounter;
+
+	if (m_pPlaceable != NULL)		
+		m_pPlaceable->Release();
+
+	m_pProperties->Release();
 }
 
 HRESULT __stdcall Location::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -125,34 +134,97 @@ HRESULT __stdcall Location::AddEncounter(const wchar_t* szTag, int dif, int nMax
 	return S_OK;
 }
 
+HRESULT __stdcall Location::AddPlaceable(const wchar_t* szName, const wchar_t* szTag)
+{
+	if (m_pPlaceable == NULL)
+		m_pPlaceable = new Placeable();
+
+	m_pPlaceable->SetName(szName);
+	m_pPlaceable->SetTag(szTag);
+	return S_OK;
+}
+
+HRESULT __stdcall  Location::GetProperties(IUnknown** iPrp)
+{
+	m_pProperties->QueryInterface(IID_IUnknown, (void**)iPrp);
+	return S_OK;
+}
+
 void Location::Tick(int nSec)
 {
+	if (m_pPlaceable != NULL)
+		m_pPlaceable->Tick(nSec);
+}
 
+void Location::GetObjectByTag(IUnknown** iunk, const wchar_t* szTag)
+{
+	if (m_pPlaceable != NULL && m_pPlaceable->GetTag() == szTag)
+	{
+		m_pPlaceable->QueryInterface(IID_IUnknown, (void**)iunk);
+		return;
+	}		
+
+}
+
+// event functions
+
+void MakeEvil(Character& pc)
+{
+	pc.MessageString(L"Just being in this place is enough to taint your soul.");
+	pc.AdjustAlignment(Creature::ALIGNMENT_EVIL, 1);	
+}
+
+
+
+void rav_applymists(IUnknown* iSelf, IUnknown* iEntering)
+{
+	ICREATURE* iPC = NULL;
+	BOOL bIsPC = FALSE;
+	Dice d(2), d15(15);
+	
+	iEntering->QueryInterface(CREATURE_IID, (void**)&iPC);
+	
+
+	if (iPC == NULL)
+		return;
+
+	iPC->GetIsPC(&bIsPC);
+
+	if (bIsPC == FALSE)
+	{
+		iPC->Release();
+		return;
+	}
+
+	Character* pPC = (Character*)iPC;
+
+	MakeEvil(*pPC);	
+	iPC->Release();
 }
 
 
 
 
-Area::Area(const wchar_t* szName, int nDanger)
+Area::Area()
 {
 	m_cRef = 1;
 	g_memoryChecker.IncrementInstance(CLASSID::AREA);
 
 	m_pProperties = new VariableCollection();
+	m_pName = m_pProperties->NewVariable(L"Name");
+	m_pDangerLevel = m_pProperties->NewVariable(L"Danger Level");
 
-	m_name = szName;
-
-	VLVariable* v = m_pProperties->NewVariable(L"contents");
-	
-	m_nDangerLevel = nDanger;
-	m_pQuest = new Quest(L"Gather Herbs at the Forest Edge", 1, 0);
+	m_pDangerLevel->SetAsInt(0, 0);
+	m_pDangerLevel->SetLimits(0, 20);
+	Quest* pQuest = new Quest(L"Gather Herbs at the Forest Edge", 1, 0);
+	m_quests.Add(pQuest, L"", 0);
+	pQuest->Release();
 }
 
 Area::~Area()
 {
 	g_memoryChecker.DecrementInstance(CLASSID::AREA);
 	m_pProperties->Release();
-	delete m_pQuest;
 }
 
 HRESULT __stdcall Area::QueryInterface(REFIID riid, LPVOID* ppvObj)
@@ -194,32 +266,6 @@ ULONG __stdcall Area::Release()
 	return m_cRef;
 }
 
-HRESULT __stdcall Area::Command(const wchar_t* szCmd, IUnknown* iRetStr)
-{
-	VLStringCollection wrds;
-	StringInf iStr;
-	
-	iStr.Attach(iRetStr);
-
-	wrds.Split(szCmd, L' ');
-	wrds.ToLower(0);
-
-	if (wrds.Compare(0, L"set"))
-	{
-		m_pProperties->Set(wrds.Get(1), wrds.Get(2), VLVariable::VAR_TYPE::TYPE_STRING);
-		return S_OK;
-	}
-	else if (wrds.Compare(0, L"get"))
-	{
-		iStr->Set(m_pProperties->Get(wrds.Get(1)).c_str());
-		return S_OK;
-	}
-
-	iStr->Set(L"Unknown Command");
-	return E_FAIL;
-
-}
-
 HRESULT __stdcall Area::Tick(int nSec)
 {
 	Location* pLoc = NULL;
@@ -235,20 +281,67 @@ HRESULT __stdcall Area::Tick(int nSec)
 	return S_OK;
 }
 
-HRESULT __stdcall Area::AddLocation(IUnknown** iLoc, const wchar_t* locName)
+HRESULT __stdcall Area::AddLocation(IUnknown** iLoc)
 {
-	Location* pLoc = new Location(locName);
-	m_locations.Add(pLoc, locName, 0);
+	Location* pLoc = new Location();
+	m_locations.Add(pLoc, L"", 0);
 	pLoc->QueryInterface(IID_IUnknown, (void**)iLoc);
 	pLoc->Release();
 	return S_OK;
 }
 
+HRESULT __stdcall Area::GetProperties(IUnknown** iVarList)
+{
+	m_pProperties->QueryInterface(IID_IUnknown, (void**)iVarList);
+	return S_OK;
+}
+
+HRESULT __stdcall Area::AddQuest(IUnknown** iQuest, const wchar_t* szName, int nDuration, int nDifficulty)
+{
+	Quest* pQuest = new Quest(szName, nDuration, nDifficulty);
+	pQuest->QueryInterface(IID_IUnknown, (void**)iQuest);
+	m_quests.Add(pQuest, szName, 0);
+	pQuest->Release();
+	return S_OK;
+}
+
+HRESULT __stdcall Area::GetLocation(int ndx, IUnknown** iLoc)
+{
+	return m_locations.Get(ndx, iLoc);
+}
+
+HRESULT __stdcall Area::UnitTest()
+{
+	Character* pChar = new Character(L"Alyntha Addams", Creature::CLASS_ROGUE, Character::BACKGROUND_PEASANT);
+	IUnknown* iSpawn = NULL;
+
+	OnEnter(pChar);
+	pChar->Release();
+	GetObjectByTag(&iSpawn, L"AOEcentre");
+
+	if (iSpawn != NULL)
+		iSpawn->Release();
+
+	return S_OK;
+}
+
+HRESULT __stdcall Area::SetOnEnterHandler(const wchar_t* szFnName)
+{
+	if (wstring(szFnName) == L"rav_applymists")
+		m_onEnterHandler = rav_applymists;
+	else
+		m_onEnterHandler = NULL;
+
+	return S_OK;
+}
 
 void Area::Save(Table& tbl)
 {
-	tbl.Set(L"area_name", m_name.c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
-	tbl.Set(L"danger_level", std::to_wstring(m_nDangerLevel).c_str(), VLVariable::VAR_TYPE::TYPE_INT);
+	int nDnger = 0;
+	tbl.Set(L"area_name", m_pName->GetString().c_str(), VLVariable::VAR_TYPE::TYPE_STRING);
+
+	m_pDangerLevel->GetAsInt(0, &nDnger);
+	tbl.Set(L"danger_level", std::to_wstring(nDnger).c_str(), VLVariable::VAR_TYPE::TYPE_INT);
 }
 
 void Area::Load(Table& tbl)
@@ -256,9 +349,24 @@ void Area::Load(Table& tbl)
 	m_pProperties->Load(&tbl);
 }
 
-Location& Area::GetLocation(int ndx)
+
+
+void Area::OnEnter(IUnknown* iEnteringObj)
+{
+	if (m_onEnterHandler)
+		m_onEnterHandler(this, iEnteringObj);
+	
+}
+
+void Area::GetObjectByTag(IUnknown** iunk, const wchar_t* szTag)
 {
 	Location* iLoc = NULL;
-	m_locations.Get(ndx, (IUnknown**)&iLoc);
-	return *iLoc;
+
+	while (m_locations.ForEach((IUnknown**)&iLoc) == S_OK)
+	{
+		if (*iunk == NULL)
+			iLoc->GetObjectByTag(iunk, szTag);
+		
+	}
+
 }

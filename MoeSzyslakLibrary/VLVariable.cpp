@@ -132,8 +132,6 @@ HRESULT __stdcall VLVariable::GetAsBool(BOOL* bVal)
 	return S_OK;
 }
 
-UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd);
-void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
 IUnknown* GetInterfaceByHandle(UINT hObj);
 
 HRESULT __stdcall VLVariable::Command(const wchar_t* szCmd)
@@ -152,16 +150,10 @@ HRESULT __stdcall VLVariable::Command(const wchar_t* szCmd)
 	if (m_type == TYPE_INTERFACE && m_iunk != NULL)
 	{
 		UINT hObj = (UINT)m_pValues[0];
-		UINT r = InvokeMoeSzyslakHandle(hObj, szCmd);
-		MoeSzyslakGetReturnString(hObj, buf, 255);
-
 		m_iReturnStr->Set(buf);
 		m_iReturnUnk = m_iReturnStr;
 		
-		if (r == 0)
-			hr = S_OK;
-
-		return hr;
+		return S_OK;
 	}
 
 	cmds.Split(szCmd, L' ');
@@ -313,6 +305,8 @@ HRESULT __stdcall VLVariable::UnitTest()
 
 	Copy(*pCpy);
 	pCpy->HasChanged(&bVal);
+	pCpy->Release();
+	pDB->Release();
 	
 	return S_OK;
 }
@@ -507,7 +501,6 @@ HRESULT __stdcall VLVariable::SetInterface(IUnknown* iunk, UINT nClassID)
 	if (m_iunk != NULL)
 	{
 		m_iunk->AddRef();
-		m_pValues[0] = 0;
 	}
 
 	m_iStr->Set(L"");
@@ -597,7 +590,7 @@ HRESULT __stdcall VLVariable::HasChanged(BOOL* bChanged)
 			*bChanged = TRUE;
 
 	case TYPE_INT:
-		if ((m_pOrigValues, m_pValues, sizeof(double) * m_nMaxSize) != 0)
+		if (memcmp(m_pOrigValues, m_pValues, sizeof(double) * m_nMaxSize) != 0)
 			*bChanged = TRUE;
 		break;
 
@@ -636,8 +629,8 @@ HRESULT __stdcall VLVariable::Compare(IUnknown* iunk, int* nCmp)
 	}
 	else
 	{
-		wstring str1(m_iStr);
-		*nCmp = str1.compare(pVar->m_iStr);
+		wstring str1((const wchar_t*)m_iStr);
+		*nCmp = str1.compare((const wchar_t*)pVar->m_iStr);
 	}
 
 	return S_OK;
@@ -700,14 +693,14 @@ void VLVariable::GrowSize(int ndx)
 		memset(pNew, 0, sizeof(double) * m_nMaxSize * 10);
 		memcpy(pNew, m_pValues, sizeof(double) * m_nMaxSize);
 
-		delete m_pValues;
+		delete [] m_pValues;
 		m_pValues = pNew;
 
 		pNew = new double[m_nMaxSize * 10];
 		memset(pNew, 0, sizeof(double) * m_nMaxSize * 10);
 		memcpy(pNew, m_pOrigValues, sizeof(double) * m_nMaxSize);
 
-		delete m_pOrigValues;
+		delete [] m_pOrigValues;
 		m_pOrigValues = pNew;
 		m_nMaxSize = m_nMaxSize * 10;
 	}
@@ -843,6 +836,85 @@ HRESULT __stdcall VariableCollection::GetAsString(const wchar_t* szTag, BSTR* bs
 	}
 
 	return S_OK;
+}
+
+HRESULT __stdcall VariableCollection::SetAsString(const wchar_t* szTag, const wchar_t* szVal)
+{
+	VLVariable* pVar = NULL;
+	StringInf iStr;
+
+	pVar = (VLVariable*)m_variables.GetByTag(szTag);
+
+	if (pVar == NULL)
+	{
+		pVar = new VLVariable();
+		pVar->GetDisplayName(iStr);
+		iStr->Set(szTag);
+
+		pVar->SetType(VLVariable::TYPE_STRING);
+		m_variables.Add(pVar, szTag, 0);
+	}
+
+	pVar->SetString(szVal);
+	pVar->Release();
+	return S_OK;
+}
+
+HRESULT __stdcall VariableCollection::SetAsInt(const wchar_t* szTag, int nVal, int ndx)
+{
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag);
+
+	if (pVar == NULL)
+	{
+		pVar = NewVariable(szTag);
+		pVar->AddRef();
+	}	
+	
+	pVar->Release();
+	return pVar->SetAsInt(nVal, ndx);
+}
+
+HRESULT __stdcall VariableCollection::GetAsBool(const wchar_t* szTag, BOOL* bVal)
+{
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag);
+	*bVal = FALSE;
+
+	if (pVar != NULL)
+	{
+		pVar->GetAsBool(bVal);
+		pVar->Release();
+	}
+
+	return S_OK;
+}
+
+HRESULT __stdcall VariableCollection::SetAsBool(const wchar_t* szTag, BOOL bVal)
+{
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag);
+
+	if (pVar == NULL)
+	{
+		pVar = NewVariable(szTag);
+		pVar->AddRef();
+	}
+
+	pVar->Release();
+	return pVar->SetAsBool(bVal);
+}
+
+HRESULT __stdcall VariableCollection::GetAsInt(const wchar_t* szTag, int* nVal)
+{
+	VLVariable* pVar = (VLVariable*)m_variables.GetByTag(szTag);
+	*nVal = 0;
+
+	if (pVar != NULL)
+	{
+		pVar->GetAsInt(0, nVal);
+		pVar->Release();
+	}
+
+	return S_OK;
+
 }
 
 VLVariable* VariableCollection::NewVariable(wstring szTag)

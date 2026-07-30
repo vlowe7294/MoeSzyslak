@@ -22,7 +22,7 @@ namespace MoeConsole
             try
             {
                 MoeSzyslakLibrary.VerifyLibrary();
-                Testing.UnitTest();
+                TripPlanner.UnitTest();
             }
             catch (Exception e)
             {

@@ -5,7 +5,7 @@ EXPORTS
 	CreateMoeSzyslakHandle
 	InvokeMoeSzyslakHandle
 	DestroyMoeSzyslakHandle
-	MoeSzyslakGetReturnString
 	MoeSzyslakHTML
 	CreateMoeSzyslakInterface
 	FreeMoeSzyslakInterface
+	MoeSzyslakSetInt

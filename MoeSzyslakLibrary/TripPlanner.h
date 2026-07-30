@@ -74,9 +74,14 @@ private:
  * - Managing trip-level properties
  * - XML output generation
  */
-class TripPlanner : public TripPlannerInf::ITRIPPLANNER
+class TripPlanner : public IMOEDISPATCH
 {
 public:
+	enum Methods 
+	{
+		SETPROPERTY = 1,		
+	};
+
 	/**
 	 * @brief Constructs a new TripPlanner instance.
 	 */
@@ -106,6 +111,8 @@ public:
 	 * @return The new reference count.
 	 */
 	ULONG __stdcall Release();
+
+	HRESULT __stdcall Dispatch(IUnknown* iArgs);
 
 	/**
 	 * @brief Retrieves the trip's property collection.  The collection contains a list of IVARIABLE interfaces representing trip properties

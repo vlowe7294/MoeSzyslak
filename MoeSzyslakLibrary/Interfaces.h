@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <atomic>
 #include "MoeString.h"
-#include "Interfaces\TripPlannerInf.h"
 #include "Interfaces\IOSInf.h"
 #include "Interfaces\FinanceInf.h"
 #include "Interfaces\NeverwinterInf.h"
@@ -31,6 +30,7 @@ enum CLASSID
 };
 
 extern const std::unordered_map<std::wstring, UINT> CLASS_NAMES;
+__declspec(dllexport) void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk);
 
 // {57779E06-1468-47C9-859A-49E07CEF5F8C}
 static const GUID HOST_IID =
@@ -105,7 +105,39 @@ static const GUID VARIABLELIST_IID =
 { 0x8aff6079, 0xa5ca, 0x4cf5, { 0x93, 0x5e, 0x8d, 0x1e, 0x9c, 0x95, 0x4f, 0x83 } };
 
 
+enum MoeVariantType
+{
+	MV_EMPTY = 0,
+	MV_INT = 1,
+	MV_DOUBLE = 2,
+	MV_STRING = 3,
+	MV_BOOL = 4,
+	MV_PTR = 5
+};
 
+struct MOEVARIANT 
+{
+	MoeVariantType type;
+	void* data;        // points to the actual value
+	size_t sizeBytes;  // size of data (for strings, includes null terminator)
+};
+
+struct MOEVARIANTLIST 
+{
+	size_t count;
+	MOEVARIANT* items;   // pointer to an array of MoeVariant
+};
+
+
+// {D8D6420F-FFD5-4E96-8CF7-695F04F02ED8}
+static const GUID DISPATCH_IID =
+{ 0xd8d6420f, 0xffd5, 0x4e96, { 0x8c, 0xf7, 0x69, 0x5f, 0x4, 0xf0, 0x2e, 0xd8 } };
+
+
+struct IMOEDISPATCH : public IUnknown
+{
+	virtual HRESULT __stdcall Dispatch(IUnknown* iArgs) = 0;
+};
 
 struct IHOST : public IUnknown
 {
@@ -122,6 +154,7 @@ struct ICREATURE : public IUnknown
 {
 	virtual HRESULT __stdcall Tick(int nSec) = 0;
 	virtual HRESULT __stdcall SetArea(IUnknown* iArea) = 0;
+	virtual HRESULT __stdcall GetIsPC(BOOL* bIsPC) = 0;
 };
 
 struct IAREA : public IUnknown
@@ -132,7 +165,12 @@ struct IAREA : public IUnknown
 	 * @param[out] iLoc      Receives the IUnknown pointer for the new Location.
 	 * @param[in]  locName   Name of the Location.
 	 */
-	virtual HRESULT __stdcall AddLocation(IUnknown** iLoc, const wchar_t* locName) = 0;
+	virtual HRESULT __stdcall AddLocation(IUnknown** iLoc) = 0;
+	virtual HRESULT __stdcall GetProperties(IUnknown** iVarList) = 0;
+	virtual HRESULT __stdcall AddQuest(IUnknown** iQuest, const wchar_t* szName, int nDuration, int nDifficulty) = 0;
+	virtual HRESULT __stdcall GetLocation(int ndx, IUnknown** iLoc) = 0;
+	virtual HRESULT __stdcall SetOnEnterHandler(const wchar_t* szFnName) = 0;
+	virtual HRESULT __stdcall UnitTest() = 0;	
 };
 
 struct IMODULE : public IUnknown
@@ -333,6 +371,8 @@ struct ILOCATION : public IUnknown
 {
 	virtual HRESULT __stdcall AddNeighbor(IUnknown* iNeighbor, int travelTimeSec) = 0;
 	virtual HRESULT __stdcall AddEncounter(const wchar_t* szTag, int dif, int nMax) = 0;
+	virtual HRESULT __stdcall AddPlaceable(const wchar_t* szName, const wchar_t* szTag) = 0;
+	virtual HRESULT __stdcall GetProperties(IUnknown** iPrp) = 0;
 };
 
 /**
@@ -354,7 +394,7 @@ struct IASTRALWORKSHOP : public IUnknown
 	 * @param[in]  szName Name of the Area.
 	 * @param[in]  nDanger Initial danger rating for the Area.
 	 */
-	virtual HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger) = 0;
+	virtual HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, int nDanger) = 0;
 
 	/**
 	 * @brief Exports the world to an external XML, human-readable format.
@@ -385,14 +425,34 @@ struct ICAMPSIGHT : public IUnknown
 	virtual HRESULT __stdcall UnitTest() = 0;
 };
 
+/**
+ * @interface IVARIABLELIST
+ * @brief A COM‑exposed collection of VLVariable objects, accessible by tag or index.
+ *
+ * Provides typed accessors, iteration, persistence, and change tracking for
+ * a dynamic list of variables.
+ */
 struct IVARIABLELIST : public IUnknown
 {
-	virtual HRESULT __stdcall GetAsString(const wchar_t* szTag, BSTR* bsStr) = 0;	
+	/** @brief Retrieves a variable's string value by tag. */
+	virtual HRESULT __stdcall GetAsString(const wchar_t* szTag, BSTR* bsStr) = 0;
+
+	virtual HRESULT __stdcall SetAsString(const wchar_t* szTag, const wchar_t* szVal) = 0;
+
+	/** @brief Sets an indexed integer value for a variable by tag. */
+	virtual HRESULT __stdcall SetAsInt(const wchar_t* szTag, int nVal, int ndx) = 0;
+
+	/** @brief Retrieves a boolean value for a variable by tag. */
+	virtual HRESULT __stdcall GetAsBool(const wchar_t* szTag, BOOL* bVal) = 0;
+
+	/** @brief Sets a boolean value for a variable by tag. */
+	virtual HRESULT __stdcall SetAsBool(const wchar_t* szTag, BOOL bVal) = 0;
+
+	/** @brief Retrieves a boolean value for a variable by tag. */
+	virtual HRESULT __stdcall GetAsInt(const wchar_t* szTag, int* bVal) = 0;
 };
 
 
-
-void CreateMoeSzyslakInterface(UINT id, IUnknown** iunk);
 
 template<class T, CLASSID id> class MoeInf
 {

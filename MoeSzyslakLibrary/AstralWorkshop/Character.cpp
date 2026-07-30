@@ -47,6 +47,12 @@ ULONG __stdcall Character::Release()
 	return m_cRef;
 }
 
+HRESULT __stdcall  Character::GetIsPC(BOOL* bIsPC)
+{
+	*bIsPC = TRUE;
+	return S_OK;
+}
+
 HRESULT Character::CreateCharacter(wstring strCmd, wstring& strOut)
 {
 	int n = 0;
@@ -193,7 +199,6 @@ HRESULT Character::UnitTest()
 		m_pArea->QueryInterface(AREA_IID, (void**)&pArea);
 		Quest* pQst = new Quest(L"", 0, 0);
 
-		pQst->Copy(pArea->GetQuest());
 		pQst->Randomize();
 		wprintf(L"%s has departed on a quest: \"%s\"\n", m_name.c_str(), pQst->Name().c_str());
 
@@ -208,4 +213,10 @@ HRESULT Character::UnitTest()
 	}
 
 	return S_OK;
+}
+
+void Character::MessageString(wstring sStringToDisplay)
+{
+	wprintf(L"%s:   %s\n", m_name.c_str(), sStringToDisplay.c_str());
+
 }

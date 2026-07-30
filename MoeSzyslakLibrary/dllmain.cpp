@@ -54,7 +54,7 @@ IUnknown* JimboJonesLibrary::CreateInterface(UINT nClassID)
 
 JimboJonesLibrary g_jimboLib;
 
-#define VERSION 1643
+#define VERSION 1657
 
 VLString g_dllPath;
 
@@ -169,6 +169,10 @@ UI_EXPORT void _cdecl CreateMoeSzyslakInterface(UINT nClassID, IUnknown** iunk)
     case CLASSID::CAMPSIGHT:
         *iunk = (IUnknown*)new CampSight();
         break;
+
+    case CLASSID::VARIABLECOLLECTION:
+        *iunk = (IUnknown*)new VariableCollection();
+        break;
     }
 }
 
@@ -179,7 +183,7 @@ UI_EXPORT void _cdecl FreeMoeSzyslakInterface(IUnknown* iunk)
 }
 
 
-InterfaceCollectionInf g_iObjects;
+ComCollection g_Objects;
 
 UI_EXPORT UINT _cdecl CreateMoeSzyslakHandle(UINT nClassID)
 {
@@ -190,91 +194,73 @@ UI_EXPORT UINT _cdecl CreateMoeSzyslakHandle(UINT nClassID)
     if (iunk == NULL)
         return nCnt;
 
-    g_iObjects->Add(iunk, L"", nClassID);
+    g_Objects.Add(iunk, L"", nClassID);
     iunk->Release();
-    g_iObjects->Count(&nCnt);
+    nCnt = g_Objects.Count();
     return nCnt;
 }
 
-UI_EXPORT UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd)
+UI_EXPORT UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, UINT hVariables)
 {
     hObj--;
-    wstring cmd = std::to_wstring(hObj) + L" ";	
+    hVariables--;
+    IUnknown* iunk = g_Objects.Get(hObj), *iVariableList = g_Objects.Get(hVariables);
+    IMOEDISPATCH* iDisp;
 
-    cmd += szCmd;
-    if (FAILED(g_iObjects->Command(cmd.c_str())))
-        return 1;
-    else
-        return 0;
+    if (iunk == NULL)
+        return -1;
+
+    iunk->QueryInterface(DISPATCH_IID, (void**)&iDisp);
+    iunk->Release();
+
+    if (iDisp == NULL || iVariableList == NULL)
+    {
+        if (iDisp != NULL)
+            iDisp->Release();
+
+        if (iVariableList != NULL)
+            iVariableList->Release();
+
+        iunk->Release();
+        return -1;
+    }
+
+    iDisp->Dispatch(iVariableList);
+
+    iDisp->Release();
+    iVariableList->Release();
+    return 0;
+}
+
+UI_EXPORT void _cdecl MoeSzyslakSetInt(UINT hObj, const wchar_t* szVarName, int nVal)
+{
+    hObj--;
+    IUnknown* iunk = g_Objects.Get(hObj);
+    IVARIABLELIST* iVars = NULL;
+    hObj--;
+
+    if (iunk == NULL)
+        return;
+
+    iunk->QueryInterface(VARIABLELIST_IID, (void**)&iVars);
+    iunk->Release();
+
+    if (iVars == NULL)
+        return;
+
+    iVars->SetAsInt(szVarName, nVal, 0);
 }
 
 UI_EXPORT void  _cdecl DestroyMoeSzyslakHandle(UINT hObj)
 {
     hObj--;
-    g_iObjects->Remove(hObj);
+    g_Objects.Remove(hObj);
 }
 
-UI_EXPORT void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len)
-{
-    StringInf iRetStr;
-    g_iObjects->GetReturnString(iRetStr);
-    iRetStr.BufferSize(len);
-    wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
-    iRetStr->Set(L"");
-}
-
-const wchar_t* DEFAULT_HTML_TEMPLATE = LR"(
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Moe Szyslak Library</title>
-</head> 
-<body>
-</body>
-</html>
-)";
 
 UI_EXPORT void _cdecl MoeSzyslakHTML(UINT nClassID, const wchar_t* szGet, wchar_t* szRet, UINT len)
 {
-    static StringInf iRetStr;
-    static FinanceInf iFnce;
-
-    if ((IUnknown*)iRetStr == NULL)
-        iRetStr.Init();
-
-    iRetStr.BufferSize(len);
-
-    if (nClassID == FinanceInf::ClassID)
-    {
-        if ((IUnknown*)iFnce == NULL)
-            iFnce.Attach();
-
-        iFnce->HTMLPage(szGet, iRetStr);
-        wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
-        return;
-    }
-
-    wstring htm = DEFAULT_HTML_TEMPLATE, str;
-
     
-
-    int i = htm.find(L"</body>");
-
-    if (i > 0)
-    {
-        str = htm.substr(0, i);
-        str += L"<div>Moe Szyslak Library " + VersionAsString();
-
-        str += L"</div>";
-        str += htm.substr(i);
-        htm = str;
-    }
-
-    
-
-    
-    iRetStr.Set(htm.c_str());
-    wcsncpy_s(szRet, len, (const wchar_t*)iRetStr, len - 5);
 }
 
 const wchar_t* GetLibraryPath()
@@ -284,9 +270,8 @@ const wchar_t* GetLibraryPath()
 
 UINT AddHandle(IUnknown* iunk, UINT nClassID)
 {
-    int nCnt = 0;
-    g_iObjects->Count(&nCnt);
-    g_iObjects->Add(iunk, L"", nClassID);
+    int nCnt = g_Objects.Count();
+    g_Objects.Add(iunk, L"", nClassID);
     nCnt++;
     return nCnt;
 }
@@ -294,9 +279,7 @@ UINT AddHandle(IUnknown* iunk, UINT nClassID)
 IUnknown* GetInterfaceByHandle(UINT hObj)
 {
     hObj--;
-    IUnknown* iunk = NULL;
-
-    g_iObjects->Get(hObj, &iunk);
+    IUnknown* iunk = g_Objects.Get(hObj);
 
     return iunk;
 

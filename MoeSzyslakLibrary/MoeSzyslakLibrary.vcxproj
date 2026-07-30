@@ -175,7 +175,6 @@
     <ClInclude Include="Interfaces\IOSInf.h" />
     <ClInclude Include="Interfaces\NeverwinterInf.h" />
     <ClInclude Include="Interfaces\TestingInf.h" />
-    <ClInclude Include="Interfaces\TripPlannerInf.h" />
     <ClInclude Include="Interfaces\VariableInfCollection.h" />
     <ClInclude Include="IOS\CommGeneralPage.h" />
     <ClInclude Include="IOS\IOS.h" />
@@ -223,10 +222,6 @@
     <ClCompile Include="Interfaces\MoeInterfaces.cpp" />
     <ClCompile Include="Interfaces\NeverwinterInf.cpp" />
     <ClCompile Include="Interfaces\TestingInf.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="Interfaces\TripPlannerInf.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../pch.h</PrecompiledHeaderFile>
     </ClCompile>

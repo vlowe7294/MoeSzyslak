@@ -10,7 +10,6 @@ const std::unordered_map<std::wstring, UINT> CLASS_NAMES =
 	{ L"finance",			FinanceInf::ClassID },
 	{ L"testing",			TestingInf::ClassID },
 	{ L"table",				CLASSID::TABLE },
-	{ L"trip planner",		TripPlannerInf::ClassID },
 	{ L"date time",			CLASSID::DATETIME },
 	{ L"module",			CLASSID::MODULE },
 	{ L"host",				CLASSID::HOST },

@@ -114,9 +114,6 @@
     <ClInclude Include="IOS\PDU.h">
       <Filter>IOS</Filter>
     </ClInclude>
-    <ClInclude Include="Interfaces\TripPlannerInf.h">
-      <Filter>MoeInterfaces</Filter>
-    </ClInclude>
     <ClInclude Include="Interfaces\TestingInf.h">
       <Filter>MoeInterfaces</Filter>
     </ClInclude>
@@ -223,9 +220,6 @@
     </ClCompile>
     <ClCompile Include="IOS\PDU.cpp">
       <Filter>IOS</Filter>
-    </ClCompile>
-    <ClCompile Include="Interfaces\TripPlannerInf.cpp">
-      <Filter>MoeInterfaces</Filter>
     </ClCompile>
     <ClCompile Include="Interfaces\TestingInf.cpp">
       <Filter>MoeInterfaces</Filter>

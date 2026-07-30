@@ -52,31 +52,14 @@ namespace MoeConsole
 
         public void Commit()
         {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set \"Login Name\" \"{0}\"", m_userName));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Password \"{0}\"", m_password));
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("set Email \"{0}\"", m_email));
+            
 
-        }
-
-        public void Update()
-        {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Login Name\"");
-            m_userName = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Password");
-
-            m_password = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get \"Is Logged In\"");
-            m_bIsLoggedIn = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Email");
-            m_email = MoeSzyslakLibrary.GetReturnString(m_hObj);
         }
 
         public static void UnitTest()
         {
             Testing tst = new Testing(IntPtr.Zero);
 
-            tst.RunTest(m_classID);
             tst.Dispose();
         }
 

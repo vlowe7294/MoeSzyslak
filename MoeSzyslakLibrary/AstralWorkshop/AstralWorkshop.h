@@ -67,7 +67,7 @@ public:
 	 * @param[in]  szName Name of the Area.
 	 * @param[in]  nDanger Initial danger rating for the Area.
 	 */
-	HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger);
+	HRESULT __stdcall NewArea(IUnknown** iArea, int* ndx, int nDanger);
 
 	/**
 	 * @brief Exports the world to an external XML, human-readable format.

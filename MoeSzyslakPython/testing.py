@@ -16,6 +16,28 @@ import comtypes
 
 from UserClass import *
 
+VARIABLELIST_IID = GUID("{8AFF6079-A5CA-4CF5-935E-8D1E9C954F83}")
+
+class IVARIABLELIST(IUnknown):
+    _iid_ = VARIABLELIST_IID
+    _methods_ = [
+         COMMETHOD(
+            [], HRESULT, "GetAsString",
+            (['in'], c_wchar_p, "strTag"),
+            (['out, retVal'], POINTER(BSTR), "strTxt"),
+        ),
+    ]  
+    
+class VariableCollection:
+
+    def __init__(self, iVariableCol): 
+        self._iVariableList = iVariableCol   
+        
+    def GetAsString(self, strTag):
+        txt_bstr = BSTR()
+        self._iVariableList.GetAsString(strTag, comtypes.byref(txt_bstr));
+        return txt_bstr.value        
+
 
 LOGENTRY_IID = GUID("{AC597284-A906-482F-9BE9-C4E13AB43E50}")
 
@@ -95,7 +117,7 @@ class LogEntry:
         print(f"Time: {self.time}")
         self.Category = 'LogEntry'
         print(f"Category: {self.Category}")
-        tst.Verify(self.Category == 'LogEntry', 'LogEntry Category should be LogEntry')
+        tst.Verify(self.Category == 'LogEntry', 'LogEntry Category should be LogEntry', Testing.DEBUG_CRITICAL, "testing")
 
     ## @property Time
     ## @brief Gets the timestamp of the log entry.
@@ -161,11 +183,6 @@ class ITESTING(IUnknown):
         ),
 
         COMMETHOD(
-            [], HRESULT, "SetDebugLevel",
-            (['in'], c_int32, "level"),
-        ),
-
-        COMMETHOD(
             [], HRESULT, "GetLogEntry",
             (['in'], c_int32, "ndx"),
             (['out, retval'], CPOINTER(CPOINTER(IUnknown)), "iEntry")
@@ -208,26 +225,45 @@ class ITESTING(IUnknown):
 
         COMMETHOD(
             [], HRESULT, "Report",
-            (['out, retval'], POINTER(BSTR), "strRpt")
         ),
+
+        COMMETHOD(
+            [], HRESULT, "Verify",
+            (['in'], c_uint32, "bVal"),
+            (['in'], c_wchar_p, "strMsg"),
+            (['in'], c_int32, "nDebugLvl"),
+            (['in'], c_wchar_p, "szCategory"),
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "NewEntry",
+            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iEntry")
+        ), 
+
+        COMMETHOD(
+            [], HRESULT, "GetProperties",
+            (["out, retVal"], CPOINTER(CPOINTER(IUnknown)), "iPrp")
+        ), 
     ]
-    
 
 class Testing:
 
-    DEBUG_FULL = 0
-    DEBUG_VERBOSE = 1
-    DEBUG_INFO = 2
-    DEBUG_WARN = 3
-    DEBUG_CRITICAL = 4
+    DEBUG_INFO = 0
+    DEBUG_WARN = 1
+    DEBUG_CRITICAL = 2
 
     classID = 398981
+    txt_bstr = BSTR()
 
     def __init__(self, unk_ptr):
         self._iunk = unk_ptr
         self._iTesting = unk_ptr.QueryInterface(ITESTING)
         self._logEntries = []
-        self._debugLevel = Testing.DEBUG_FULL
+        self._debugLevel = Testing.DEBUG_CRITICAL
+
+        unk_ptr = CPOINTER(IUnknown)()
+        self._iTesting.GetProperties(byref(unk_ptr))        
+        self._properties = VariableCollection(unk_ptr.QueryInterface(IVARIABLELIST));
 
     def Message(self, strMsg, nDebugLvl, strCat):
         self._iTesting.Message(strMsg, nDebugLvl, strCat)
@@ -263,20 +299,30 @@ class Testing:
             self.Message(str(e))
             self._bPassed = False
 
-    def Verify(self, bVal, szMsg):
+    def Verify(self, bVal, szMsg, nDebugLevel, strCategory):
         if not bVal:
-            self.Message(szMsg, Testing.DEBUG_CRITICAL, "")
-            self._bPassed = False
+            n = 0
+        else:
+            n = 1
+
+        self._iTesting.Verify(n, szMsg, nDebugLevel, strCategory)
 
     def TestData(self, name, val = None):        
         if val is not None:
-            self._iTesting.SetTestData(name, val)
+            self._iTesting.SetTestData(name, val)        
 
-        txt_bstr = BSTR()
-
-        self._iTesting.GetTestData(name, comtypes.byref(txt_bstr))
-        val = txt_bstr.value        
+        self._iTesting.GetTestData(name, comtypes.byref(Testing.txt_bstr))
+        val = Testing.txt_bstr.value        
         return val
+
+    def NewEntry(self):
+       unk_ptr = CPOINTER(IUnknown)()
+       self._iTesting.NewEntry(0, byref(unk_ptr))
+       iLogEntry = unk_ptr.QueryInterface(ILOGENTRY)
+
+       le = LogEntry(iLogEntry)
+       self._logEntries.append(le)
+       return le
 
     def GetLogEntry(self, ndx):
         if 0 <= ndx < len(self._logEntries):
@@ -285,10 +331,9 @@ class Testing:
             raise IndexError("Log entry index out of range")
 
     def Report(self):
-        txt_bstr = BSTR()
-        self._iTesting.Report(comtypes.byref(txt_bstr))
-        print(txt_bstr.value)
-        
+        self._iTesting.Report()
+        print('report')
+        print(self._properties.GetAsString("Report"))
 
     def Clear(self):
         self._testValues = {}
@@ -322,35 +367,28 @@ class Testing:
         clsid = c_uint()
         self._iTesting.GetClassID(strClassName, byref(clsid));
         return clsid.value
-
-    @property
-    def DebugLevel(self):
-        return self._debugLevel
-
-    @DebugLevel.setter
-    def DebugLevel(self, dbgVal):
-        MoeSzyslakLibrary.check_hresult(self._iTesting.SetDebugLevel(dbgVal))
-        self._debugLevel = dbgVal
-
+   
     def UnitTest(cmpste):
         tst = cmpste.theTester()
 
         try:
-            tst.DebugLevel = Testing.DEBUG_CRITICAL
-
             tst.TestData("message", "Log Entry unit test")
             tst.Message("Testing Object Self Unit Test", Testing.DEBUG_INFO, "testing")
 
             tst.VerifyVariable("message", "Log Entry unit test")
             cls = tst.GetClassName(Testing.classID)
-            tst.GetClassID(cls)
+            clsID = tst.GetClassID(cls)
+
+            tst.Verify(clsID == Testing.classID, "Class ID mismatch", Testing.DEBUG_CRITICAL, "Testing")
 
             tst.Update()
             l = tst.GetLogEntry(0)
             l.UnitTest(tst)
+
+            l = tst.NewEntry()
         except Exception as e:
             print(e)
-            tst.Verify(False, f"Exception thrown during unit test: {e}")
+            tst.Verify(False, f"Exception thrown during unit test: {e}", Testing.DEBUG_CRITICAL, "Testing")
 
         tst.Report()
 

@@ -7,38 +7,27 @@ namespace MoeConsole
 {
     public class VariableCollection
     {
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("8AFF6079-A5CA-4CF5-935E-8D1E9C954F83")]
-        private interface IVARIABLELIST
-        {
-            void GetAsString([MarshalAs(UnmanagedType.LPWStr)] string szTag, [MarshalAs(UnmanagedType.BStr)] out string bsStr);
-        }
+        [DllImport(MoeSzyslakLibrary.LibraryPath)]
+        private static extern uint MoeSzyslakSetInt(uint hObj, [MarshalAs(UnmanagedType.LPWStr)] string strVarName, int nVal);
 
-        public VariableCollection(IntPtr iunk)
+        public VariableCollection()
         {
-            m_iunk = iunk;
-            m_iVariableList = (IVARIABLELIST)Marshal.GetObjectForIUnknown(m_iunk);
+            m_hObj = MoeSzyslakLibrary.CreateMoeSzyslakHandle(m_classID);        
         }
+            
 
         public void Dispose()
         {
-            if (m_iVariableList != null)
-            {
-                Marshal.ReleaseComObject(m_iVariableList);
-                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
-                m_iunk = IntPtr.Zero;
-                m_iVariableList = null;
-            }
-        }
-
-        public string GetAsString(string szTag)
+            MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
+        } 
+        
+        public void Set(string strName, int nValue)
         {
-            string strVal;
-            m_iVariableList.GetAsString(szTag, out strVal);
-            return strVal;
+            MoeSzyslakSetInt(m_hObj, strName, nValue);
         }
-
-        IntPtr m_iunk;
-        IVARIABLELIST m_iVariableList;
+        
+        public uint m_hObj;
+        private const uint m_classID = 236279;
 
     }
 
@@ -181,8 +170,6 @@ namespace MoeConsole
 
         public enum DEBUG_LEVEL
         {
-            DEBUG_FULL,
-            DEBUG_VERBOSE,
             DEBUG_INFO,
             DEBUG_WARN,
             DEBUG_CRITICAL
@@ -192,7 +179,6 @@ namespace MoeConsole
         private interface ITESTING
         {
             void Message([MarshalAs(UnmanagedType.LPWStr)] string szMsg, int nDebugLvl, [MarshalAs(UnmanagedType.LPWStr)] string strCategory);
-            void SetDebugLevel(int level);
             void GetLogEntry(int ndx, ref IntPtr iEntry);
             void VerifyVariable([MarshalAs(UnmanagedType.LPWStr)] string varName, [MarshalAs(UnmanagedType.LPWStr)] string val);
 		    void VerifyHResult(uint hr, [MarshalAs(UnmanagedType.LPWStr)] string szMsg);
@@ -202,7 +188,6 @@ namespace MoeConsole
 		    void GetClassID([MarshalAs(UnmanagedType.LPWStr)] string szClassName, ref uint nClassID);
 		    void Report();
 		    void Verify(uint bVal, [MarshalAs(UnmanagedType.LPWStr)] string szMsg, int nDebugLvl, [MarshalAs(UnmanagedType.LPWStr)] string szCategory);
-            void GetPassed(ref uint bVal);
             void NewEntry(ref IntPtr iEntry);
             void GetProperties(ref IntPtr iPrp);
             void UnitTest();
@@ -214,9 +199,7 @@ namespace MoeConsole
 
             m_iunk = iunk;
             m_iTesting = (ITESTING)Marshal.GetObjectForIUnknown(m_iunk);
-            m_iTesting.GetProperties(ref iPrp);
-
-            m_properties = new VariableCollection(iPrp);
+            m_properties = new VariableCollection();
 
         }
 
@@ -251,7 +234,6 @@ namespace MoeConsole
         public void Report()
         {
             m_iTesting.Report();
-            Console.WriteLine(m_properties.GetAsString("Report"));
         }
 
         public void Verify(bool bVal, string szMsg, int nDebugLevel, string strCategory)
@@ -270,43 +252,9 @@ namespace MoeConsole
         private ITESTING m_iTesting;
         static private StringBuilder m_strBuilder = new StringBuilder(1024);
 
-        public void RunTest(uint nClassID)
-        {
-            if (m_bMemoryCheck)
-                MoeSzyslakLibrary.InvokeHandle(m_hObj, "set \"Memory Check\" TRUE");
-            else
-                MoeSzyslakLibrary.InvokeHandle(m_hObj, "set \"Memory Check\" FALSE");
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("RunTest {0}", nClassID));
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "log get count");
-
-            string cnt = MoeSzyslakLibrary.GetReturnString(m_hObj);
-            m_logEntries.Clear();
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Passed");
-            m_bPassed = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";
-
-
-            if (m_bPassed)
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Result:  PASS");
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Result:  FAILED");
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-        }
-
-        
-
         public void Load(string flePath)
         {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "load \"" + flePath + "\"");
+            
         }
 
         public void Update()
@@ -388,7 +336,6 @@ namespace MoeConsole
                 try
                 {
 
-                    tst.DebugLevel = DEBUG_LEVEL.DEBUG_VERBOSE;
                     tst.SetTestData("message", "Log Entry unit test");
 
                     tst.Message("Testing Object Self Unit Test", Testing.DEBUG_LEVEL.DEBUG_INFO, "Testing");                    
@@ -411,7 +358,6 @@ namespace MoeConsole
 
 
                     tst.m_iTesting.UnitTest();
-
                 }
                 catch (Exception ex)
                 {
@@ -434,21 +380,6 @@ namespace MoeConsole
         private List<LogEntry> m_logEntries = new List<LogEntry>();
 
 
-        public bool MemoryCheck
-        {
-            set { m_bMemoryCheck = value; }
-            get { return m_bMemoryCheck; }
-        }
-        private bool m_bMemoryCheck = false;
-
-        public DEBUG_LEVEL DebugLevel
-        {
-            set 
-            {
-                m_iTesting.SetDebugLevel((int)value); 
-            }
-
-        }
 
 
     }

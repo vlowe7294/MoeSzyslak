@@ -88,8 +88,6 @@ class CampSight():
         self._campAreas.clear()
         self._iCampSight.GetArea(0, byref(iArea))
         
-        print("line #65")
-
         while iArea:
             ca = CampArea(iArea)
             self._campAreas.append(ca)
@@ -116,12 +114,12 @@ class CampSight():
             cs._tester.Message("Camp Sight Unit Test", Testing.DEBUG_INFO, "campsight")
             cs.AddSite("Dinosaur Valley State Park", "Laham Mill #14", 32.251301564676666, -97.8112404606453)
             cs.Update()
-            tst.Verify(cs._campAreas[0].Name == "Dinosaur Valley State Park", "Area name mismatch")
+            tst.Verify(cs._campAreas[0].Name == "Dinosaur Valley State Park", "Area name mismatch", Testing.DEBUG_CRITICAL, "campsight")
 
             print(f"Name = {cs._campAreas[0].Name}")
         except Exception as e:
             print(e)
-            tst.Verify(False, f"Exception thrown during unit test: {e}")
+            tst.Verify(False, f"Exception thrown during unit test: {e}", Testing.DEBUG_CRITICAL, "campsight")
 
         tst.Report()
         print("areas set to none")

@@ -29,6 +29,14 @@ public:
 		CLASS_MAX
 	};
 
+	enum ALIGNMENT
+	{
+		ALIGNMENT_LAWFUL, 
+		ALIGNMENT_CHAOTIC,
+		ALIGNMENT_GOOD,
+		ALIGNMENT_EVIL
+	};
+
 	
 	
 
@@ -39,8 +47,10 @@ public:
 	virtual ULONG __stdcall Release();
 	virtual HRESULT __stdcall Tick(int nSec);
 	virtual HRESULT __stdcall SetArea(IUnknown* iArea);
+	virtual HRESULT __stdcall GetIsPC(BOOL* bIsPC);
 
 	void AddConnectedObject(void* pObject, int nTravelSec);
+	void AdjustAlignment(int nAlignment, int nShift);
 	
 	inline wstring GetName() { return m_name; };
 	inline void SetName(LPCWSTR szName) { m_name = szName; }
@@ -61,5 +71,6 @@ protected:
 	int m_nTravelTimes[10];
 	FACTION m_faction;
 	void* m_pMoveTowards;
-	int m_nMoveTime;	
+	int m_nMoveTime;
+	int m_nAlignment[4];
 };

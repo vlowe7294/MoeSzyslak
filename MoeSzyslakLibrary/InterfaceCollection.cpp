@@ -173,7 +173,6 @@ HRESULT __stdcall InterfaceCollection::ForEach(IUnknown** pObj)
 HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 {
 	IUnknown* iunk = NULL;
-	TripPlannerInf itrp;
 	TestingInf iTst;
 	MoeInf<IINTERFACECOLLECTION, CLASSID::INTERFACELIST> iList;
 	LogEntryInf iLog;
@@ -259,12 +258,6 @@ HRESULT __stdcall InterfaceCollection::Command(const wchar_t* szCmd)
 		iFnc.Attach(iunk);
 		hr = iFnc->Command(subCmd.c_str());
 		iFnc->GetReturnString(&m_iRetString);
-		break;
-
-	case CLASSID::TRIPPLANNER:
-		itrp.Attach(iunk);
-		hr = itrp->Command(subCmd.c_str());
-		itrp->GetReturnString(&m_iRetString);
 		break;
 
 	case NeverwinterInf::ClassID:

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MoeConsole
 {
@@ -25,16 +26,22 @@ namespace MoeConsole
         {
             void AddNeighbor(IntPtr iNeighbor, int travelTimeSec);
             void AddEncounter([MarshalAs(UnmanagedType.LPWStr)] string strTag, int dif, int nMax);
+            void AddPlaceable([MarshalAs(UnmanagedType.LPWStr)] string strName, [MarshalAs(UnmanagedType.LPWStr)] string szTag);
+            void GetProperties(ref IntPtr iPrp);
         }
 
         public Location(IntPtr iunk)
         {
+            IntPtr iPrp = IntPtr.Zero;
+
             m_iunk = iunk;
-            m_iLocation = (ILOCATION)Marshal.GetObjectForIUnknown(m_iunk);
+            m_iLocation = (ILOCATION)Marshal.GetObjectForIUnknown(m_iunk);            
         }
 
         public void Dispose()
         {
+            m_properties.Dispose();
+
             if (m_iLocation != null)
             {
                 Marshal.ReleaseComObject(m_iLocation);
@@ -56,8 +63,14 @@ namespace MoeConsole
 
         }
 
+        public void AddPlaceable(string strName, string strPlaceable)
+        {
+            m_iLocation.AddPlaceable(strName, strPlaceable);
+        }
+
         IntPtr m_iunk;
         ILOCATION m_iLocation;
+        VariableCollection m_properties;
     }
 
     public class Creature
@@ -121,22 +134,56 @@ namespace MoeConsole
         ICREATURE m_iCreature;
     }
 
-    public class Area
-    {
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("9E39F153-0811-498B-B72A-5C810D0141A0")]
-        private interface IAREA
-        {
-            void AddLocation(ref IntPtr iLoc, [MarshalAs(UnmanagedType.LPWStr)] string locName);
-        }
 
-        public Area(IntPtr iunk) 
+
+
+    public class Quest
+    {
+        
+        public Quest(IntPtr iunk)
         {
-            m_iunk = iunk;
-            m_iArea = (IAREA)Marshal.GetObjectForIUnknown(m_iunk);
+            m_iunk = iunk;            
         }
 
         public void Dispose()
         {
+           if (m_iunk != IntPtr.Zero)
+            {
+                MoeSzyslakLibrary.FreeMoeSzyslakInterface(m_iunk);
+                m_iunk = IntPtr.Zero;                
+            }
+        }
+
+        private IntPtr m_iunk;
+    }
+
+        public class Area
+    {
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("9E39F153-0811-498B-B72A-5C810D0141A0")]
+        private interface IAREA
+        {
+            void AddLocation(ref IntPtr iLoc);
+            void GetProperties(ref IntPtr iVarList);
+            void AddQuest(ref IntPtr iQuest, [MarshalAs(UnmanagedType.LPWStr)] string strName, int nDuration, int nDifficulty);
+            void GetLocation(int ndx, ref IntPtr iLoc);
+            void SetOnEnterHandler([MarshalAs(UnmanagedType.LPWStr)] string szFnName);
+            void UnitTest();
+        }
+
+        public Area(IntPtr iunk) 
+        {
+            IntPtr iVarList = IntPtr.Zero;
+
+            m_iunk = iunk;
+            m_iArea = (IAREA)Marshal.GetObjectForIUnknown(m_iunk);
+            m_iArea.GetProperties(ref iVarList);
+
+            m_properties = new VariableCollection();
+        }
+
+        public void Dispose()
+        {
+            m_properties.Dispose();
             foreach (Location l in m_locations)
                 l.Dispose();
 
@@ -149,14 +196,40 @@ namespace MoeConsole
             }
         }
 
-        public Location AddLocation(string locName)
+        public Location AddLocation()
         {
             IntPtr iunk = IntPtr.Zero;
-            m_iArea.AddLocation(ref iunk, locName);
+            m_iArea.AddLocation(ref iunk);
 
             Location l = new Location(iunk);
             m_locations.Add(l);
             return l;
+        }
+
+        public Quest AddQuest(string strName, int nDuration, int nDifficult)
+        {
+            IntPtr iunk = IntPtr.Zero;
+            m_iArea.AddQuest(ref iunk, strName, nDuration, nDifficult);
+            return new Quest(iunk);
+
+        }
+
+        public Location GetLocation(int ndx)
+        {
+            if (ndx <= m_locations.Count)
+                return m_locations[ndx];
+            else
+                return null;        
+        }
+
+        public void SetOnEnterHandler(string strFnName)
+        {
+            m_iArea.SetOnEnterHandler(strFnName);
+        }
+
+        public void UnitTest(Testing tst)
+        {
+            
         }
 
         public IntPtr theUnknown
@@ -165,8 +238,24 @@ namespace MoeConsole
         }
         private IntPtr m_iunk = IntPtr.Zero;
 
+        public string Name
+        {
+            get 
+            {
+                return m_name; 
+            }
+            set
+            {
+                m_name = value;                
+            }
+        }
+        private string m_name = "";
+
+       
+
         private IAREA m_iArea = null;
         private List<Location> m_locations = new List<Location>();
+        private VariableCollection m_properties;
     }
 
     public class AstralWorkshop : IDisposable
@@ -176,7 +265,7 @@ namespace MoeConsole
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("F43BA252-2FCA-41A2-9CFA-22A5D87C584C")]
         private interface IASTRALWORKSHOP
         {
-            void NewArea(ref IntPtr iArea, ref int ndx, [MarshalAs(UnmanagedType.LPWStr)] string strName, int nDanger);
+            void NewArea(ref IntPtr iArea, ref int ndx, int nDanger);
             void Export([MarshalAs(UnmanagedType.LPWStr)] string strPath);
             void Save([MarshalAs(UnmanagedType.LPWStr)] string strPath);
             void NewCharacter(ref IntPtr iCharacter, [MarshalAs(UnmanagedType.LPWStr)] string szName, int nClass, int nBackground);
@@ -227,7 +316,7 @@ namespace MoeConsole
             IntPtr iArea = IntPtr.Zero;
             int ndx = 0;
 
-            m_iAstralWorkshop.NewArea(ref iArea, ref ndx, strName, nDanger);
+            m_iAstralWorkshop.NewArea(ref iArea, ref ndx, nDanger);
             Area a = new Area(iArea);
             m_areas.Add(a);
             return a;
@@ -274,20 +363,17 @@ namespace MoeConsole
             {
                 try
                 {
-                    aw.m_test.DebugLevel = Testing.DEBUG_LEVEL.DEBUG_FULL;
                     aw.m_test.Message("Astral Workshop unit test", Testing.DEBUG_LEVEL.DEBUG_INFO, "Astral Workshop");
-                    Area a = aw.NewArea("Nightworld of Vlad Tolenkov", 2);
+                    aw.NewArea("Nightworld of Vlad Tolenkov", 2);
+
+                    Area a = aw.NewArea("The Misty Border", 2);
 
                     string[] nmes = aw.GetAreaNames();
 
                     Character c = aw.NewCharacter("Gert Addams", Creature.CLASS.CLASS_WARRIOR, Character.BACKGROUND.BACKGROUND_PEASANT);
-                    c.SetArea(a);
-                    Location la = a.AddLocation("the castle door");
+                    c.SetArea(a);                   
 
-                    Location lb = a.AddLocation("a fog bank");
-                    la.AddNeighbor(lb, 60);
-                    lb.AddEncounter("NW_UndeadAll", Location.DIFFICULTY.NORMAL, 8);
-
+                    a.UnitTest(aw.m_test);
                     aw.Heartbeat(60);
 
                     aw.Export("astralworkshop.xml");

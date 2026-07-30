@@ -4,6 +4,7 @@
 
 Quest::Quest(const wchar_t* szName, int nDuration, int nDifficulty)
 {
+	m_cRef = 1;
 	m_name = szName;
 	m_duration = nDuration;
 	m_difficulty = nDifficulty;
@@ -13,6 +14,40 @@ Quest::~Quest()
 {
 
 }
+
+HRESULT __stdcall Quest::QueryInterface(REFIID riid, LPVOID* ppvObj)
+{
+
+	if (riid == IID_IUnknown)
+	{
+		*ppvObj = static_cast<IUnknown*>(this);
+		AddRef();
+		return NOERROR;
+	}
+	else
+		return E_NOINTERFACE;
+
+}
+
+ULONG __stdcall Quest::AddRef()
+{
+	m_cRef++;
+	return m_cRef;
+}
+
+ULONG __stdcall Quest::Release()
+{
+	m_cRef--;
+
+	if (0 == m_cRef)
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_cRef;
+}
+
 
 void Quest::Copy(Quest& copyFrom)
 {
@@ -103,10 +138,10 @@ ULONG __stdcall AstralWorkshop::Release()
 }
 
 
-HRESULT __stdcall AstralWorkshop::NewArea(IUnknown** iArea, int* ndx, const wchar_t* szName, int nDanger)
+HRESULT __stdcall AstralWorkshop::NewArea(IUnknown** iArea, int* ndx, int nDanger)
 {
 	*ndx = m_areas.Count();
-	Area* pNewArea = new Area(szName, nDanger);
+	Area* pNewArea = new Area();
 
 	if (m_pStartArea == NULL)
 	{
@@ -115,7 +150,7 @@ HRESULT __stdcall AstralWorkshop::NewArea(IUnknown** iArea, int* ndx, const wcha
 	}
 
 	pNewArea->QueryInterface(IID_IUnknown, (void**)iArea);
-	m_areas.Add(pNewArea, szName, 0);
+	m_areas.Add(pNewArea, L"", 0);
 	pNewArea->Release();
 	return S_OK;
 }
@@ -124,11 +159,17 @@ void AstralWorkshop::HandleCharacterCreationCommand(const wchar_t* szCmd, wchar_
 {
 	wstring strOut;
 	m_pNewCharacter->CreateCharacter(szCmd, strOut);
-
+	VariableCollection* iVar = NULL;
+	
 	if (m_pNewCharacter->IsComplete())
 	{
 		m_pNewCharacter->SetArea(m_pStartArea);
-		strOut += L"\n" + m_pNewCharacter->GetName() + L" is now in " + m_pStartArea->GetName();
+		m_pStartArea->GetProperties((IUnknown**)&iVar);
+
+		wstring nme = iVar->Get(L"Name");
+		strOut += L"\n" + m_pNewCharacter->GetName() + L" is now in " + nme;
+		iVar->Release();
+
 	}
 
 	wcsncpy_s(szRet, nLen, strOut.c_str(), _TRUNCATE);		
@@ -239,6 +280,7 @@ HRESULT __stdcall AstralWorkshop::GetAreaNames(BSTR* areaList)
 {
 	Area* iArea = NULL;
 	wstring list;
+	VariableCollection* iVar = NULL;
 
 	
 	while (m_areas.ForEach((IUnknown**)&iArea))
@@ -248,7 +290,11 @@ HRESULT __stdcall AstralWorkshop::GetAreaNames(BSTR* areaList)
 			if (!list.empty())
 				list += L"\n";
 
-			list += iArea->GetName();
+			iVar = NULL;
+			iArea->GetProperties((IUnknown**)&iVar);
+
+			list += iVar->Get(L"Name");
+			iVar->Release();
 			iArea->Release();
 		}
 	}
@@ -261,54 +307,6 @@ HRESULT __stdcall AstralWorkshop::GetAreaNames(BSTR* areaList)
 
 HRESULT __stdcall AstralWorkshop::UnitTest()
 {
-	wstring gameCommand = L"new character", result;
-
-	// Trim whitespace
-	if (gameCommand.size() == 0)
-	{
-		result = L"Enter a command.";
-		return S_OK;
-	}
-
-	VLStringCollection wrds;
-	wrds.Split(gameCommand.c_str(), ' ');
-	wrds.ToLower(0);
-	std::wstring verb = wrds.Get(0);
-
-	// ---------------------------------------------------------
-	// 1. Character Creation Required Before Gameplay
-	// ---------------------------------------------------------
-	if (m_pNewCharacter == nullptr)
-	{
-		// Only allow "create" or "new" commands
-		if (verb == L"create" || verb == L"new")
-		{
-			if (wrds.GetCount() < 2)
-			{
-				result = L"Usage: create <name>";
-			}
-			else
-			{
-				std::wstring name = wrds.Get(0);
-				m_pNewCharacter = new Character(name.c_str(), Creature::CLASS_WARRIOR, Character::BACKGROUND_PEASANT);
-				result = L"Character '" + name + L"' created.\n"
-					L"You may now begin your adventure.";
-			}
-		}
-		else
-		{
-			result = L"No character exists.\n"
-				L"Create one using: create <name>";
-		}
-
-	}
-
-	
-
-	
-	result = L"I don't understand that command.";
-
-	wprintf(L"%s\n%s  Enter command:  \n", gameCommand.c_str(), result.c_str());
 	
 	return S_OK;
 }

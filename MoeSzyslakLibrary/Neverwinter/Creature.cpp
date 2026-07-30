@@ -22,6 +22,7 @@ Creature::Creature(const wchar_t* szName)
 	m_hunger.rate = 1700;
 	m_courage = 10;
 	m_pArea = NULL;
+	m_nAlignment[0] = m_nAlignment[1] = m_nAlignment[2] = m_nAlignment[3] = 50;
 }
 
 Creature::~Creature()
@@ -111,8 +112,6 @@ HRESULT __stdcall Creature::SetArea(IUnknown* iUnk)
 {
 	IAREA* iArea = NULL;
 
-	printf("Creature::SetArea() line 114\n");
-	
 	if (m_pArea != NULL)
 	{
 		m_pArea->Release();
@@ -133,6 +132,12 @@ HRESULT __stdcall Creature::SetArea(IUnknown* iUnk)
 	return S_OK;
 }
 
+HRESULT __stdcall Creature::GetIsPC(BOOL* bIsPC)
+{
+	*bIsPC = FALSE;
+	return S_OK;
+}
+
 void Creature::AddConnectedObject(void* pObject, int nTravelSec)
 {
 	int i = 0;
@@ -145,6 +150,50 @@ void Creature::AddConnectedObject(void* pObject, int nTravelSec)
 		m_pConnectedObjects[i] = pObject;
 		m_nTravelTimes[i] = nTravelSec;
 	}
+
+}
+
+void Creature::AdjustAlignment(int nAlignment, int nShift)
+{
+	int opposeNdx = 0;
+
+	switch (nAlignment)
+	{
+	case ALIGNMENT_LAWFUL:
+		opposeNdx = ALIGNMENT_CHAOTIC;
+		break;
+
+	case ALIGNMENT_CHAOTIC:
+		opposeNdx = ALIGNMENT_LAWFUL;
+		break;
+
+	case ALIGNMENT_GOOD:
+		opposeNdx = ALIGNMENT_EVIL;
+		break;
+
+	case ALIGNMENT_EVIL:
+		opposeNdx = ALIGNMENT_GOOD;
+		break;
+
+	default:  // bad index
+		return;
+		break;
+	}
+
+	m_nAlignment[nAlignment] += nShift;
+	m_nAlignment[opposeNdx] -= nShift;
+
+	if (m_nAlignment[nAlignment] < 0)
+		m_nAlignment[nAlignment] = 0;
+
+	if (m_nAlignment[opposeNdx] < 0)
+		m_nAlignment[opposeNdx] = 0;
+
+	if (m_nAlignment[nAlignment] > 100)
+		m_nAlignment[nAlignment] = 100;
+
+	if (m_nAlignment[opposeNdx] > 100)
+		m_nAlignment[opposeNdx] = 100;
 
 }
 

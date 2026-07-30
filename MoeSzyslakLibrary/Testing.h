@@ -226,8 +226,6 @@ class Testing : public TestingInf::ITESTING
 public:
 	enum DEBUG_LEVEL
 	{
-		DEBUG_FULL,
-		DEBUG_VERBOSE,
 		DEBUG_INFO,
 		DEBUG_WARN,
 		DEBUG_CRITICAL,
@@ -249,8 +247,7 @@ public:
 	 * @return S_OK on success.
 	 */
 	HRESULT __stdcall Message(LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory);
-	HRESULT __stdcall SetDebugLevel(int level);
-
+	
 	HRESULT __stdcall GetLogEntry(int ndx, IUnknown** iEntry);
 	
 	
@@ -305,13 +302,6 @@ public:
 	 * @param szMsg Description of the test.
 	 */
 	HRESULT __stdcall Verify(BOOL bVal, LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory);
-
-	inline HRESULT __stdcall GetPassed(BOOL* bVal) 
-	{
-		m_pPass->GetAsBool(bVal);		
-		return S_OK;
-	}
-
 	HRESULT __stdcall NewEntry(IUnknown** iEntry);
 	HRESULT __stdcall GetProperties(IUnknown** iPrp);
 
@@ -325,19 +315,15 @@ private:
 	int m_cRef;                          ///< COM reference count.
 	VLVariable* m_pReport;				 ///< Report output variable.
 	VLVariable* m_pPass;                 ///< Pass/fail indicator.
-
+	VLVariable* m_pDebugLevel;
 	VLVariable* m_pMemCheck;             ///< Memory usage check flag.
-	
+		
 	VariableCollection* m_pProperties;   ///< Property collection.
 
-	ComCollection m_entries;			 ///< Collection of log entries.
-	VLDateTime* m_pTestTime;             ///< Timestamp for test execution.
-	StringInf m_iRetStr;                 ///< Return string buffer.
+	ComCollection m_entries;			 ///< Collection of log entries.	
 	VariableCollection* m_pTestValues;   ///< Loaded test data values.
-	static const int m_nTestValues;
-	static const TESTVALUE m_testValues[2];
 	int m_nTestNdx;
-	DEBUG_LEVEL m_debugLevel;	
+	
 	wstring m_file;
 	int m_line;
 

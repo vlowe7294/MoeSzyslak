@@ -22,8 +22,7 @@ namespace MoeConsole
             if (m_hObj > 0)
             {
                 MoeSzyslakLibrary.InvokeHandle(m_hObj, "exit");
-                Console.WriteLine(MoeSzyslakLibrary.GetReturnString(m_hObj));
-
+               
                 MoeSzyslakLibrary.DestroyMoeSzyslakHandle(m_hObj);
                 m_hObj = 0;
             }

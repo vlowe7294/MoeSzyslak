@@ -61,6 +61,17 @@ class ILOCATION(IUnknown):
             (["in"], c_int32, "dif"),
             (["in"], c_int32, "nMax"),
         ),
+
+        COMMETHOD(
+            [], HRESULT, "AddPlaceable",
+            (['in'], c_wchar_p, "strName"),
+            (["in"], c_wchar_p, "strTag"),
+        ),
+
+        COMMETHOD(
+            [], HRESULT, "GetProperties",
+            (["in"], CPOINTER(CPOINTER(IUnknown)), "iPrp"),
+        ),
     ]
 
 class Location:
@@ -74,15 +85,28 @@ class Location:
         self._iunk = iunk
         self._iLocation = iunk.QueryInterface(ILOCATION)
 
+        iPrp = CPOINTER(IUnknown)() 
+        self._iLocation.GetProperties(byref(iPrp))
+        self._name = ''
+
     def AddNeighbor(self, loc, travelTimeSec):
         self._iLocation.AddNeighbor(loc.theUnknown(), travelTimeSec)
 
     def AddEncounter(self, strTag, dif, nMax):
         self._iLocation.AddEncounter(strTag, dif, nMax)
 
-
     def theUnknown(self):
         return self._iunk
+
+    @property
+    def Name(self):
+        return self._name
+
+    @Name.setter
+    def Name(self, strName):
+        self._name = strName
+
+    
 
 
 
@@ -94,7 +118,6 @@ class IAREA(IUnknown):
         COMMETHOD(
             [], HRESULT, "AddLocation",
             (["in"], CPOINTER(CPOINTER(IUnknown)), "iLoc"),
-            (['in'],  c_wchar_p, "locName"),
         ),
     ]
 
@@ -104,9 +127,9 @@ class Area:
         self._iArea = iunk.QueryInterface(IAREA)
         self._locations = []
 
-    def AddLocation(self, locName):
+    def AddLocation(self):
         iLoc = CPOINTER(IUnknown)() 
-        self._iArea.AddLocation(byref(iLoc), locName)
+        self._iArea.AddLocation(byref(iLoc))
         l = Location(iLoc)
 
         self._locations.append(l)
@@ -114,6 +137,19 @@ class Area:
 
     def theUnknown(self):
         return self._iunk
+
+    def UnitTest(self, tst):
+         tst.TestData("location a", "southeast edge")
+         tst.TestData("location b", "debris")
+         tst.Message("Area Unit Test", Testing.DEBUG_INFO, "Area")
+
+         la = self.AddLocation()
+         la.Name = tst.TestData("location a")
+
+         lb = self.AddLocation()
+         lb.Name = "a fog bank"
+         la.AddNeighbor(lb, 60)
+         lb.AddEncounter("NW_UndeadAll", Location.DIFFICUTLY_NORMAL, 8)
         
 
 
@@ -231,16 +267,12 @@ class AstralWorkshop():
             self._test.Message("Astral Workshop unit test", Testing.DEBUG_INFO, "AstralWorkshop");
             a = self.NewArea("Whispering Woods", 2)
             self.NewArea("Graveyard", 3)
-        
+
+            a.UnitTest(self._test)
+            self.GetAreaNames()            
+            
             c = self.NewCharacter("Gert Addams", Creature.CLASS_WARRIOR, Character.BACKGROUND_PEASANT)
             c.SetArea(a)
-            la = a.AddLocation("the castle door")
-
-            self.GetAreaNames()
-
-            lb = a.AddLocation("a fog bank")
-            la.AddNeighbor(lb, 60)
-            lb.AddEncounter("NW_UndeadAll", Location.DIFFICUTLY_NORMAL, 8)
             self.Heartbeat(60)
 
             self.Export()
@@ -290,8 +322,8 @@ def command():
     return render_template("astralplay.html")
 
 if __name__ == "__main__":    
-    app.run(port=5000)
-    #test_astral_workshop()
+    #app.run(port=5000)
+    test_astral_workshop()
     
     
 

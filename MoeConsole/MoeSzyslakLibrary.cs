@@ -18,9 +18,6 @@ namespace MoeConsole
         [DllImport(LibraryPath, CharSet = CharSet.Unicode)]
         public static extern uint DestroyMoeSzyslakHandle(uint hObj);
 
-        [DllImport(LibraryPath, CharSet = CharSet.Unicode)]
-        private static extern void MoeSzyslakGetReturnString(uint hObj, [MarshalAs(UnmanagedType.LPWStr)] StringBuilder szRet, uint len);
-
         public enum CLASSID
         {
             INVALIDCLASS = 0,
@@ -53,15 +50,6 @@ namespace MoeConsole
             if (rslt != 0)
                 throw new Exception("InvokeMoeSzyslakHandle returned error");
 
-        }
-
-        public static string GetReturnString(uint hObj, uint nBufLen = 0)
-        {
-            if (nBufLen > m_sb.Capacity)
-                m_sb = new StringBuilder((int)nBufLen);
-
-            MoeSzyslakGetReturnString(hObj, m_sb, (uint)m_sb.Capacity);
-            return m_sb.ToString();
         }
 
         static public string Version

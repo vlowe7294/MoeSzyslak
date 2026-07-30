@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TripPlanner.h"
 #include "tinyxml2.h"
+#include <iostream>
 
 using namespace tinyxml2;
 
@@ -96,6 +97,22 @@ ULONG __stdcall TripPlanner::Release()
     return m_cRef;
 }
 
+HRESULT __stdcall TripPlanner::Dispatch(IUnknown* iArgs)
+{
+    IVARIABLELIST* iVarList = NULL;
+    int funcID = 0;
+
+    iArgs->QueryInterface(VARIABLELIST_IID, (void**)&iVarList);
+
+    if (iVarList == NULL)
+        return E_FAIL;
+
+    iVarList->GetAsInt(L"funcID", &funcID);
+
+    iVarList->Release();
+    return S_OK;
+}
+
 HRESULT __stdcall TripPlanner::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
     if (riid == IID_IUnknown)
@@ -104,9 +121,9 @@ HRESULT __stdcall TripPlanner::QueryInterface(REFIID riid, LPVOID* ppvObj)
         AddRef();
         return NOERROR;
     }
-    else if (riid == TripPlannerInf::m_iid)
+    else if (riid == DISPATCH_IID)
     {
-        *ppvObj = static_cast<TripPlannerInf::ITRIPPLANNER*>(this);
+        *ppvObj = static_cast<IMOEDISPATCH*>(this);
         AddRef();
         return NOERROR;
     }

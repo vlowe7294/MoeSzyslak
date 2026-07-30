@@ -7,57 +7,57 @@
 
 using namespace tinyxml2;
 
-MemoryChecker g_memoryChecker;
+	MemoryChecker g_memoryChecker;
 
-MemoryChecker::MemoryChecker()
-{
-	m_pInstances = new int[100]();
-	m_pclassIDs = new int[100]();
-}
-
-MemoryChecker::~MemoryChecker()
-{
-	int i = 0;
-
-	while (i < 100 && m_pclassIDs[i] != 0)
+	MemoryChecker::MemoryChecker()
 	{
-		if (m_pInstances[i] != 0)
-			wprintf(L"Memory leak detected for class ID %d: %d instances still allocated.\n", m_pclassIDs[i], m_pInstances[i]);
-		i++;
+		m_pInstances = new int[100]();
+		m_pclassIDs = new int[100]();
 	}
 
-	delete[] m_pInstances;
-	delete[] m_pclassIDs;
-}
-
-void MemoryChecker::IncrementInstance(UINT nClassID)
-{
-	int i = 0;
-
-	while (i < 100 && m_pclassIDs[i] != nClassID && m_pclassIDs[i] != 0)
-		i++;
-
-	if (i < 100)
+	MemoryChecker::~MemoryChecker()
 	{
-		m_pInstances[i]++;
+		int i = 0;
 
-		if (m_pclassIDs[i] == 0)
-			m_pclassIDs[i] = nClassID;
+		while (i < 100 && m_pclassIDs[i] != 0)
+		{
+			if (m_pInstances[i] != 0)
+				wprintf(L"Memory leak detected for class ID %d: %d instances still allocated.\n", m_pclassIDs[i], m_pInstances[i]);
+			i++;
+		}
+
+		delete[] m_pInstances;
+		delete[] m_pclassIDs;
 	}
-}
 
-void MemoryChecker::DecrementInstance(UINT nClassID)
-{
-	int i = 0;
-
-	while (i < 100 && m_pclassIDs[i] != nClassID && m_pclassIDs[i] != 0)
-		i++;
-
-	if (i < 100 && m_pclassIDs[i] == nClassID)
+	void MemoryChecker::IncrementInstance(UINT nClassID)
 	{
-		m_pInstances[i]--;
+		int i = 0;
+
+		while (i < 100 && m_pclassIDs[i] != nClassID && m_pclassIDs[i] != 0)
+			i++;
+
+		if (i < 100)
+		{
+			m_pInstances[i]++;
+
+			if (m_pclassIDs[i] == 0)
+				m_pclassIDs[i] = nClassID;
+		}
 	}
-}
+
+	void MemoryChecker::DecrementInstance(UINT nClassID)
+	{
+		int i = 0;
+
+		while (i < 100 && m_pclassIDs[i] != nClassID && m_pclassIDs[i] != 0)
+			i++;
+
+		if (i < 100 && m_pclassIDs[i] == nClassID)
+		{
+			m_pInstances[i]--;
+		}
+	}
 
 
 
@@ -204,13 +204,6 @@ wstring LogEntry::GetHTML()
 	return htm;
 }
 
-const int Testing::m_nTestValues = 2;
-const TESTVALUE Testing::m_testValues[m_nTestValues] = 
-{
-	{ 0, L"message", L"Test Message Value 1" },
-	{ 1, L"message", L"" }
-};
-
 Testing::Testing()
 {
 	m_cRef = 1;	
@@ -222,13 +215,13 @@ Testing::Testing()
 
 	m_pMemCheck = m_pProperties->NewVariable(L"Memory Check");
 	m_pMemCheck->SetAsBool(FALSE);
-	m_pTestTime = NULL;
-
 	VLVariable* v = m_pProperties->NewVariable(L"Test Values");
 	m_pTestValues = new VariableCollection();
 
 	m_nTestNdx = 0;
-	m_debugLevel = DEBUG_LEVEL::DEBUG_FULL;	
+	m_pDebugLevel = m_pProperties->NewVariable(L"Debug Level");
+	m_pDebugLevel->SetAsInt(DEBUG_LEVEL::DEBUG_INFO, 0);
+	m_pDebugLevel->SetLimits(DEBUG_LEVEL::DEBUG_INFO, DEBUG_LEVEL::DEBUG_MAX - 1);
 	m_line = 0;
 }
 
@@ -237,10 +230,6 @@ Testing::~Testing()
 {
 	printf("Testing destructor called\n");
 	m_pProperties->Release();
-
-	if (m_pTestTime != NULL)
-		m_pTestTime->Release();
-
 	m_pTestValues->Release();
 }
 
@@ -353,6 +342,7 @@ HRESULT __stdcall Testing::VerifyHResult(HRESULT hr, LPCWSTR szMsg)
 HRESULT __stdcall Testing::Message(LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCategory)
 {
 	LogEntry* l = NULL;
+	int nLocalDebugLvl = 0;
 
 	if (nDebugLvl < 0 || nDebugLvl >= DEBUG_MAX)
 		nDebugLvl = 0;
@@ -362,26 +352,6 @@ HRESULT __stdcall Testing::Message(LPCWSTR szMsg, int nDebugLvl, LPCWSTR szCateg
 	l->SetDebugLevel(nDebugLvl);
 	l->Release();
 
-	if (nDebugLvl >= m_debugLevel)
-		wprintf(L"%s\n", szMsg);
-
-	return S_OK;
-}
-
-HRESULT __stdcall Testing::SetDebugLevel(int nDebugLvl)
-{
-	if (nDebugLvl < 0 || nDebugLvl >= DEBUG_MAX)
-	{
-		wstring msg = std::to_wstring(nDebugLvl) + L" is an invalid debug level.";
-		Verify(FALSE, msg.c_str(), DEBUG_CRITICAL, L"Testing");
-		LogEntry& e = GetLastEntry();
-
-		e.SetFile(L"Testing.cpp");
-		e.SetLine(__LINE__);
-		return E_FAIL;
-	}
-
-	m_debugLevel = (DEBUG_LEVEL)nDebugLvl;
 	return S_OK;
 }
 
@@ -451,9 +421,6 @@ LogEntry& Testing::GetLastEntry()
 
 }
 
-UINT _cdecl InvokeMoeSzyslakHandle(UINT hObj, const wchar_t* szCmd);
-void _cdecl MoeSzyslakGetReturnString(UINT hObj, wchar_t* szRet, UINT len);
-
 HRESULT __stdcall Testing::UnitTest()
 {
 	LogEntry* iEntry = NULL;
@@ -484,7 +451,6 @@ HRESULT __stdcall Testing::Verify(BOOL bVal, LPCWSTR szMsg, int nDebugLvl, LPCWS
 HRESULT __stdcall Testing::NewEntry(IUnknown** iEntry)
 {
 	LogEntry* l;
-	
 
 	l = new LogEntry(L"");
 	m_entries.Add((IUnknown*)l, L"", LogEntryInf::ClassID);
@@ -505,33 +471,7 @@ HRESULT __stdcall Testing::GetProperties(IUnknown** iPrp)
 
 void Testing::TripPlannerTest()
 {
-	TripPlannerInf iTrp;
-	StringInf istr;
-	IUnknown* iunk = NULL;
 	
-	try
-	{
-		Message(L"Trip Planner Unit Test", 0, L"");
-		Message(L"Trip Name:\tChicago Trip", 0, L"");
-		
-		iTrp->Command(L"set \"Trip Name\" \"Chicago Trip\"");
-		iTrp->Command(L"AddStop");
-		iTrp->Command(L"AddStop");
-
-		iTrp->GetReturnString(istr);
-		wstring cnt = (const wchar_t*)istr;		
-
-		VerifyHResult(iTrp->UnitTest(), L"Unit Test Failed.");
-
-		iTrp->Command(L"get \"Trip Name\"");
-		iTrp->GetReturnString(istr);
-		Verify(wstring(istr) == L"Chicago Trip", L"Trip name should be Chicago Trip", 0, L"");
-	}
-	catch (...)
-	{
-		Verify(false, L"Unhandled exception during test", 0, L"");
-		m_pPass->SetAsBool(FALSE);
-	}
 }
 
 wstring Testing::GetTestData(LPCWSTR szVarName)
@@ -555,6 +495,7 @@ HRESULT __stdcall Testing::Report()
 	LogEntryInf iEnt;
 	BSTR bsTxt = NULL;
 	wstring rept;
+	int nDebug = 0;
 	
 	m_pMemCheck->GetAsBool(&bVal);
 	bool bMemCheck = bVal == TRUE;
@@ -568,7 +509,16 @@ HRESULT __stdcall Testing::Report()
 	{
 		iEnt->GetText(&bsTxt);
 		iEnt->GetTime(&tme);
-		rept += L"\n" + std::to_wstring(tme) + L"\t" + (const wchar_t*)bsTxt;
+		iEnt->GetDebugLevel(&nDebug);
+
+		rept += L"\n" + std::to_wstring(tme) + L"\t";
+
+		if (nDebug > DEBUG_LEVEL::DEBUG_WARN)
+			rept += L"ERROR:  ";
+		else if (nDebug > DEBUG_LEVEL::DEBUG_INFO)
+			rept += L"WARNING:  ";
+		
+		rept +=  (const wchar_t*)bsTxt;
 		SysFreeString(bsTxt);
 
 		if (bMemCheck)
@@ -810,7 +760,6 @@ void Testing::SelfTest()
 		iTst.Attach(this);
 		
 		VerifyHResult(iTst->GetClassID(L"trip planner", &nID), L"Get Class ID failed");
-		Verify(nID == TripPlannerInf::ClassID, L"Class ID should be 507734", 0, L"");
 		VerifyHResult(GetClassName(nID, &iStr), L"Get Class Name failed");
 
 		Verify(wstring(iStr) == L"trip planner", L"Class name should be 'trip planner'", 0, L"");

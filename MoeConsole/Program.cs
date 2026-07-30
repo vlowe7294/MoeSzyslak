@@ -12,7 +12,6 @@ namespace MoeConsole
             m_hLogEntryCollection = hLogEntryCollection;
             m_indx = indx;
             MoeSzyslakLibrary.InvokeHandle(m_hLogEntryCollection, string.Format("{0} get text", m_indx));
-            m_text = MoeSzyslakLibrary.GetReturnString(m_hLogEntryCollection);
         }
 
         private uint m_hLogEntryCollection;
@@ -56,11 +55,9 @@ namespace MoeConsole
                 MoeSzyslakLibrary.InvokeHandle(m_hObj, "set \"Memory Check\" FALSE");
 
             MoeSzyslakLibrary.InvokeHandle(m_hObj, string.Format("RunTest {0}", nClassID));
-            Console.WriteLine(MoeSzyslakLibrary.GetReturnString(m_hObj, 500));
-
+            
             MoeSzyslakLibrary.InvokeHandle(m_hObj, "get Passed");
-            m_bPassed = MoeSzyslakLibrary.GetReturnString(m_hObj) == "TRUE";            
-
+            
 
             if (m_bPassed)
             {
@@ -184,32 +181,7 @@ namespace MoeConsole
 
         public void Update()
         {
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get type");
-            m_type = (VAR_TYPE)Convert.ToUInt32(MoeSzyslakLibrary.GetReturnString(m_hObj));            
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get value");
-            m_str = MoeSzyslakLibrary.GetReturnString(m_hObj);
-
-            MoeSzyslakLibrary.InvokeHandle(m_hObj, "get display");
-            m_displayName = MoeSzyslakLibrary.GetReturnString(m_hObj);
-
-            if (m_type == VAR_TYPE.TYPE_BOOL)
-            {
-                m_bVal = m_str == "TRUE";
-            }
-            else if (m_type == VAR_TYPE.TYPE_INT)
-            {
-                string[] sa = m_str.Split(',');
-                int i = 0;
-
-                if (m_fValues.Length < sa.Length)
-                    m_fValues = new double[sa.Length];
-
-                foreach(string s in sa)
-                {
-                    m_fValues[i++] = double.Parse(s);
-                }
-            }
+            
         }
 
         private uint m_hObj = 0;

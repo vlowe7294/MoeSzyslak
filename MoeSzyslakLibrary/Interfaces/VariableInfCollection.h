@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 class VariableInf
 {
@@ -8,9 +8,18 @@ public:
 	// {D383C87B-63DD-4875-BC77-74B01F11226B}
 	static GUID m_iid;
 
+	/**
+	 * @interface IVARIABLE
+	 * @brief Represents a flexible, COM‑exposed variable supporting multiple data types,
+	 *        change tracking, limits, serialization, and interface storage.
+	 */
+
 	struct IVARIABLE : public IUnknown
 	{
+		/** @brief Retrieves the variable as a BOOL. */
 		virtual HRESULT __stdcall GetAsBool(BOOL* bVal) = 0;
+
+
 		virtual HRESULT __stdcall SetAsBool(BOOL bVal) = 0;
 		virtual HRESULT __stdcall Command(const wchar_t* szCmd) = 0;
 		virtual HRESULT __stdcall GetReturnString(IUnknown** iStr) = 0;

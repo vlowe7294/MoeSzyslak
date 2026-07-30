@@ -5,7 +5,8 @@
 #include "Creature.h"
 #include "..\Utilities\Database.h"
 #include "../Testing.h"
-#include <random>	
+#include <random>
+#include <functional>
 
 class Dice
 {
@@ -23,15 +24,20 @@ private:
 
 
 
-class Quest
+class Quest : public IUnknown
 {
 public:
 	Quest(const wchar_t* szName, int nDuration, int nDifficulty);
 	~Quest();
+	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
+	ULONG __stdcall AddRef();
+	ULONG __stdcall Release();
+
 	void Copy(Quest& copyFrom);
 	void Randomize();
 	inline wstring Name() { return m_name; }
 private:
+	long m_cRef;
 	wstring m_name;
 	int m_duration;
 	int m_difficulty;
@@ -63,26 +69,32 @@ private:
 class Location : public ILOCATION
 {
 public:
-	Location(const wchar_t* szName);
+	Location();
 	~Location();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
 	HRESULT __stdcall AddNeighbor(IUnknown* iNeighbor, int travelTimeSec);
 	HRESULT __stdcall AddEncounter(const wchar_t* szTag, int dif, int nMax);
+	HRESULT __stdcall AddPlaceable(const wchar_t* szName, const wchar_t* szTag);
+	HRESULT __stdcall GetProperties(IUnknown** iPrp);
 
 	void Tick(int nSec);
+	void GetObjectByTag(IUnknown** iunk, const wchar_t* szTag);
 
 private:
 	LONG m_cRef;
-	wstring m_name;
+	VLVariable* m_pName;
 
 	// Graph edges
 	vector<Location*> m_neighbors;
 	vector<int> m_travelTimes; // seconds to travel to each neighbor
 	Encounter* m_pEncounter;
+	Placeable* m_pPlaceable;
+	VariableCollection* m_pProperties;
 };
 
+using EventFn = std::function<void(IUnknown*, IUnknown*)>;
 
 /**
  * @class Area
@@ -106,22 +118,12 @@ public:
 	 * @param[in] szName   Display name of the Area.
 	 * @param[in] nDanger  Initial danger level for encounters or events.
 	 */
-	Area(const wchar_t* szName, int nDanger);
+	Area();
 
 	~Area();
 	HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* ppvObj);
 	ULONG __stdcall AddRef();
 	ULONG __stdcall Release();
-
-	/**
-	 * @brief Processes a text-based command directed at this Area.
-	 *
-	 * Commands may be used for debugging, scripting, or editor operations.
-	 *
-	 * @param[in]  szCmd     Command string.
-	 * @param[out] iRetStr   Receives an IUnknown string object containing output.
-	 */
-	HRESULT __stdcall Command(const wchar_t* szCmd, IUnknown* iRetStr);
 
 	/**
 	 * @brief Advances the Area simulation by a number of seconds.
@@ -139,7 +141,22 @@ public:
 	 * @param[out] iLoc      Receives the IUnknown pointer for the new Location.
 	 * @param[in]  locName   Name of the Location.
 	 */
-	HRESULT __stdcall AddLocation(IUnknown** iLoc, const wchar_t* locName);
+	HRESULT __stdcall AddLocation(IUnknown** iLoc);
+
+	HRESULT __stdcall GetProperties(IUnknown** iVarList);
+	HRESULT __stdcall AddQuest(IUnknown** iQuest, const wchar_t* szName, int nDuration, int nDifficulty);
+	
+	/**
+	* @brief Retrieves a Location by index.
+	*
+	* @param[in] ndx  Zero-based index of the Location.
+	* @return Reference to the Location object.
+	*/
+	HRESULT __stdcall GetLocation(int ndx, IUnknown** iLoc);
+
+	HRESULT __stdcall SetOnEnterHandler(const wchar_t* szFnName);
+
+	HRESULT __stdcall UnitTest();
 
 	/**
 	 * @brief Serializes this Area into a database table.
@@ -155,31 +172,17 @@ public:
 	 */
 	void Load(Table& tbl);	
 
-	/**
-	 * @brief Retrieves a Location by index.
-	 *
-	 * @param[in] ndx  Zero-based index of the Location.
-	 * @return Reference to the Location object.
-	 */
-	Location& GetLocation(int ndx);
-
-	/**
-	 * @brief Returns the Area's associated Quest.
-	 */
-	inline Quest& GetQuest() { return *m_pQuest; };
-
-	/**
-	 * @brief Returns the display name of the Area.
-	 */
-	inline wstring GetName() { return m_name; };
-	
+	void OnEnter(IUnknown* iEnteringObj);
+	void GetObjectByTag(IUnknown** iunk, const wchar_t* szTag);
 
 private:
 	int m_cRef;
-	wstring m_name;							// Display name of the Area.
+	VLVariable* m_pName;
+	VLVariable* m_pDangerLevel;				// Danger rating used for encounters, events, or quest weighting.
 	VariableCollection* m_pProperties;		// Property collection for editor-defined or dynamic attributes.
-	int m_nDangerLevel;						// Danger rating used for encounters, events, or quest weighting.
-	Quest* m_pQuest;						// The primary Quest associated with this Area.
+
+	ComCollection m_quests;						// The primary Quest associated with this Area.
 	InterfaceCollection m_locations;		// Collection of Locations contained within this Area.
+	EventFn m_onEnterHandler;
 
 };
